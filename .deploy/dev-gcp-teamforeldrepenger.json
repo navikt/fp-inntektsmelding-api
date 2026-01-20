@@ -11,25 +11,7 @@
     "mem": "1024Mi"
   },
   "ingresses": [
-    "https://fpinntektsmelding.intern.dev.nav.no"
+    "https://foreldrepenger-inntektsmelding-api.ekstern.dev.nav.no"
   ],
-  "groups": [
-    {
-      "uuid": "27e77109-fef2-48ce-a174-269074490353",
-      "kommentar": "saksbehandler"
-    },
-    {
-      "uuid": "f1b82579-c5b5-4617-9673-8ace5ff67f63",
-      "kommentar": "drift"
-    }
-  ],
-  "db": {
-    "dbVersion": "POSTGRES_17",
-    "dbTier": "db-f1-micro",
-    "dbDiskAutoresize": "false",
-    "dbHighAvailability": "false",
-    "dbPointInTimeRecovery": "false",
-    "dbRetainedBackups": "1"
-  },
   "devOnly": "true"
 }
