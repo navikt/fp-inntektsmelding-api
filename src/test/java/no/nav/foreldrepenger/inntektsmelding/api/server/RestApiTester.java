@@ -10,11 +10,9 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.ApiConfig;
-import no.nav.vedtak.felles.prosesstask.rest.ProsessTaskRestTjeneste;
 
 public class RestApiTester {
 
-    static final List<Class<?>> UNNTATT = List.of(ProsessTaskRestTjeneste.class);
 
     static Collection<Method> finnAlleRestMetoder() {
         List<Method> liste = new ArrayList<>();
@@ -35,7 +33,6 @@ public class RestApiTester {
     static Collection<Class<?>> finnAlleRestTjenester(Application config) {
         return config.getClasses().stream()
             .filter(c -> c.getAnnotation(Path.class) != null)
-            .filter(c -> !UNNTATT.contains(c))
             .toList();
     }
 }
