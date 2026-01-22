@@ -17,7 +17,7 @@
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-inntektsmelding-api</sonar.projectName>
         <sonar.projectKey>navikt_fp-inntektsmelding-api</sonar.projectKey>
-        <felles.version>7.6.12</felles.version>
+        <felles.version>7.6.13</felles.version>
     </properties>
 
     <dependencyManagement>
