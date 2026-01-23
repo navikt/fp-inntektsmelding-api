@@ -23,8 +23,6 @@ public class JettyServer {
     private static final Environment ENV = Environment.current();
     protected static final String APPLICATION = "jakarta.ws.rs.Application";
 
-    private static final String CONTEXT_PATH = ENV.getProperty("context.path", "/");
-
     private final Integer serverPort;
 
     JettyServer(int serverPort) {
@@ -57,7 +55,7 @@ public class JettyServer {
     private void start() throws Exception {
             var server = new Server(getServerPort());
             LOG.info("Starter server");
-            var context = new ServletContextHandler(CONTEXT_PATH, ServletContextHandler.NO_SESSIONS);
+            var context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 
             // Sikkerhet
             context.setSecurityHandler(simpleConstraints());

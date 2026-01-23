@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonMappingEx
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.server.openapi.OpenApiRest;
+import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -58,7 +59,7 @@ public class ApiConfig extends ResourceConfig {
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("API for inntektsmelding for foreldrepenger og svangerskapspenger");
 
-        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/")));
+        oas.info(info).addServersItem(new Server());
         var oasConfig = new SwaggerConfiguration().openAPI(oas)
             .prettyPrint(true)
             .resourceClasses(getApplicationClasses().stream().map(Class::getName).collect(Collectors.toSet()));
@@ -79,7 +80,7 @@ public class ApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of();
+        return Set.of(ForespørselRest.class);
     }
 
     private Map<String, Object> getApplicationProperties() {
