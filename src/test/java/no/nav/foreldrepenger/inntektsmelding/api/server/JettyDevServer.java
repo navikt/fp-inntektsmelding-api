@@ -15,7 +15,7 @@ public class JettyDevServer extends JettyServer {
         if (args.length > 0) {
             return new JettyDevServer(Integer.parseUnsignedInt(args[0]));
         }
-        return new JettyDevServer(ENV.getProperty("server.port", Integer.class, 8040));
+        return new JettyDevServer(ENV.getProperty("server.port", Integer.class, 8041));
     }
 
     private JettyDevServer(int serverPort) {
