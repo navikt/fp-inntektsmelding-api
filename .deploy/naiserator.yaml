@@ -54,28 +54,18 @@ spec:
   maskinporten:
     enabled: true
     scopes:
-#      exposes:
-#        - accessibleForAll: true
-#          atMaxAge: 600
-#          enabled: true
-#          product: helseytelser
-#          separator: "/"
-#          name: sykepenger
+      exposes:
+        - accessibleForAll: true
+          atMaxAge: 600
+          enabled: true
+          product: inntektsmelding
+          separator: "/"
+          name: foreldrepenger
       consumes:
         - name: "altinn:authorization/authorize"
-  tokenx:
-    enabled: true
   azure:
     application:
       enabled: true
-      claims:
-        extra:
-          - "NAVident"
-          - "azp_name"
-        groups:
-          {{#each groups as |group|}}
-          - id: "{{group.uuid}}"
-          {{/each}}
   accessPolicy:
     outbound:
       rules:

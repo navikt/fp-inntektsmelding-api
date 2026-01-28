@@ -16,8 +16,12 @@ import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
+
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +39,6 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 public class AutentiseringFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
-    private static final List<Class<? extends Annotation>> GYLDIGE_ANNOTERINGER = List.of(AutentisertMedAzure.class,
-        AutentisertMedTokenX.class,
-        UtenAutentisering.class);
 
     @Context
     private ResourceInfo resourceinfo;
@@ -58,10 +59,23 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
 
     void assertValidRequest(ContainerRequestContext req) {
         var method = getResourceinfo().getResourceMethod();
+        Optional<TokenString> tokenFromHeader = getTokenFromHeader(req);
+
+        if (tokenFromHeader.isEmpty()) {
+            throw new WebApplicationException("Mangler token", Response.Status.UNAUTHORIZED);
+        }
+
         LOG.trace("{} i klasse {}", method.getName(), method.getDeclaringClass());
         fjernKontekstHvisFinnes();
         AuthenticationFilterDelegate.validerSettKontekst(getResourceinfo(), req);
         assertValidAnnotation(method, req);
+    }
+
+    public static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
+        return Optional.ofNullable(request.getHeaderString(HttpHeaders.AUTHORIZATION))
+            .filter(headerValue -> headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))
+            .map(headerValue -> headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length()))
+            .map(TokenString::new);
     }
 
     private void assertValidAnnotation(Method method, ContainerRequestContext req) {
