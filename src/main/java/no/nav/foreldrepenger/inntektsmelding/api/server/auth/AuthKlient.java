@@ -9,6 +9,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 import java.net.URI;
+import java.util.List;
 
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED)
 public class AuthKlient  {
@@ -37,16 +38,30 @@ public class AuthKlient  {
         String endpoint = Environment.current().getRequiredProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT");
         TokenValiderRequest tokeValiderRequest = new TokenValiderRequest("maskinporten", tokenString.token());
         RestRequest postRequest = RestRequest.newPOSTJson(tokeValiderRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
-        TokenValiderResponse response = restClient.send(postRequest, TokenValiderResponse.class);
+        TokenIntrospectionResponse response = restClient.send(postRequest, TokenIntrospectionResponse.class);
         if (!response.active) {
+            // FEIL
+        }
+        var orgnummer = response.authorization_details.systemuser_org.ID;
+        if (orgnummer == null || orgnummer.isBlank()) {
             // FEIL
         }
 
     }
 
-    protected record TokenValiderResponse(boolean active, String error, AuthorizationDetails authorization_details) {
-        private record AuthorizationDetails(String type, SystemuserOrg systemuser_org) {}
+    protected record TokenIntrospectionResponse(boolean active, String error, Consumer consumer, AuthorizationDetails authorization_details) {
+        private record AuthorizationDetails(String type, List<String> systemuser_id, SystemuserOrg systemuser_org) {}
+        // disse kommer på følgende format i json: "0192:orgno"
         private record SystemuserOrg(String ID) {}
+        private record Consumer(String ID) {}
     }
     protected record TokenValiderRequest(String identity_provider, String token) {}
+
+    /*
+    * VI har validert tokenet
+    * Vi må validere scopes fra tokenet
+    * Vi må hente ut systembrukeren (systemuser_id fra Authorization_detalis) og orgnummer fra SystemuserOrg (organisasjonsnummer) for å
+    * bruke dette videre i kall mot altinn autorasjon apiet med altinn.tre.base.url for å autorisere at systemet har tilgang til å sende
+    * inntektsemelding på vegne av orgnummeret.
+    * */
 }
