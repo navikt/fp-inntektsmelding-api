@@ -23,8 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.api.AutentisertMedAzure;
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.api.AutentisertMedTokenX;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
 import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;

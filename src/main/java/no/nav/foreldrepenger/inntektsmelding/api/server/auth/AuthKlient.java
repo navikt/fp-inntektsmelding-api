@@ -10,6 +10,8 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
 
+import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,6 +70,12 @@ public class AuthKlient  {
             // FEIL
         }
         // TODO sett TokenKontekst med info fra tokenet
+        var tokenKontekst = new TokenKontekst(
+            response.consumer.ID,
+            response.consumer.ID,
+            response.authorization_details.systemuser_org.ID);
+
+        KontekstHolder.setKontekst(tokenKontekst);
 
         // Autorisering - valider altinn tilganger
         String altinn3Token = hentAltinn3Token();
@@ -141,8 +149,10 @@ public class AuthKlient  {
     protected record TokenIntrospectionResponse(boolean active, String error, Consumer consumer,
                                                 AuthorizationDetails authorization_details, String scope, String acr_values) {
         private record AuthorizationDetails(String type, List<String> systemuser_id, SystemuserOrg systemuser_org) {}
-        // disse kommer på følgende format i json: "0192:orgno"
+        // Arbeidsgivers orgnummer
+        // disse 2 kommer på følgende format i json: "0192:orgno"
         private record SystemuserOrg(String ID) {}
+        //Lps orgnummer
         private record Consumer(String ID) {}
     }
     protected record TokenValiderRequest(String identity_provider, String token) {}

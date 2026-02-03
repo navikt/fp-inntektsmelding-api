@@ -6,11 +6,13 @@ import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
 
 public class TokenKontekst implements Kontekst {
     private String uuid;
-    private String konsumentId;
+    private String konsumentId; // lps sitt orgnummer
+    private String organisasjonNummer; // arbeidsgivers orgnummer (knyttet til forespørsel)
 
-    public TokenKontekst(String uuid, String konsumentId) {
+    public TokenKontekst(String uuid, String konsumentId, String organisasjonNummer) {
         this.uuid = uuid;
         this.konsumentId = konsumentId;
+        this.organisasjonNummer = organisasjonNummer;
     }
 
     @Override
@@ -36,5 +38,9 @@ public class TokenKontekst implements Kontekst {
     @Override
     public String getKonsumentId() {
         return konsumentId;
+    }
+
+    public String getOrganisasjonNummer() {
+        return organisasjonNummer;
     }
 }
