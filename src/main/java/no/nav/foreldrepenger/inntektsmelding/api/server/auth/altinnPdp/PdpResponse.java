@@ -4,33 +4,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-    public class PdpResponse {
-        @JsonProperty("response")
-        private List<DecisionResult> response;
+public record PdpResponse(
+    @JsonProperty("response")
+    List<DecisionResult> response
+) {
+    public List<Decision> resultat() {
+        return response.stream()
+            .map(DecisionResult::decision)
+            .toList();
+    }
 
-        public PdpResponse() {}
+    public record DecisionResult(
+        @JsonProperty("decision")
+        Decision decision
+    ) {}
 
-        public PdpResponse(List<DecisionResult> response) {
-            this.response = response;
-        }
+    public enum Decision {
+        Permit,
+        Indeterminate,
+        NotApplicable,
+        Deny,
+    }
 
-        public List<DecisionResult> getResponse() {
-            return response;
-        }
-
-        public void setResponse(List<DecisionResult> response) {
-            this.response = response;
-        }
-
-        public List<Decision> resultat() {
-            return response.stream()
-                .map(DecisionResult::getDecision)
-                .toList();
-        }
-
-        public boolean harTilgang() {
-            return !response.isEmpty() &&
-                resultat().stream().allMatch(d -> d == Decision.Permit);
-        }
-
+    public boolean harTilgang() {
+        return !response.isEmpty() &&
+            resultat().stream().allMatch(d -> d == Decision.Permit);
+    }
 }

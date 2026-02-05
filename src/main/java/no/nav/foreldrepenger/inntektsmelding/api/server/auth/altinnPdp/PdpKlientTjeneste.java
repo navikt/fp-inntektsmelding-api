@@ -4,38 +4,30 @@ import java.util.List;
 import java.util.Set;
 
 public class PdpKlientTjeneste {
-    private PdpRequest lagPdpMultiRequest(System system, Set<String> orgnrSet, Set<String> ressurser) {
+    public PdpRequest lagPdpMultiRequest(PdpKlient.System system, Set<String> orgnrSet, Set<String> ressurser) {
         List<PdpRequest.XacmlJsonCategoryExternal> resources = kombiner(orgnrSet, ressurser)
             .stream()
-            .mapToInt(i -> i)
-            .boxed()
-            .map(i -> {
-                var pairs = kombiner(orgnrSet, ressurser);
-                var pair = pairs.get(i);
-                return new PdpRequest.XacmlJsonCategoryExternal(
-                    "r" + i,
-                    List.of(
-                        new PdpRequest.XacmlJsonAttributeExternal(
-                            "urn:altinn:resource",
-                            pair.getSecond(),
-                            null
-                        ),
-                        new PdpRequest.XacmlJsonAttributeExternal(
-                            "urn:altinn:organization:identifier-no",
-                            pair.getFirst(),
-                            null
-                        )
+            .map(pair -> new PdpRequest.XacmlJsonCategoryExternal(
+                "r" + orgnrSet.hashCode() + ressurser.hashCode(), // or use a unique identifier if needed
+                List.of(
+                    new PdpRequest.XacmlJsonAttributeExternal(
+                        "urn:altinn:resource",
+                        pair.getSecond(),
+                        null
+                    ),
+                    new PdpRequest.XacmlJsonAttributeExternal(
+                        "urn:altinn:organization:identifier-no",
+                        pair.getFirst(),
+                        null
                     )
-                );
-            })
+                )
+            ))
             .toList();
 
         List<PdpRequest.RequestReferenceExternal> multiReqs = kombiner(orgnrSet, ressurser)
             .stream()
-            .mapToInt(i -> i)
-            .boxed()
-            .map(i -> new PdpRequest.RequestReferenceExternal(
-                List.of("s1", "a1", "r" + i)
+            .map(pair -> new PdpRequest.RequestReferenceExternal(
+                List.of("s1", "a1", "r" + pair)
             ))
             .toList();
 

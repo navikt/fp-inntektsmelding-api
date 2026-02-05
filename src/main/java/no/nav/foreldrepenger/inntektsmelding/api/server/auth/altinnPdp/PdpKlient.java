@@ -1,25 +1,35 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
+import jakarta.inject.Inject;
+
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.klient.http.DefaultHttpClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.http.HttpClient;
+import java.net.URI;
 import java.util.Set;
 
+@ApplicationScoped
 public class PdpKlient {
     private static final Logger logger = LoggerFactory.getLogger(no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp.PdpKlient.class);
     private static final Logger sikkerLogger = LoggerFactory.getLogger("sikkerLogger");
+    private PdpKlientTjeneste pdpKlientTjeneste;
 
     private final String baseUrl;
     private final String subscriptionKey;
-    private final DefaultHttpClient httpClient;
+    private final DefaultHttpClient restClient;
 
-    public PdpKlient(String baseUrl, String subscriptionKey) {
+    @Inject
+    public PdpKlient(PdpKlientTjeneste pdpKlientTjeneste, String baseUrl, String subscriptionKey) {
+        this.pdpKlientTjeneste = pdpKlientTjeneste;
         this.baseUrl = baseUrl;
         this.subscriptionKey = subscriptionKey;
-        this.httpClient = DefaultHttpClient.client();
+        this.restClient = DefaultHttpClient.client();
     }
 
     public boolean systemHarRettighetForOrganisasjoner(String systembrukerId, Set<String> orgnumre, String ressurs) throws Exception {
@@ -47,17 +57,18 @@ public class PdpKlient {
             throw new IllegalArgumentException(message);
         }
 
-        PdpRequest pdpRequest = lagPdpMultiRequest(system, orgnumre, ressurser);
+        PdpRequest pdpRequest = pdpKlientTjeneste.lagPdpMultiRequest(system, orgnumre, ressurser);
         sikkerLogger.debug("PDP kall for {}: {}", ressurser, pdpRequest);
 
         try {
-            PdpResponse response = httpClient
-                .post(baseUrl + "/authorization/api/v1/authorize")
+
+            RestRequest request = RestRequest.newPOSTJson(pdpRequest, URI.create(baseUrl + "/authorization/api/v1/authorize"), RestConfig.forClient(PdpKlient.class))
                 .header("Ocp-Apim-Subscription-Key", subscriptionKey)
                 .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .body(pdpRequest)
-                .execute();
+                .header("Accept", "application/json");
+
+            var response = restClient.sendReturnUnhandled(request).body();
+            response();
 
             String raw = response.getRaw();
             sikkerLogger.debug("Raw PDP respons: {}", raw);
@@ -77,5 +88,5 @@ public class PdpKlient {
         }
     }
 
-    record System(String id, String attributeId) {}
+    public record System(String id, String attributeId) {}
 }

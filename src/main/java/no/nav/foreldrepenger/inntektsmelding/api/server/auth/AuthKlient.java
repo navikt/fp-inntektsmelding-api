@@ -52,8 +52,8 @@ public class AuthKlient  {
 
         // Autentisering - valider token
         String endpoint = ENV.getRequiredProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT");
-        TokenValiderRequest tokeValiderRequest = new TokenValiderRequest("maskinporten", tokenString.token());
-        RestRequest postRequest = RestRequest.newPOSTJson(tokeValiderRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
+        TokenValiderRequest tokenValiderRequest = new TokenValiderRequest("maskinporten", tokenString.token());
+        RestRequest postRequest = RestRequest.newPOSTJson(tokenValiderRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
         TokenIntrospectionResponse response = restClient.send(postRequest, TokenIntrospectionResponse.class);
         if (!response.active) {
             // FEIL
