@@ -50,7 +50,7 @@ public class PdpKlient {
             throw new IllegalArgumentException(message);
         }
 
-        PdpRequest pdpRequest = PdpKlientTjeneste.lagPdpRequest(system, orgnummer, ressurs);
+        PdpRequest pdpRequest = PdpRequestUtil.lagPdpRequest(system, orgnummer, ressurs);
         secureLogger.debug("PDP kall for {}: {}", ressurs, pdpRequest);
 
         try {

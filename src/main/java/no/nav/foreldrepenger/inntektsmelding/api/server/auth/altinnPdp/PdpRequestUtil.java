@@ -2,9 +2,9 @@ package no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp;
 
 import java.util.List;
 
-public class PdpKlientTjeneste {
+public class PdpRequestUtil {
 
-    private PdpKlientTjeneste() {
+    private PdpRequestUtil() {
         // Skjuler default
     }
 
