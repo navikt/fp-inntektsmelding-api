@@ -73,7 +73,8 @@ public class AuthKlient  {
         var tokenKontekst = new TokenKontekst(
             response.consumer.ID,
             response.consumer.ID,
-            response.authorization_details.systemuser_org.ID);
+            response.authorization_details.systemuser_org.ID,
+            response.authorization_details.systemuser_id.getFirst());
 
         KontekstHolder.setKontekst(tokenKontekst);
 

@@ -1,39 +1,30 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp;
 
 import java.util.List;
-import java.util.Set;
 
 public class PdpKlientTjeneste {
-    public PdpRequest lagPdpMultiRequest(PdpKlient.System system, Set<String> orgnrSet, Set<String> ressurser) {
-        List<PdpRequest.XacmlJsonCategoryExternal> resources = kombiner(orgnrSet, ressurser)
-            .stream()
-            .map(pair -> new PdpRequest.XacmlJsonCategoryExternal(
-                "r" + orgnrSet.hashCode() + ressurser.hashCode(), // or use a unique identifier if needed
-                List.of(
-                    new PdpRequest.XacmlJsonAttributeExternal(
-                        "urn:altinn:resource",
-                        pair.getSecond(),
-                        null
-                    ),
-                    new PdpRequest.XacmlJsonAttributeExternal(
-                        "urn:altinn:organization:identifier-no",
-                        pair.getFirst(),
-                        null
-                    )
-                )
-            ))
-            .toList();
 
-        List<PdpRequest.RequestReferenceExternal> multiReqs = kombiner(orgnrSet, ressurser)
-            .stream()
-            .map(pair -> new PdpRequest.RequestReferenceExternal(
-                List.of("s1", "a1", "r" + pair)
-            ))
-            .toList();
+    private PdpKlientTjeneste() {
+        // Skjuler default
+    }
+
+    public static PdpRequest lagPdpRequest(PdpKlient.System system, String orgnr, String ressurs) {
+        // Resource
+        var attributes = List.of(new PdpRequest.XacmlJsonAttributeExternal(
+            "urn:altinn:resource",
+            ressurs,
+            null
+        ), new PdpRequest.XacmlJsonAttributeExternal(
+            "urn:altinn:organization:identifier-no",
+            orgnr,
+            null
+        ));
+        var resource = new PdpRequest.XacmlJsonCategoryExternal("r", attributes);
 
         return new PdpRequest(
             new PdpRequest.XacmlJsonRequestExternal(
                 true,
+                // Access subject
                 List.of(
                     new PdpRequest.XacmlJsonCategoryExternal(
                         "s1",
@@ -46,6 +37,7 @@ public class PdpKlientTjeneste {
                         )
                     )
                 ),
+                // Action
                 List.of(
                     new PdpRequest.XacmlJsonCategoryExternal(
                         "a1",
@@ -58,34 +50,10 @@ public class PdpKlientTjeneste {
                         )
                     )
                 ),
-                resources,
-                new PdpRequest.MultiRequestsExternal(multiReqs)
+                // Ressource
+                List.of(resource),
+                null
             )
         );
     }
-
-    private <T, R> List<Pair<T, R>> kombiner(Set<T> first, Set<R> second) {
-        return first.stream()
-            .flatMap(f -> second.stream()
-                .map(s -> new Pair<>(f, s))
-            )
-            .toList();
-    }
-
-    static class Pair<T, R> {
-        private final T first;
-        private final R second;Pair(T first, R second) {
-            this.first = first;
-            this.second = second;
-        }
-
-        T getFirst() {
-            return first;
-        }
-
-        R getSecond() {
-            return second;
-        }
-    }
-
 }

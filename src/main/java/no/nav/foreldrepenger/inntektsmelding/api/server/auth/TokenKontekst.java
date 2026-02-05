@@ -8,11 +8,13 @@ public class TokenKontekst implements Kontekst {
     private String uuid;
     private String konsumentId; // lps sitt orgnummer
     private String organisasjonNummer; // arbeidsgivers orgnummer (knyttet til forespørsel)
+    private String systemUserId; // Id på avsendersystemet, registrert i Altinn
 
-    public TokenKontekst(String uuid, String konsumentId, String organisasjonNummer) {
+    public TokenKontekst(String uuid, String konsumentId, String organisasjonNummer, String systemUserId) {
         this.uuid = uuid;
         this.konsumentId = konsumentId;
         this.organisasjonNummer = organisasjonNummer;
+        this.systemUserId = systemUserId;
     }
 
     @Override
@@ -42,5 +44,9 @@ public class TokenKontekst implements Kontekst {
 
     public String getOrganisasjonNummer() {
         return organisasjonNummer;
+    }
+
+    public String getSystemUserId() {
+        return systemUserId;
     }
 }

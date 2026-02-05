@@ -1,83 +1,74 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp;
 
-import jakarta.enterprise.context.ApplicationScoped;
+import java.net.URI;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.klient.http.DefaultHttpClient;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.util.Set;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
 @ApplicationScoped
 public class PdpKlient {
-    private static final Logger logger = LoggerFactory.getLogger(no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp.PdpKlient.class);
-    private static final Logger sikkerLogger = LoggerFactory.getLogger("sikkerLogger");
-    private PdpKlientTjeneste pdpKlientTjeneste;
+    private static final Logger logger = LoggerFactory.getLogger(PdpKlient.class);
+    private static final Logger secureLogger = LoggerFactory.getLogger("secureLogger");
 
     private final String baseUrl;
     private final String subscriptionKey;
-    private final DefaultHttpClient restClient;
+    private final RestClient restClient;
 
+    // TODO finn subscription key
     @Inject
-    public PdpKlient(PdpKlientTjeneste pdpKlientTjeneste, String baseUrl, String subscriptionKey) {
-        this.pdpKlientTjeneste = pdpKlientTjeneste;
+    public PdpKlient(String baseUrl, String subscriptionKey) {
         this.baseUrl = baseUrl;
         this.subscriptionKey = subscriptionKey;
-        this.restClient = DefaultHttpClient.client();
+        this.restClient = RestClient.client();
     }
 
-    public boolean systemHarRettighetForOrganisasjoner(String systembrukerId, Set<String> orgnumre, String ressurs) throws Exception {
-        return pdpKallMulti(new System(systembrukerId, "urn:altinn:systemuser:uuid"), orgnumre, Set.of(ressurs)).harTilgang();
+    public boolean systemHarRettighetForOrganisasjon(String systembrukerId, String orgnummer, String ressurs) throws Exception {
+        return pdpKall(new System(systembrukerId, "urn:altinn:systemuser:uuid"), orgnummer, ressurs).harTilgang();
     }
 
-    public boolean systemHarRettighetForOrganisasjonerForRessurser(String systembrukerId,
-                                                                   Set<String> orgnumre,
-                                                                   Set<String> ressurser) throws Exception {
-        return pdpKallMulti(new System(systembrukerId,"urn:altinn:systemuser:uuid"), orgnumre, ressurser).harTilgang();
-    }
-
-    private PdpResponse pdpKallMulti(System system, Set<String> orgnumre, Set<String> ressurser) throws PdpClientException {
-        if (orgnumre.isEmpty()) {
+    private PdpResponse pdpKall(System system, String orgnummer, String ressurs) throws PdpClientException {
+        if (orgnummer == null) {
             String message = "Ingen organisasjonsnumre gitt for pdp-kall";
             logger.warn(message);
-            sikkerLogger.warn(message);
+            secureLogger.warn(message);
             throw new IllegalArgumentException(message);
         }
 
-        if (ressurser.isEmpty()) {
+        if (ressurs == null) {
             String message = "Ingen ressurser gitt for pdp-kall";
             logger.warn(message);
-            sikkerLogger.warn(message);
+            secureLogger.warn(message);
             throw new IllegalArgumentException(message);
         }
 
-        PdpRequest pdpRequest = pdpKlientTjeneste.lagPdpMultiRequest(system, orgnumre, ressurser);
-        sikkerLogger.debug("PDP kall for {}: {}", ressurser, pdpRequest);
+        PdpRequest pdpRequest = PdpKlientTjeneste.lagPdpRequest(system, orgnummer, ressurs);
+        secureLogger.debug("PDP kall for {}: {}", ressurs, pdpRequest);
 
         try {
-
             RestRequest request = RestRequest.newPOSTJson(pdpRequest, URI.create(baseUrl + "/authorization/api/v1/authorize"), RestConfig.forClient(PdpKlient.class))
                 .header("Ocp-Apim-Subscription-Key", subscriptionKey)
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json");
 
-            var response = restClient.sendReturnUnhandled(request).body();
-            response();
+            var response = restClient.sendReturnResponseString(request);
+            var pdpResponse = DefaultJsonMapper.fromJson(response.body(), PdpResponse.class);
 
-            String raw = response.getRaw();
-            sikkerLogger.debug("Raw PDP respons: {}", raw);
-            sikkerLogger.debug("PDP respons: {}", response);
-            return response;
+            secureLogger.debug("Raw PDP respons: {}", response);
+            secureLogger.debug("PDP respons: {}", response);
+            return pdpResponse;
         } catch (Exception e) {
             String message = "Feil ved kall til pdp endepunkt";
             logger.error(message);
-            sikkerLogger.error(message, e);
+            secureLogger.error(message, e);
             throw new PdpClientException();
         }
     }
@@ -88,5 +79,7 @@ public class PdpKlient {
         }
     }
 
+    // ID = systemUserId
+    // attributeId = urn:altinn:systemuser:uuid
     public record System(String id, String attributeId) {}
 }
