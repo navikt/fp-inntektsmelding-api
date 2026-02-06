@@ -33,7 +33,7 @@ public class ForespørselRest {
     @GET
     @Path(HENT_FORESPØRSEL)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    // TODO legg på autorisering på altinn tilganger
+    // TODO legg på sjekk på om systemet med et orgnummer har tilgang til å sende inn im
     public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") UUID forespørselUuid) {
         LOG.info("Innkomende kall på hent forespørsel {}", forespørselUuid);
         return Response.ok().build();

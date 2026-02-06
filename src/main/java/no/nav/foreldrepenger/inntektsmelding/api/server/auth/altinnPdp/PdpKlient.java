@@ -5,11 +5,10 @@ import java.net.URI;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinn.AltinnTokenExchangeKlient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
@@ -22,12 +21,14 @@ public class PdpKlient {
     private final String baseUrl;
     private final String subscriptionKey;
     private final RestClient restClient;
+    private final AltinnTokenExchangeKlient altinnTokenExchangeKlient;
 
     // TODO finn subscription key
     @Inject
     public PdpKlient(String baseUrl, String subscriptionKey) {
         this.baseUrl = baseUrl;
         this.subscriptionKey = subscriptionKey;
+        this.altinnTokenExchangeKlient = AltinnTokenExchangeKlient.instance();
         this.restClient = RestClient.client();
     }
 
@@ -54,16 +55,17 @@ public class PdpKlient {
         secureLogger.debug("PDP kall for {}: {}", ressurs, pdpRequest);
 
         try {
-            RestRequest request = RestRequest.newPOSTJson(pdpRequest, URI.create(baseUrl + "/authorization/api/v1/authorize"), RestConfig.forClient(PdpKlient.class))
+            RestRequest request = RestRequest.newPOSTJson(pdpRequest,
+                    URI.create(baseUrl + "/authorization/api/v1/authorize"),
+                    RestConfig.forClient(PdpKlient.class))
                 .header("Ocp-Apim-Subscription-Key", subscriptionKey)
                 .header("Content-Type", "application/json")
-                .header("Accept", "application/json");
+                .header("Accept", "application/json")
+                .otherAuthorizationSupplier(altinnTokenExchangeKlient::hentAltinn3Token);
 
-            var response = restClient.sendReturnResponseString(request);
-            var pdpResponse = DefaultJsonMapper.fromJson(response.body(), PdpResponse.class);
+            var pdpResponse = restClient.send(request, PdpResponse.class);
 
-            secureLogger.debug("Raw PDP respons: {}", response);
-            secureLogger.debug("PDP respons: {}", response);
+            secureLogger.debug("PDP respons: {}", pdpResponse);
             return pdpResponse;
         } catch (Exception e) {
             String message = "Feil ved kall til pdp endepunkt";
@@ -73,13 +75,14 @@ public class PdpKlient {
         }
     }
 
+    // ID = systemUserId
+    // attributeId = urn:altinn:systemuser:uuid
+    public record System(String id, String attributeId) {
+    }
+
     class PdpClientException extends Exception {
         public PdpClientException() {
             super("Feil ved kall til pdp endepunkt");
         }
     }
-
-    // ID = systemUserId
-    // attributeId = urn:altinn:systemuser:uuid
-    public record System(String id, String attributeId) {}
 }
