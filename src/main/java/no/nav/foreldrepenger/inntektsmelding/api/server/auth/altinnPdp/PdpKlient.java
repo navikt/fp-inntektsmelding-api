@@ -9,27 +9,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinn.AltinnTokenExchangeKlient;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
-@ApplicationScoped
 public class PdpKlient {
+    private static final Environment ENV = Environment.current();
     private static final Logger logger = LoggerFactory.getLogger(PdpKlient.class);
     private static final Logger secureLogger = LoggerFactory.getLogger("secureLogger");
 
     private final String baseUrl;
     private final String subscriptionKey;
     private final RestClient restClient;
+    private static PdpKlient instance;
     private final AltinnTokenExchangeKlient altinnTokenExchangeKlient;
 
-    // TODO finn subscription key
-    @Inject
-    public PdpKlient(String baseUrl, String subscriptionKey) {
-        this.baseUrl = baseUrl;
-        this.subscriptionKey = subscriptionKey;
+
+    private PdpKlient() {
+        this.baseUrl = ENV.getRequiredProperty("altinn.tre.base.url");
+        this.subscriptionKey = ENV.getRequiredProperty("ALTINN_TRE_SUBSCRIPTION_KEY");
         this.altinnTokenExchangeKlient = AltinnTokenExchangeKlient.instance();
         this.restClient = RestClient.client();
+    }
+
+    public static synchronized PdpKlient instance() {
+        var inst = instance;
+        if (inst == null) {
+            inst = new PdpKlient();
+            instance = inst;
+        }
+        return inst;
     }
 
     public boolean systemHarRettighetForOrganisasjon(String systembrukerId, String orgnummer, String ressurs) throws Exception {

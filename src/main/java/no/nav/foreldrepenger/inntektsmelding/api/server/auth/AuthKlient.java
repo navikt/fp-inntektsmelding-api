@@ -40,7 +40,7 @@ public class AuthKlient {
     }
 
     //TODO: legge inn feilhåndtering og logging, og vurdere om denne burde ligge i autentiseringsfilteret istedenfor i en egen klient
-    public void valider(TokenString tokenString) {
+    public void validerOgSettKontekst(TokenString tokenString) {
 
         // Autentisering - valider token
         String endpoint = ENV.getRequiredProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT");

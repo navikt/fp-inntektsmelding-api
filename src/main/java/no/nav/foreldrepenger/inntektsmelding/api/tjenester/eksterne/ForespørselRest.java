@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne;
 import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -13,6 +14,9 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
+import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp.PdpKlient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +29,9 @@ public class ForespørselRest {
     public static final String BASE_PATH = "/forespoersel";
     private static final String HENT_FORESPØRSEL = "/{uuid}";
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
+    private PdpKlient pdpKlient;
 
+    @Inject
     public ForespørselRest() {
         // CDI
     }
@@ -36,6 +42,13 @@ public class ForespørselRest {
     // TODO legg på sjekk på om systemet med et orgnummer har tilgang til å sende inn im
     public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") UUID forespørselUuid) {
         LOG.info("Innkomende kall på hent forespørsel {}", forespørselUuid);
+        // TODO Kall til fpinntektsmelding for å hente forespørsel
+        // TODO Returner tom respons hvis ikke finnes
+        // TODO Valider info i forespørsel mot info i kontektst (orgnr matcher)
+        // TODO Valider at LPS har lov til å hente forespørsel (pdp-kall)
+
+        Forespørsel forespørsel; // TODO HENT
+
         return Response.ok().build();
     }
 }
