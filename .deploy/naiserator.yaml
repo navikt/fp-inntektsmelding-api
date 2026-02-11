@@ -66,6 +66,8 @@ spec:
   azure:
     application:
       enabled: true
+  envFrom:
+    - secret: fpinntektsmelding-api
   accessPolicy:
     outbound:
       rules:

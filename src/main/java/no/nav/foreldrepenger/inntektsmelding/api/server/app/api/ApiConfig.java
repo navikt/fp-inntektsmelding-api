@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.GeneralRestEx
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonMappingExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.jackson.JacksonJsonConfig;
-import no.nav.foreldrepenger.inntektsmelding.api.server.openapi.OpenApiRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;

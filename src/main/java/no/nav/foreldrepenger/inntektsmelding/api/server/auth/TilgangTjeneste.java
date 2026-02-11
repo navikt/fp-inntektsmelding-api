@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth;
 
+import jakarta.enterprise.context.ApplicationScoped;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +11,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
+@ApplicationScoped
 public class TilgangTjeneste implements Tilgang {
     private static final Logger LOG = LoggerFactory.getLogger(TilgangTjeneste.class);
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
@@ -28,8 +31,7 @@ public class TilgangTjeneste implements Tilgang {
         try {
             var harTilgang = PdpKlient.instance().systemHarRettighetForOrganisasjon(systemId, orgnummerFraForespørsel.orgnr(), ressurs);
             if (!harTilgang) {
-                // TODO Skriv en feilmelding
-                throw ikkeTilgang("");
+                throw ikkeTilgang("Systemet har ikke registrert tilgang til organisasjonen i Altinn");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -16,7 +16,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
+import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
+import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
+import no.nav.foreldrepenger.inntektsmelding.api.server.auth.TilgangTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp.PdpKlient;
+
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,26 +34,29 @@ public class ForespørselRest {
     public static final String BASE_PATH = "/forespoersel";
     private static final String HENT_FORESPØRSEL = "/{uuid}";
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
-    private PdpKlient pdpKlient;
+    private final FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
+    private final Tilgang tilgang;
 
     @Inject
-    public ForespørselRest() {
-        // CDI
+    public ForespørselRest(FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste, Tilgang tilgang) {
+        this.fpinntektsmeldingTjeneste = fpinntektsmeldingTjeneste;
+        this.tilgang = tilgang;
     }
 
     @GET
     @Path(HENT_FORESPØRSEL)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    // TODO legg på sjekk på om systemet med et orgnummer har tilgang til å sende inn im
     public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") UUID forespørselUuid) {
         LOG.info("Innkomende kall på hent forespørsel {}", forespørselUuid);
-        // TODO Kall til fpinntektsmelding for å hente forespørsel
-        // TODO Returner tom respons hvis ikke finnes
-        // TODO Valider info i forespørsel mot info i kontektst (orgnr matcher)
-        // TODO Valider at LPS har lov til å hente forespørsel (pdp-kall)
 
-        Forespørsel forespørsel; // TODO HENT
+        Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
+        if (forespørsel == null) {
+            //TODO: finne ut hva slags respons vi skal returnere hvis det ikke finnes en forespørsel, og om det skal logges noe
+            return Response.noContent().build();
+        }
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer()));
 
-        return Response.ok().build();
+        //todo må lage kontrakt for forespørsel, og mappe til den før vi returnerer.
+        return Response.ok(forespørsel).build();
     }
 }
