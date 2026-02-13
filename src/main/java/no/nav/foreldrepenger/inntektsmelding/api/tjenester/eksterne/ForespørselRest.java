@@ -34,8 +34,12 @@ public class ForespørselRest {
     public static final String BASE_PATH = "/forespoersel";
     private static final String HENT_FORESPØRSEL = "/{uuid}";
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
-    private final FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
-    private final Tilgang tilgang;
+    private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
+    private Tilgang tilgang;
+
+    ForespørselRest() {
+        // for CDI
+    }
 
     @Inject
     public ForespørselRest(FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste, Tilgang tilgang) {
