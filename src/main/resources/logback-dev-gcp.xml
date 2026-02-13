@@ -3,4 +3,9 @@
     <logger name="no.nav.vedtak.sikkerhet" level="TRACE"/>
     <logger name="no.nav.vedtak.felles.integrasjon.rest" level="DEBUG"/>
     <logger name="no.nav.familie.inntektsmelding.integrasjoner.altinn" level="TRACE"/>
+
+    <logger name="secureLogger" level="DEBUG" additivity="false">
+        <appender-ref ref="teamLogger"/>
+    </logger>
 </included>
+

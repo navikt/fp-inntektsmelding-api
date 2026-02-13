@@ -1,11 +1,6 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
@@ -16,6 +11,7 @@ import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
@@ -23,21 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.api.AutentisertMedAzure;
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.api.AutentisertMedTokenX;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
-import no.nav.vedtak.sikkerhet.jaxrs.UtenAutentisering;
-import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
+import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
+import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 public class AutentiseringFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
-    private static final List<Class<? extends Annotation>> GYLDIGE_ANNOTERINGER = List.of(AutentisertMedAzure.class,
-        AutentisertMedTokenX.class,
-        UtenAutentisering.class);
 
     @Context
     private ResourceInfo resourceinfo;
@@ -58,68 +49,22 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
 
     void assertValidRequest(ContainerRequestContext req) {
         var method = getResourceinfo().getResourceMethod();
+        Optional<TokenString> tokenFromHeader = getTokenFromHeader(req);
+
+        if (tokenFromHeader.isEmpty()) {
+            throw new WebApplicationException("Mangler token", Response.Status.UNAUTHORIZED);
+        }
         LOG.trace("{} i klasse {}", method.getName(), method.getDeclaringClass());
         fjernKontekstHvisFinnes();
-        AuthenticationFilterDelegate.validerSettKontekst(getResourceinfo(), req);
-        assertValidAnnotation(method, req);
+        var authKlient = AuthKlient.instance();
+        authKlient.validerOgSettKontekst(tokenFromHeader.get());
     }
 
-    private void assertValidAnnotation(Method method, ContainerRequestContext req) {
-        var annotation = getAnnotation(method);
-        LOG.debug("Annotering på {} -> {}", method.getName(), annotation);
-        if (annotation != null) {
-            assertValidAnnotation(annotation, req);
-        } else {
-            throw new WebApplicationException(String.format("Mangler en gyldig annotering på %s.", method.getName()), Response.Status.FORBIDDEN);
-        }
-    }
-
-    /**
-     * Letter etter en gyldig annotering på methoden og så på klassen.
-     * Annoteringen på methodenivå overstyrer annotering på klassenivå.
-     *
-     * @param method REST mothoden som kalles
-     * @return funnet annotering.
-     */
-    private static Annotation getAnnotation(Method method) {
-        return findAnnotation(method.getAnnotations()).or(() -> findAnnotation(method.getDeclaringClass().getAnnotations())).orElse(null);
-    }
-
-    private static Optional<Annotation> findAnnotation(Annotation[] annotations) {
-        return Arrays.stream(annotations).filter(a -> GYLDIGE_ANNOTERINGER.contains(a.annotationType())).findFirst();
-    }
-
-    private void assertValidAnnotation(Annotation annotering, ContainerRequestContext req) {
-        switch (annotering) {
-            case UtenAutentisering ignored -> {
-                LOG.warn("Åpen endepunkt '{}' uten autentisering.", req.getMethod());
-                validerIkkeAutentisertKontekst();
-            }
-            case AutentisertMedAzure ignored -> validerInternKontekst();
-            case AutentisertMedTokenX ignored -> validerBorgerKontekst();
-            case null, default -> throw new WebApplicationException("Mangler en gyldig annotering", Response.Status.UNAUTHORIZED);
-        }
-    }
-
-    private void validerIkkeAutentisertKontekst() {
-        var kontekst = KontekstHolder.getKontekst();
-        if (!kontekst.harKontekst() || kontekst.getIdentType() != null) {
-            throw new WebApplicationException("Kan ikke kjøre uten autentisering med autentisert kontekst", Response.Status.UNAUTHORIZED);
-        }
-    }
-
-    private void validerInternKontekst() {
-        var kontekst = KontekstHolder.getKontekst();
-        if (!kontekst.harKontekst() || !Set.of(IdentType.InternBruker, IdentType.Systemressurs).contains(kontekst.getIdentType())) {
-            throw new WebApplicationException("Ikke en gyldig intern eller system kontekst", Response.Status.UNAUTHORIZED);
-        }
-    }
-
-    private void validerBorgerKontekst() {
-        var kontekst = KontekstHolder.getKontekst();
-        if (!kontekst.harKontekst() || !IdentType.EksternBruker.equals(kontekst.getIdentType())) {
-            throw new WebApplicationException("Mangler gyldig borger kontekst", Response.Status.UNAUTHORIZED);
-        }
+    public static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
+        return Optional.ofNullable(request.getHeaderString(HttpHeaders.AUTHORIZATION))
+            .filter(headerValue -> headerValue.startsWith(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE))
+            .map(headerValue -> headerValue.substring(OpenIDToken.OIDC_DEFAULT_TOKEN_TYPE.length()))
+            .map(TokenString::new);
     }
 
     private void fjernKontekstHvisFinnes() {
