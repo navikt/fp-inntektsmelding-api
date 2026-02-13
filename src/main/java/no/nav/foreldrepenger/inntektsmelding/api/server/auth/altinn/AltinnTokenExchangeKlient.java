@@ -106,7 +106,7 @@ public class AltinnTokenExchangeKlient {
 
     private String cacheKey(String maskinportenToken) {
         try {
-            var md = MessageDigest.getInstance("MD5");
+            var md = MessageDigest.getInstance("SHA-256");
             byte[] keyBytes = maskinportenToken.getBytes();
             byte[] hash = md.digest(keyBytes);
             var hexString = new StringBuilder();
@@ -120,7 +120,7 @@ public class AltinnTokenExchangeKlient {
             md.reset();
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new TekniskException("PKI-845346", "MD5 algoritme finnes ikke", e);
+            throw new TekniskException("PKI-845346", "SHA-256 algoritme finnes ikke", e);
         }
     }
 
