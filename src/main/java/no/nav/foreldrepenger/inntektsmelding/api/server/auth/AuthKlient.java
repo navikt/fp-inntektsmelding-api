@@ -68,6 +68,11 @@ public class AuthKlient {
             response.authorization_details.systemuser_org.ID,
             response.authorization_details.systemuser_id.getFirst());
 
+        if (!ENV.isProd()) {
+            LOG.info("Token validering vellykket, consumerId: {}, systemuser_org: {}, systemuser_id: {}",
+                response.consumer.ID, response.authorization_details.systemuser_org.ID, response.authorization_details.systemuser_id.getFirst());
+        }
+
         KontekstHolder.setKontekst(tokenKontekst);
     }
 
