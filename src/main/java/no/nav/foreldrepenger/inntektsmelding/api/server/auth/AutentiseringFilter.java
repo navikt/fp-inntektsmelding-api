@@ -15,6 +15,9 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
+import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -57,6 +60,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
         LOG.trace("{} i klasse {}", method.getName(), method.getDeclaringClass());
         fjernKontekstHvisFinnes();
         var authKlient = AuthKlient.instance();
+        KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
         authKlient.validerOgSettKontekst(tokenFromHeader.get());
     }
 
