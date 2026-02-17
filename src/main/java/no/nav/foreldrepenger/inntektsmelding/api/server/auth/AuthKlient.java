@@ -73,19 +73,22 @@ public class AuthKlient {
         var tokenKontekst = new TokenKontekst(
             response.consumer.ID,
             response.consumer.ID,
-            response.authorization_details.systemuser_org.ID,
-            response.authorization_details.systemuser_id.getFirst());
+            response.authorization_details.getFirst().systemuser_org().ID,
+            response.authorization_details.getFirst().systemuser_id.getFirst());
 
         if (!ENV.isProd()) {
             LOG.info("Token validering vellykket, consumerId: {}, systemuser_org: {}, systemuser_id: {}",
-                response.consumer.ID, response.authorization_details.systemuser_org.ID, response.authorization_details.systemuser_id.getFirst());
+                response.consumer.ID, response.authorization_details.getFirst().systemuser_org.ID, response.authorization_details.getFirst().systemuser_id.getFirst());
         }
 
         KontekstHolder.setKontekst(tokenKontekst);
     }
 
     protected record TokenIntrospectionResponse(boolean active, String error, Consumer consumer,
-                                                AuthorizationDetails authorization_details, String scope, String acr_values) {
+                                                List<AuthorizationDetails> authorization_details,
+                                                String scope,
+                                                String acr_values) {
+
         private record AuthorizationDetails(String type, List<String> systemuser_id, SystemuserOrg systemuser_org) {
         }
 
