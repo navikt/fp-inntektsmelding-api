@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
-@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED)
+@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "NAIS_TOKEN_INTROSPECTION_ENDPOINT")
 public class AuthKlient {
     private static final Logger LOG = LoggerFactory.getLogger(AuthKlient.class);
     private static final Environment ENV = Environment.current();
