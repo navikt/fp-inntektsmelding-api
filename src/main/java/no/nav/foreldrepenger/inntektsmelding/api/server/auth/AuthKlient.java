@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth;
 
 import java.net.URI;
+import java.net.http.HttpResponse;
 import java.util.List;
+
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +49,12 @@ public class AuthKlient {
         String endpoint = ENV.getRequiredProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT");
         TokenValiderRequest tokenValiderRequest = new TokenValiderRequest("maskinporten", tokenString.token());
         RestRequest postRequest = RestRequest.newPOSTJson(tokenValiderRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
-        TokenIntrospectionResponse response = restClient.send(postRequest, TokenIntrospectionResponse.class);
+        HttpResponse<String> res = restClient.sendReturnResponseString(postRequest);
+
+        LOG.info("RES_NAIS_INTROSPECTION: {}", res.body());
+
+        var response = DefaultJsonMapper.fromJson(res.body(), TokenIntrospectionResponse.class);
+
         if (!response.active) {
             // FEIL
         }
