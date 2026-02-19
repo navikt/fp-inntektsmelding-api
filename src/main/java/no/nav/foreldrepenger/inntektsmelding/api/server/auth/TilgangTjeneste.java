@@ -29,7 +29,7 @@ public class TilgangTjeneste implements Tilgang {
         if (!orgnummerFraKontekst.equals(orgnummerFraForespørsel)) {
             SECURE_LOG.warn("Kontekst har ikke samme orgnummer som forespørsel. "
                 + "Orgnummer fra kontekst var {} og orgnummer fra forespørsel var {}", orgnummerFraKontekst, orgnummerFraForespørsel);
-            throw new InntektsmeldingAPIException(String.format(Feilmelding.MISSMATCH_ORGNR, orgnummerFraKontekst, orgnummerFraForespørsel), Response.Status.BAD_REQUEST);
+            throw new InntektsmeldingAPIException(Feilmelding.MISSMATCH_ORGNR, Response.Status.BAD_REQUEST);
         }
         var ressurs = ENV.getRequiredProperty("altinn.tre.inntektsmelding.ressurs");
 
@@ -40,7 +40,7 @@ public class TilgangTjeneste implements Tilgang {
             }
         } catch (Exception e) {
             LOG.warn(e.toString());
-            throw new InntektsmeldingAPIException(Feilmelding.FEIL_OPPSLAG_ALTINN, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new InntektsmeldingAPIException(Feilmelding.FEIL_OPPSLAG_ALTINN, Response.Status.INTERNAL_SERVER_ERROR, e);
         }
     }
 
