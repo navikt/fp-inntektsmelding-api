@@ -4,6 +4,10 @@ import java.net.URI;
 import java.net.http.HttpResponse;
 import java.util.List;
 
+import jakarta.ws.rs.core.Response;
+
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Feilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 import org.slf4j.Logger;
@@ -56,7 +60,7 @@ public class AuthKlient {
         var response = DefaultJsonMapper.fromJson(res.body(), TokenIntrospectionResponse.class);
 
         if (!response.active) {
-            // FEIL
+            throw new InntektsmeldingAPIException(Feilmelding.UTGÅTT_TOKEN, Response.Status.UNAUTHORIZED);
         }
 
         // TODO validere at dette er rett authentication level
@@ -67,7 +71,7 @@ public class AuthKlient {
         var gyldigScope = "nav:inntektsmelding/foreldrepenger";
         boolean harGyldigScope = scopes.stream().anyMatch(s -> s.equals(gyldigScope));
         if (!harGyldigScope) {
-            // FEIL
+            throw new InntektsmeldingAPIException(Feilmelding.FEIL_SCOPE, Response.Status.UNAUTHORIZED);
         }
 
         var tokenKontekst = new TokenKontekst(

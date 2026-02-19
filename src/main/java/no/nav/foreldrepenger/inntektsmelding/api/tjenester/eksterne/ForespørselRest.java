@@ -15,16 +15,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.TilgangTjeneste;
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp.PdpKlient;
-
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Feilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @RequestScoped
 @Transactional
@@ -55,8 +53,7 @@ public class ForespørselRest {
 
         Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
         if (forespørsel == null) {
-            //TODO: finne ut hva slags respons vi skal returnere hvis det ikke finnes en forespørsel, og om det skal logges noe
-            return Response.noContent().build();
+            return Response.ok(Feilmelding.TOM_FORESPØRSEL).build();
         }
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer()));
 

@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
-import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ContainerResponseContext;
@@ -15,14 +14,15 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
-import no.nav.vedtak.log.mdc.MDCOperations;
-import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Feilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
+import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -55,8 +55,9 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
         Optional<TokenString> tokenFromHeader = getTokenFromHeader(req);
 
         if (tokenFromHeader.isEmpty()) {
-            throw new WebApplicationException("Mangler token", Response.Status.UNAUTHORIZED);
+            throw new InntektsmeldingAPIException(Feilmelding.MANGLER_TOKEN, Response.Status.UNAUTHORIZED);
         }
+
         LOG.trace("{} i klasse {}", method.getName(), method.getDeclaringClass());
         fjernKontekstHvisFinnes();
         var authKlient = AuthKlient.instance();

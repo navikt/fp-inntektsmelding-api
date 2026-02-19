@@ -5,13 +5,15 @@ import java.util.Objects;
 import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
-
-import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Feilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -44,20 +46,21 @@ public class FpinntektsmeldingKlient {
             var request = RestRequest.newGET(toUri(uriHentForespørsel, "/" + forespørselUuid), restConfig);
            return restClient.send(request, Forespørsel.class);
         } catch (Exception e) {
-            LOG.warn("Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}", forespørselUuid);
-            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+            LOG.warn("FP-97215: Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}. Feilmelding var {}", forespørselUuid, e);
+            throw feilVedKallTilFpinntektsmelding();
         }
     }
 
-    private static TekniskException feilVedKallTilFpinntektsmelding(String feilmelding) {
-        return new TekniskException("FP-97215", "Feil ved kall til Fpinntektsmelding: " + feilmelding);
+    private static TekniskException feilVedKallTilFpinntektsmelding() {
+        throw new InntektsmeldingAPIException(Feilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
     }
 
     private URI toUri(URI endpointURI, String path) {
         try {
             return UriBuilder.fromUri(endpointURI).path(path).build();
         } catch (Exception e) {
-            throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
+            LOG.warn("Ugyldig uri: {}, feilmelding {}", endpointURI + path, e);
+            throw new InntektsmeldingAPIException(Feilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 }
