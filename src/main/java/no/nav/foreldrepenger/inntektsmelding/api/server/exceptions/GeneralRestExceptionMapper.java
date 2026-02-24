@@ -5,14 +5,10 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
-import no.nav.vedtak.exception.FunksjonellException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import no.nav.vedtak.exception.ManglerTilgangException;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
 
 /**
@@ -25,68 +21,15 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable feil) {
-        try {
-            if (feil instanceof ManglerTilgangException) {
-                var exceptionMelding = getExceptionMelding(feil);
-                LOG.warn("Tilgangsfeil: {}", exceptionMelding);
-                return ikkeTilgang("Mangler tilgang");
-            }
-            if (feil instanceof FunksjonellException) {
-                var exceptionMelding = getExceptionMelding(feil);
-                if (exceptionMelding.contains("INGEN_SAK_FUNNET")) {
-                    LOG.info("Ingen sak funnet feil: {}", exceptionMelding);
-                    return ingenSakFunnet();
-                }
-            }
-            if (feil instanceof FunksjonellException) {
-                var exceptionMelding = getExceptionMelding(feil);
-                if (exceptionMelding.contains("SENDT_FOR_TIDLIG")) {
-                    LOG.info("Inntektsmelding sendt for tidlig feil: {}", exceptionMelding);
-                    return sendtInnForTidlig();
-                }
-            }
-            if (feil instanceof FunksjonellException) {
-                var exceptionMelding = getExceptionMelding(feil);
-                if (exceptionMelding.contains("FINNES_I_AAREG")) {
-                    LOG.info("Organisasjonsnummer har rapportering i aa-reg feil: {}", exceptionMelding);
-                    return finnesIAareg();
-                }
-            }
-            loggTilApplikasjonslogg(feil);
-            return serverError("Serverfeil");
-        } finally {
-            MDC.remove("prosess"); //$NON-NLS-1$
+        loggTilApplikasjonslogg(feil);
+        if (feil instanceof InntektsmeldingAPIException ex) {
+            return Response.status(ex.getStatus())
+                .entity(new ErrorResponse(ex.getFeilmelding().getVerdi()))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
         }
-    }
-
-    private static Response serverError(String feilmelding) {
-        return Response.serverError().entity(new FeilDto(FeilType.GENERELL_FEIL, feilmelding, MDCOperations.getCallId())).type(MediaType.APPLICATION_JSON).build();
-    }
-
-    private static Response ikkeTilgang(String feilmelding) {
-        return Response.status(Response.Status.FORBIDDEN)
-            .entity(new FeilDto(FeilType.MANGLER_TILGANG_FEIL, feilmelding, MDCOperations.getCallId()))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
-    }
-
-    private static Response ingenSakFunnet() {
-        return Response.status(Response.Status.FORBIDDEN)
-            .entity(new FeilDto(FeilType.INGEN_SAK_FUNNET, "Ingen sak funnet", MDCOperations.getCallId()))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
-    }
-
-    private static Response sendtInnForTidlig() {
-        return Response.status(Response.Status.FORBIDDEN)
-            .entity(new FeilDto(FeilType.SENDT_FOR_TIDLIG, "Sendt inntektsmelding for tidlig", MDCOperations.getCallId()))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
-    }
-
-    private static Response finnesIAareg() {
-        return Response.status(Response.Status.FORBIDDEN)
-            .entity(new FeilDto(FeilType.FINNES_I_AAREG, "Organisasjonsnummer er rapportert i Aa-reg", MDCOperations.getCallId()))
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.getVerdi()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

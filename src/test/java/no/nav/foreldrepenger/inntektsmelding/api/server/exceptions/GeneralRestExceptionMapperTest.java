@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.inntektsmelding.api.server.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import no.nav.vedtak.log.mdc.MDCOperations;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +12,8 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import ch.qos.logback.classic.Level;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.MemoryAppender;
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -39,13 +39,11 @@ class GeneralRestExceptionMapperTest {
         MDCOperations.putCallId(callId);
 
         try (var response = exceptionMapper.toResponse(manglerTilgangFeil())) {
-            assertThat(response.getStatus()).isEqualTo(403);
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
+            assertThat(response.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED.getStatusCode());
+            assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
+            var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.type()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(feilDto.feilmelding()).isEqualTo("Mangler tilgang");
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.IKKE_TILGANG_ALTINN.getVerdi());
             assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).isEmpty();
         }
     }
@@ -55,60 +53,10 @@ class GeneralRestExceptionMapperTest {
         var callId = MDCOperations.generateCallId();
         MDCOperations.putCallId(callId);
         try (var response = exceptionMapper.toResponse(funksjonellFeil())) {
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
+            var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.feilmelding()).isEqualTo("Serverfeil");
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(logSniffer.search("en funksjonell feilmelding", Level.WARN)).hasSize(1);
-        }
-    }
-
-    @Test
-    void skalMappeFunksjonellFeilSakIkkeFunnet() {
-        var callId = MDCOperations.generateCallId();
-        MDCOperations.putCallId(callId);
-        try (var response = exceptionMapper.toResponse(funksjonellFeilSakIkkeFunnet())) {
-            assertThat(response.getStatus()).isEqualTo(403);
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
-
-            assertThat(feilDto.type()).isEqualTo(FeilType.INGEN_SAK_FUNNET);
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(feilDto.feilmelding()).isEqualTo("Ingen sak funnet");
-            assertThat(logSniffer.search("Ingen sak funnet feil", Level.INFO)).hasSize(1);
-        }
-    }
-
-    @Test
-    void skalMappeFunksjonellFeilSendtForTidlig() {
-        var callId = MDCOperations.generateCallId();
-        MDCOperations.putCallId(callId);
-        try (var response = exceptionMapper.toResponse(funksjonellFeilSendtForTidlig())) {
-            assertThat(response.getStatus()).isEqualTo(403);
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
-
-            assertThat(feilDto.type()).isEqualTo(FeilType.SENDT_FOR_TIDLIG);
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(feilDto.feilmelding()).isEqualTo("Sendt inntektsmelding for tidlig");
-            assertThat(logSniffer.search("Inntektsmelding sendt for tidlig feil", Level.INFO)).hasSize(1);
-        }
-    }
-
-    @Test
-    void skalMappeFunksjonellFeilOrgnrFinnesIAaReg() {
-        var callId = MDCOperations.generateCallId();
-        MDCOperations.putCallId(callId);
-        try (var response = exceptionMapper.toResponse(funksjonellFeilFinnesIAaReg())) {
-            assertThat(response.getStatus()).isEqualTo(403);
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
-
-            assertThat(feilDto.type()).isEqualTo(FeilType.FINNES_I_AAREG);
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(feilDto.feilmelding()).isEqualTo("Organisasjonsnummer er rapportert i Aa-reg");
-            assertThat(logSniffer.search("Organisasjonsnummer har rapportering i aa-reg feil", Level.INFO)).hasSize(1);
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi());
         }
     }
 
@@ -116,12 +64,12 @@ class GeneralRestExceptionMapperTest {
     void skalMappeVLException() {
         var callId = MDCOperations.generateCallId();
         MDCOperations.putCallId(callId);
-        try (var response = exceptionMapper.toResponse(tekniskFeil())) {
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
+        try (var response = exceptionMapper.toResponse(new FunksjonellException("FPIMAPI-123456", "en teknisk feilmelding") {
 
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(feilDto.feilmelding()).isEqualTo("Serverfeil");
+        })) {
+            assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
+            var feilDto = (ErrorResponse) response.getEntity();
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getVerdi());
             assertThat(logSniffer.search("en teknisk feilmelding", Level.WARN)).hasSize(1);
         }
     }
@@ -135,28 +83,11 @@ class GeneralRestExceptionMapperTest {
 
         try (var response = exceptionMapper.toResponse(new TekniskException("KODE", "TEKST", generellFeil))) {
             assertThat(response.getStatus()).isEqualTo(500);
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
+            var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(feilDto.feilmelding()).isEqualTo("Serverfeil");
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getVerdi());
             assertThat(logSniffer.search("TEKST", Level.WARN)).hasSize(1);
-        }
-    }
-
-    @Test
-    void skalMappeWrappedFeilUtenCause() {
-        var callId = MDCOperations.generateCallId();
-        MDCOperations.putCallId(callId);
-        var feilmelding = "en helt generell feil";
-        try (var response = exceptionMapper.toResponse(new TekniskException("KODE", feilmelding))) {
-            assertThat(response.getStatus()).isEqualTo(500);
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
-
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(feilDto.feilmelding()).isEqualTo("Serverfeil");
-            assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
         }
     }
 
@@ -169,36 +100,19 @@ class GeneralRestExceptionMapperTest {
 
         try (var response = exceptionMapper.toResponse(generellFeil)) {
             assertThat(response.getStatus()).isEqualTo(500);
-            assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
-            var feilDto = (FeilDto) response.getEntity();
+            assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
+            var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.callId()).isEqualTo(callId);
-            assertThat(feilDto.feilmelding()).isEqualTo("Serverfeil");
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getVerdi());
             assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
         }
     }
 
-    private static FunksjonellException funksjonellFeil() {
-        return new FunksjonellException("FUNK_FEIL", "en funksjonell feilmelding", "et løsningsforslag");
+    private static InntektsmeldingAPIException funksjonellFeil() {
+        return new InntektsmeldingAPIException(EksponertFeilmelding.TOM_FORESPØRSEL, Response.Status.INTERNAL_SERVER_ERROR);
     }
 
-    private static TekniskException tekniskFeil() {
-        return new TekniskException("TEK_FEIL", "en teknisk feilmelding");
+    private static InntektsmeldingAPIException manglerTilgangFeil() {
+        return new InntektsmeldingAPIException(EksponertFeilmelding.IKKE_TILGANG_ALTINN, Response.Status.UNAUTHORIZED);
     }
-
-    private static ManglerTilgangException manglerTilgangFeil() {
-        return new ManglerTilgangException("MANGLER_TILGANG_FEIL", "ManglerTilgangFeilmeldingKode");
-    }
-
-    private static FunksjonellException funksjonellFeilSakIkkeFunnet() {
-        return new FunksjonellException("INGEN_SAK_FUNNET", "en egen funksjonell melding", null);
-    }
-
-    private static FunksjonellException funksjonellFeilSendtForTidlig() {
-        return new FunksjonellException("SENDT_FOR_TIDLIG", "en egen funksjonell melding", null);
-    }
-    private static FunksjonellException funksjonellFeilFinnesIAaReg() {
-        return new FunksjonellException("FINNES_I_AAREG", "en egen funksjonell melding", null);
-    }
-
 }

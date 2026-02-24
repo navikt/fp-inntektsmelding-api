@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
@@ -15,19 +14,16 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
-import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.TilgangTjeneste;
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp.PdpKlient;
-
-import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
+import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
+import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
+
 @RequestScoped
-@Transactional
 @Consumes(MediaType.APPLICATION_JSON)
 @Path(ForespørselRest.BASE_PATH)
 public class ForespørselRest {
@@ -55,8 +51,7 @@ public class ForespørselRest {
 
         Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
         if (forespørsel == null) {
-            //TODO: finne ut hva slags respons vi skal returnere hvis det ikke finnes en forespørsel, og om det skal logges noe
-            return Response.noContent().build();
+            return Response.ok(EksponertFeilmelding.TOM_FORESPØRSEL).build();
         }
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer()));
 
