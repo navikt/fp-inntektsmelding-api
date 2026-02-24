@@ -13,6 +13,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
+import no.nav.vedtak.log.mdc.MDCOperations;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         var feltNavn = feilene.stream().map(FeltFeilDto::navn).toList();
         var feilmelding = String.format("Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
             feltNavn);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(feilmelding)).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(feilmelding, MDCOperations.getCallId())).type(MediaType.APPLICATION_JSON).build();
     }
 
     private static Set<String> getInputs(ConstraintViolationException exception) {
