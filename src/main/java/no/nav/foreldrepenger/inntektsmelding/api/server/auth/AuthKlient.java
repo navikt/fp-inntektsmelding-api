@@ -6,19 +6,18 @@ import java.util.List;
 
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
@@ -46,7 +45,7 @@ public class AuthKlient {
         return inst;
     }
 
-    //TODO: legge inn feilhåndtering og logging, og vurdere om denne burde ligge i autentiseringsfilteret istedenfor i en egen klient
+    //TODO: vurdere om denne burde ligge i autentiseringsfilteret istedenfor i en egen klient
     public void validerOgSettKontekst(TokenString tokenString) {
 
         // Autentisering - valider token

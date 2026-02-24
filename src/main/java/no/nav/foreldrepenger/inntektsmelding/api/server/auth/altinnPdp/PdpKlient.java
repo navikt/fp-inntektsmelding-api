@@ -2,18 +2,18 @@ package no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp;
 
 import java.net.URI;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinn.AltinnTokenExchangeKlient;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
+@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "altinn.tre.base.url", endpointDefault = "https://platform.altinn.no")
 public class PdpKlient {
     private static final Environment ENV = Environment.current();
     private static final Logger logger = LoggerFactory.getLogger(PdpKlient.class);
@@ -93,12 +93,11 @@ public class PdpKlient {
         }
     }
 
-    // ID = systemUserId
-    // attributeId = urn:altinn:systemuser:uuid
     public record System(String id, String attributeId) {
     }
 
-    class PdpClientException extends Exception {
+    //Todo: burde vi her opprette en InntektsmeldingAPIException med en EksponertFeilmelding som kan brukes i TilgangTjeneste istedenfor en egen PdpClientException?
+    static class PdpClientException extends Exception {
         public PdpClientException() {
             super("Feil ved kall til pdp endepunkt");
         }
