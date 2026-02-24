@@ -31,7 +31,7 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         }
         MDC.remove("prosess"); // TODO Trenger vi denne?
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-            .entity(new ErrorResponse(Feilmelding.STANDARD_FEIL.getVerdi()))
+            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.getVerdi()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

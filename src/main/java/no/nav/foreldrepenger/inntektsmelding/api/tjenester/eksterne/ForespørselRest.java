@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Feilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 
 @RequestScoped
@@ -53,7 +53,7 @@ public class ForespørselRest {
 
         Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
         if (forespørsel == null) {
-            return Response.ok(Feilmelding.TOM_FORESPØRSEL).build();
+            return Response.ok(EksponertFeilmelding.TOM_FORESPØRSEL).build();
         }
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer()));
 

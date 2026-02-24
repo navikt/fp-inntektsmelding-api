@@ -4,7 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Feilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 
 import org.slf4j.Logger;
@@ -29,18 +29,18 @@ public class TilgangTjeneste implements Tilgang {
         if (!orgnummerFraKontekst.equals(orgnummerFraForespørsel)) {
             SECURE_LOG.warn("Kontekst har ikke samme orgnummer som forespørsel. "
                 + "Orgnummer fra kontekst var {} og orgnummer fra forespørsel var {}", orgnummerFraKontekst, orgnummerFraForespørsel);
-            throw new InntektsmeldingAPIException(Feilmelding.MISSMATCH_ORGNR, Response.Status.BAD_REQUEST);
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.MISSMATCH_ORGNR, Response.Status.BAD_REQUEST);
         }
         var ressurs = ENV.getRequiredProperty("altinn.tre.inntektsmelding.ressurs");
 
         try {
             var harTilgang = PdpKlient.instance().systemHarRettighetForOrganisasjon(systemId, orgnummerFraForespørsel.orgnr(), ressurs);
             if (!harTilgang) {
-                throw new InntektsmeldingAPIException(Feilmelding.IKKE_TILGANG_ALTINN, Response.Status.UNAUTHORIZED);
+                throw new InntektsmeldingAPIException(EksponertFeilmelding.IKKE_TILGANG_ALTINN, Response.Status.UNAUTHORIZED);
             }
         } catch (Exception e) {
             LOG.warn(e.toString());
-            throw new InntektsmeldingAPIException(Feilmelding.FEIL_OPPSLAG_ALTINN, Response.Status.INTERNAL_SERVER_ERROR, e);
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.FEIL_OPPSLAG_ALTINN, Response.Status.INTERNAL_SERVER_ERROR, e);
         }
     }
 
@@ -60,7 +60,7 @@ public class TilgangTjeneste implements Tilgang {
 
     private static ManglerTilgangException ikkeTilgang(String begrunnelse) {
         LOG.warn("IM-00403:" + String.format("Mangler tilgang til tjenesten. %s", begrunnelse));
-        throw new InntektsmeldingAPIException(Feilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
+        throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
     }
 
 }

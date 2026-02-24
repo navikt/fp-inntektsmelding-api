@@ -3,23 +3,23 @@ package no.nav.foreldrepenger.inntektsmelding.api.server.exceptions;
 import jakarta.ws.rs.core.Response;
 
 public class InntektsmeldingAPIException extends RuntimeException {
-    private final Feilmelding feilmelding;
+    private final EksponertFeilmelding eksponertFeilmelding;
     private final Response.Status status;
 
-    public InntektsmeldingAPIException(Feilmelding feilmelding, Response.Status status) {
-        super(feilmelding.toString());
-        this.feilmelding = feilmelding;
+    public InntektsmeldingAPIException(EksponertFeilmelding eksponertFeilmelding, Response.Status status) {
+        super(eksponertFeilmelding.toString());
+        this.eksponertFeilmelding = eksponertFeilmelding;
         this.status = status;
     }
 
-    public InntektsmeldingAPIException(Feilmelding feilmelding, Response.Status status, Throwable cause) {
-        super(feilmelding.toString(), cause);
-        this.feilmelding = feilmelding;
+    public InntektsmeldingAPIException(EksponertFeilmelding eksponertFeilmelding, Response.Status status, Throwable cause) {
+        super(eksponertFeilmelding.toString(), cause);
+        this.eksponertFeilmelding = eksponertFeilmelding;
         this.status = status;
     }
 
-    public Feilmelding getFeilmelding() {
-        return feilmelding;
+    public EksponertFeilmelding getFeilmelding() {
+        return eksponertFeilmelding;
     }
 
     public Response.Status getStatus() {

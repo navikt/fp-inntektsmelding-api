@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Feilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
@@ -52,7 +52,7 @@ public class FpinntektsmeldingKlient {
     }
 
     private static TekniskException feilVedKallTilFpinntektsmelding() {
-        throw new InntektsmeldingAPIException(Feilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
+        throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
     }
 
     private URI toUri(URI endpointURI, String path) {
@@ -60,7 +60,7 @@ public class FpinntektsmeldingKlient {
             return UriBuilder.fromUri(endpointURI).path(path).build();
         } catch (Exception e) {
             LOG.warn("Ugyldig uri: {}, feilmelding {}", endpointURI + path, e);
-            throw new InntektsmeldingAPIException(Feilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 }

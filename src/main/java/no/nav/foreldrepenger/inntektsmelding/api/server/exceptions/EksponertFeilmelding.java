@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.exceptions;
 
-public enum Feilmelding {
+public enum EksponertFeilmelding {
 
     // Tilgangsfeil
     MANGLER_TOKEN("Mangler token i header"),
@@ -9,7 +9,7 @@ public enum Feilmelding {
     IKKE_TILGANG_ALTINN("Systemet har ikke registrert tilgang til organisasjonen i Altinn"),
     FEIL_OPPSLAG_ALTINN("Klarte ikke slå opp rettigheter i Altinn"),
 
-    // Valideringsfeil,
+    // Valideringsfeil
     TOM_FORESPØRSEL("Finner ikke forespørsel"),
     MISSMATCH_ORGNR("Organisasjonsummer fra token og organisasjonsnummer fra etterspurt forespørsel matcher ikke"),
 
@@ -18,7 +18,7 @@ public enum Feilmelding {
 
     private final String verdi;
 
-    Feilmelding(String verdi) {
+    EksponertFeilmelding(String verdi) {
         this.verdi = verdi;
     }
 

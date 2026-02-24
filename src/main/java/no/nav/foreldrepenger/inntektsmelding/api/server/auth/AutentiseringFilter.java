@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Feilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
@@ -55,7 +55,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
         Optional<TokenString> tokenFromHeader = getTokenFromHeader(req);
 
         if (tokenFromHeader.isEmpty()) {
-            throw new InntektsmeldingAPIException(Feilmelding.MANGLER_TOKEN, Response.Status.UNAUTHORIZED);
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.MANGLER_TOKEN, Response.Status.UNAUTHORIZED);
         }
 
         LOG.trace("{} i klasse {}", method.getName(), method.getDeclaringClass());
