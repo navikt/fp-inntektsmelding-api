@@ -75,12 +75,20 @@ public class PdpKlient {
 
             var pdpResponse = restClient.send(request, PdpResponse.class);
 
-            secureLogger.debug("PDP respons: {}", pdpResponse);
+            if (ENV.isProd()) {
+                secureLogger.debug("PDP respons: {}", pdpResponse);
+            } else {
+                logger.info("PDP respons: {}", pdpResponse);
+            }
             return pdpResponse;
         } catch (Exception e) {
             String message = "Feil ved kall til pdp endepunkt";
-            logger.error(message);
-            secureLogger.error(message, e);
+            if (ENV.isProd()) {
+                logger.error(message);
+                secureLogger.error(message, e);
+            } else {
+                logger.error(message, e);
+            }
             throw new PdpClientException();
         }
     }
