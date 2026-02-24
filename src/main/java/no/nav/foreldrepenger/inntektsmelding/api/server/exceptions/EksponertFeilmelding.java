@@ -10,6 +10,7 @@ public enum EksponertFeilmelding {
     FEIL_OPPSLAG_ALTINN("Klarte ikke slå opp rettigheter i Altinn"),
 
     // Valideringsfeil
+    SERIALISERINGSFEIL("Serialiseringsfeil"),
     TOM_FORESPØRSEL("Finner ikke forespørsel"),
     MISSMATCH_ORGNR("Organisasjonsummer fra token og organisasjonsnummer fra etterspurt forespørsel matcher ikke"),
 

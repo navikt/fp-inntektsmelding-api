@@ -12,9 +12,8 @@ class JsonMappingExceptionMapperTest {
     void skal_mappe_InvalidTypeIdException() {
         var mapper = new JsonMappingExceptionMapper();
         var resultat = mapper.toResponse(new InvalidTypeIdException(null, "Ukjent type-kode", null, "23525"));
-        var dto = (FeilDto) resultat.getEntity();
-        assertThat(dto.feilmelding()).isEqualTo("FIM-252294: JSON-mapping feil");
-        assertThat(dto.feltFeil()).isEmpty();
+        var dto = (ErrorResponse) resultat.getEntity();
+        assertThat(dto.feilmelding()).isEqualTo(EksponertFeilmelding.SERIALISERINGSFEIL.getVerdi());
     }
 
 }
