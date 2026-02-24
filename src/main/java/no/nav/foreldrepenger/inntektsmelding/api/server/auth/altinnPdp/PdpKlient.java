@@ -2,8 +2,8 @@ package no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp;
 
 import java.net.URI;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +14,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 
+@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.base.url")
 public class PdpKlient {
     private static final Environment ENV = Environment.current();
     private static final Logger logger = LoggerFactory.getLogger(PdpKlient.class);
