@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeil
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 
 @RequestScoped
-@Transactional
 @Consumes(MediaType.APPLICATION_JSON)
 @Path(ForespørselRest.BASE_PATH)
 public class ForespørselRest {

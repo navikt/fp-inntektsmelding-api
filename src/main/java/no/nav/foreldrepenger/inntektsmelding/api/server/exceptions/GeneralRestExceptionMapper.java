@@ -23,13 +23,11 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
     public Response toResponse(Throwable feil) {
         loggTilApplikasjonslogg(feil);
         if (feil instanceof InntektsmeldingAPIException ex) {
-            MDC.remove("prosess"); // TODO Trenger vi denne?
             return Response.status(ex.getStatus())
                 .entity(new ErrorResponse(ex.getFeilmelding().getVerdi()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
         }
-        MDC.remove("prosess"); // TODO Trenger vi denne?
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
             .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.getVerdi()))
             .type(MediaType.APPLICATION_JSON)
