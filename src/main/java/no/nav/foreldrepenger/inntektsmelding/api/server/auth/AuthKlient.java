@@ -63,22 +63,22 @@ public class AuthKlient {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.UTGÅTT_TOKEN, Response.Status.UNAUTHORIZED);
         }
 
-        // TODO validere at dette er rett authentication level
-        // var authenticationLevel = Set.of("Level3", "idporten-loa-substantial"); // Level4 er gammel og utgår ila 2023
-
-        // Autentisering - valider scopes
         List<String> scopes = List.of(response.scope().split(" "));
         var gyldigScope = "nav:inntektsmelding/foreldrepenger";
         boolean harGyldigScope = scopes.stream().anyMatch(s -> s.equals(gyldigScope));
+
         if (!harGyldigScope) {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.FEIL_SCOPE, Response.Status.UNAUTHORIZED);
         }
 
+        if (response.authorization_details() == null) {
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.UGYLDIG_TOKEN, Response.Status.UNAUTHORIZED);
+        }
         var tokenKontekst = new TokenKontekst(
-            response.consumer.ID,
-            response.consumer.ID,
-            response.authorization_details.getFirst().systemuser_org().ID,
-            response.authorization_details.getFirst().systemuser_id.getFirst());
+            response.consumer().ID(),
+            response.consumer().ID(),
+            response.authorization_details().getFirst().systemuser_org().ID(),
+            response.authorization_details().getFirst().systemuser_id().getFirst());
 
         if (!ENV.isProd()) {
             LOG.info("Token validering vellykket, consumerId: {}, systemuser_org: {}, systemuser_id: {}",

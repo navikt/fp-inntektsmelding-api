@@ -5,6 +5,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
+import no.nav.vedtak.log.mdc.MDCOperations;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -24,12 +26,12 @@ public class GeneralRestExceptionMapper implements ExceptionMapper<Throwable> {
         loggTilApplikasjonslogg(feil);
         if (feil instanceof InntektsmeldingAPIException ex) {
             return Response.status(ex.getStatus())
-                .entity(new ErrorResponse(ex.getFeilmelding().getVerdi()))
+                .entity(new ErrorResponse(ex.getFeilmelding().getVerdi(), ex.getCallId()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.getVerdi()))
+            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.getVerdi(), MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

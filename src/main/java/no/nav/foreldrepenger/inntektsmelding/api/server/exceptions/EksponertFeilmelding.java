@@ -5,6 +5,7 @@ public enum EksponertFeilmelding {
     // Tilgangsfeil
     MANGLER_TOKEN("Mangler token i header"),
     UTGÅTT_TOKEN("Oppgitt token er utgått"),
+    UGYLDIG_TOKEN("Oppgitt token er ugyldig"),
     FEIL_SCOPE("Token inneholder ikke riktig scope for denne operasjonen"),
     IKKE_TILGANG_ALTINN("Systemet har ikke registrert tilgang til organisasjonen i Altinn"),
     FEIL_OPPSLAG_ALTINN("Klarte ikke slå opp rettigheter i Altinn"),
