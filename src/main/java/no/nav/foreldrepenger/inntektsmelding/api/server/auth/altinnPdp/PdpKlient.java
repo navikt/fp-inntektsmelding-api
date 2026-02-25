@@ -42,11 +42,11 @@ public class PdpKlient {
         return inst;
     }
 
-    public boolean systemHarRettighetForOrganisasjon(String systembrukerId, String orgnummer, String ressurs) throws Exception {
-        return pdpKall(new System(systembrukerId, "urn:altinn:systemuser:uuid"), orgnummer, ressurs).harTilgang();
+    public boolean systemHarRettighetForOrganisasjon(String systembrukerId, String orgnummer, String ressurs, String uvasketSystemOrg) throws Exception {
+        return pdpKall(new System(systembrukerId, "urn:altinn:systemuser:uuid"), orgnummer, ressurs, uvasketSystemOrg).harTilgang();
     }
 
-    private PdpResponse pdpKall(System system, String orgnummer, String ressurs) throws PdpClientException {
+    private PdpResponse pdpKall(System system, String orgnummer, String ressurs, String uvasketSystemOrg) throws PdpClientException {
         if (orgnummer == null) {
             String message = "Ingen organisasjonsnumre gitt for pdp-kall";
             logger.warn(message);
@@ -71,7 +71,7 @@ public class PdpKlient {
                 .header("Ocp-Apim-Subscription-Key", subscriptionKey)
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .otherAuthorizationSupplier(altinnTokenExchangeKlient::hentAltinn3Token);
+                .otherAuthorizationSupplier(() -> altinnTokenExchangeKlient.hentAltinn3Token(uvasketSystemOrg));
 
             var pdpResponse = restClient.send(request, PdpResponse.class);
 

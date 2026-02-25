@@ -1,16 +1,14 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
 import jakarta.ws.rs.core.Response;
-
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp.PdpKlient;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.ManglerTilgangException;
@@ -26,6 +24,7 @@ public class TilgangTjeneste implements Tilgang {
     public void sjekkAtSystemHarTilgangTilOrganisasjon(Organisasjonsnummer orgnummerFraForespørsel) {
         var orgnummerFraKontekst = hentOrgnrFraKontekst();
         var systemId = hentSystemIdFraKontekst();
+        var uvasketSystemOrg = hentUvasketSystemOrg();
         if (!orgnummerFraKontekst.equals(orgnummerFraForespørsel)) {
             SECURE_LOG.warn("Kontekst har ikke samme orgnummer som forespørsel. "
                 + "Orgnummer fra kontekst var {} og orgnummer fra forespørsel var {}", orgnummerFraKontekst, orgnummerFraForespørsel);
@@ -34,7 +33,7 @@ public class TilgangTjeneste implements Tilgang {
         var ressurs = ENV.getRequiredProperty("altinn.tre.inntektsmelding.ressurs");
 
         try {
-            var harTilgang = PdpKlient.instance().systemHarRettighetForOrganisasjon(systemId, orgnummerFraForespørsel.orgnr(), ressurs);
+            var harTilgang = PdpKlient.instance().systemHarRettighetForOrganisasjon(systemId, orgnummerFraForespørsel.orgnr(), ressurs, uvasketSystemOrg);
             if (!harTilgang) {
                 throw new InntektsmeldingAPIException(EksponertFeilmelding.IKKE_TILGANG_ALTINN, Response.Status.UNAUTHORIZED);
             }
@@ -47,6 +46,13 @@ public class TilgangTjeneste implements Tilgang {
     private Organisasjonsnummer hentOrgnrFraKontekst() {
         if (KontekstHolder.getKontekst() instanceof TokenKontekst tk) {
             return tk.getOrganisasjonNummer();
+        }
+        throw ikkeTilgang("Har ikke gyldig token-kontekst");
+    }
+
+    private String hentUvasketSystemOrg() {
+        if (KontekstHolder.getKontekst() instanceof TokenKontekst tk) {
+            return tk.getUvasketSystemOrg();
         }
         throw ikkeTilgang("Har ikke gyldig token-kontekst");
     }

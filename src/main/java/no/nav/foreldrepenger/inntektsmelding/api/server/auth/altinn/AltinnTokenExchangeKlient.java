@@ -5,6 +5,7 @@ import java.net.http.HttpResponse;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -66,8 +67,8 @@ public class AltinnTokenExchangeKlient {
         return status >= 200 && status < 300;
     }
 
-    public String hentAltinn3Token() {
-        String maskinportenToken = hentMaskinportenToken();
+    public String hentAltinn3Token(String uvasketSystemOrg) {
+        String maskinportenToken = hentMaskinportenToken(uvasketSystemOrg);
         var cacheKey = cacheKey(maskinportenToken);
         var tokenFromCache = getCachedToken(cacheKey);
         if (tokenFromCache != null) {
@@ -88,10 +89,12 @@ public class AltinnTokenExchangeKlient {
         }
     }
 
-    private String hentMaskinportenToken() {
+    private String hentMaskinportenToken(String uvasketSystemOrg) {
         String endpoint = ENV.getRequiredProperty("NAIS_TOKEN_ENDPOINT");
         AltinnTokenExchangeKlient.MaskinportenTokenRequest tokenRequest = new MaskinportenTokenRequest("maskinporten",
-            "altinn:authorization/authorize");
+            "altinn:authorization/authorize",
+            List.of(new MaskinportenTokenRequest.AuthorizationDetails("urn:altinn:systemuser",
+                new MaskinportenTokenRequest.SystemuserOrg("iso6523-actorid-upis", uvasketSystemOrg))));
         RestRequest postRequest = RestRequest.newPOSTJson(tokenRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
         return restClient.send(postRequest, MaskinportenTokenResponse.class).access_token();
     }
@@ -124,7 +127,13 @@ public class AltinnTokenExchangeKlient {
         }
     }
 
-    protected record MaskinportenTokenRequest(String identity_provider, String target) {
+    protected record MaskinportenTokenRequest(String identity_provider, String target, List<AuthorizationDetails> authorization_details) {
+        private record AuthorizationDetails(String type, SystemuserOrg systemuser_org) {
+        }
+        // Arbeidsgivers orgnummer
+        // kommer på følgende format i json: "0192:orgno"
+        private record SystemuserOrg(String authority, String ID) {
+        }
     }
 
     protected record MaskinportenTokenResponse(String access_token) {

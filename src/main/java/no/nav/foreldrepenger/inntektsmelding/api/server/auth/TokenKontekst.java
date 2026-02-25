@@ -47,6 +47,10 @@ public class TokenKontekst implements Kontekst {
         return vaskOrgnummer(organisasjonNummer);
     }
 
+    public String getUvasketSystemOrg() {
+        return organisasjonNummer;
+    }
+
     private Organisasjonsnummer vaskOrgnummer(String orgnrString) {
         var vasketOrgnr = orgnrString.substring(orgnrString.indexOf(":") + 1);
         return new Organisasjonsnummer(vasketOrgnr);
