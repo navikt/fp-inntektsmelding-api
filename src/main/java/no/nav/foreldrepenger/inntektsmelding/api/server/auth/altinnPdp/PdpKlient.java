@@ -13,7 +13,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
-@RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, endpointProperty = "altinn.tre.base.url", endpointDefault = "https://platform.altinn.no")
+@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.base.url", endpointDefault = "https://platform.altinn.no")
 public class PdpKlient {
     private static final Environment ENV = Environment.current();
     private static final Logger logger = LoggerFactory.getLogger(PdpKlient.class);
