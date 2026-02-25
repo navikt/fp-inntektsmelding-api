@@ -20,7 +20,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.util.LRUCache;
 
-@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED)
+@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.token.exchange.path", endpointDefault = "https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten")
 public class AltinnTokenExchangeKlient {
     private static final Logger LOG = LoggerFactory.getLogger(AltinnTokenExchangeKlient.class);
     private static final Environment ENV = Environment.current();
