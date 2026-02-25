@@ -46,7 +46,7 @@ public class FpinntektsmeldingKlient {
             var request = RestRequest.newGET(toUri(uriHentForespørsel, "/" + forespørselUuid), restConfig);
            return restClient.send(request, Forespørsel.class);
         } catch (Exception e) {
-            LOG.warn("FP-97215: Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}. Feilmelding var {}", forespørselUuid, e);
+            LOG.warn("FP-97215: Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}. Feilmelding var {}", forespørselUuid, e.getMessage());
             throw feilVedKallTilFpinntektsmelding();
         }
     }
@@ -59,7 +59,7 @@ public class FpinntektsmeldingKlient {
         try {
             return UriBuilder.fromUri(endpointURI).path(path).build();
         } catch (Exception e) {
-            LOG.warn("Ugyldig uri: {}, feilmelding {}", endpointURI + path, e);
+            LOG.warn("Ugyldig uri: {}, feilmelding {}", endpointURI + path, e.getMessage());
             throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
