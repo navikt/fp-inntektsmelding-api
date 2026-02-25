@@ -62,7 +62,10 @@ public class PdpKlient {
         }
 
         PdpRequest pdpRequest = PdpRequestUtil.lagPdpRequest(system, orgnummer, ressurs);
-        secureLogger.debug("PDP kall for {}: {}", ressurs, pdpRequest);
+        if (ENV.isDev()) {
+            logger.info("PDP kall for {}: {}", ressurs, pdpRequest);
+            secureLogger.info("PDP kall for {}: {}", ressurs, pdpRequest);
+        }
 
         try {
             RestRequest request = RestRequest.newPOSTJson(pdpRequest,
