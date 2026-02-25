@@ -23,6 +23,7 @@ import no.nav.vedtak.util.LRUCache;
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.token.exchange.path", endpointDefault = "https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten")
 public class AltinnTokenExchangeKlient {
     private static final Logger LOG = LoggerFactory.getLogger(AltinnTokenExchangeKlient.class);
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
     private static final Environment ENV = Environment.current();
     private static final RestClient restClient = RestClient.client();
     private static AltinnTokenExchangeKlient instance;
@@ -72,6 +73,7 @@ public class AltinnTokenExchangeKlient {
         var tokenFromCache = getCachedToken(cacheKey);
         if (tokenFromCache != null) {
             LOG.debug("Fant altinn token i cache");
+            SECURE_LOG.debug("maskinportentoken:{}", tokenFromCache);
             return tokenFromCache;
         } else {
             LOG.debug("Fant ingen gyldig Altinn token i cache");
@@ -84,6 +86,7 @@ public class AltinnTokenExchangeKlient {
 
             var token = hentTokenRetryable(exchangeRequest, 3);
             putTokenToCache(cacheKey, token);
+            SECURE_LOG.debug("maskinportentoken:{}", token);
             return token;
         }
     }
