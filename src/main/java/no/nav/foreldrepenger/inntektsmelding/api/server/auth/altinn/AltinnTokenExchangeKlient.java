@@ -20,7 +20,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.util.LRUCache;
 
-@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.token.exchange.path", endpointDefault = "https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten")
+@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED)
 public class AltinnTokenExchangeKlient {
     private static final Logger LOG = LoggerFactory.getLogger(AltinnTokenExchangeKlient.class);
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
@@ -69,24 +69,25 @@ public class AltinnTokenExchangeKlient {
 
     public String hentAltinn3Token() {
         String maskinportenToken = hentMaskinportenToken();
-        var cacheKey = cacheKey(maskinportenToken);
-        var tokenFromCache = getCachedToken(cacheKey);
-        if (tokenFromCache != null) {
-            LOG.debug("Fant altinn token i cache");
-            SECURE_LOG.debug("maskinportentoken:{}", tokenFromCache);
-            return tokenFromCache;
+        var altinnTokenCacheKey = cacheKey(maskinportenToken);
+        var altinnTokenFromCache = getCachedAltinnToken(altinnTokenCacheKey);
+        if (altinnTokenFromCache != null) {
+            LOG.debug("Fant altinn token i cache.");
+            SECURE_LOG.debug("altinntoken: {}", altinnTokenFromCache);
+            return altinnTokenFromCache;
         } else {
-            LOG.debug("Fant ingen gyldig Altinn token i cache");
+            LOG.debug("Fant ingen gyldig Altinn token i cache.");
 
-            var exchangeRequest = RestRequest.newGET(URI.create(ENV.getRequiredProperty("altinn.tre.token.exchange.path")),
+
+            var exchangeRequest = RestRequest.newGET(URI.create(ENV.getRequiredProperty("altinn.tre.base.url") + ENV.getRequiredProperty("altinn.tre.token.exchange.path")),
                     RestConfig.forClient(AltinnTokenExchangeKlient.class))
                 .header("Cache-Control", "no-cache")
                 .header("Authorization", "Bearer " + maskinportenToken)
                 .timeout(Duration.ofSeconds(3));
 
             var token = hentTokenRetryable(exchangeRequest, 3);
-            putTokenToCache(cacheKey, token);
-            SECURE_LOG.debug("maskinportentoken:{}", token);
+            putTokenToCache(altinnTokenCacheKey, token);
+            SECURE_LOG.debug("altinntoken:{}", token);
             return token;
         }
     }
@@ -99,7 +100,7 @@ public class AltinnTokenExchangeKlient {
         return restClient.send(postRequest, MaskinportenTokenResponse.class).access_token();
     }
 
-    private String getCachedToken(String key) {
+    private String getCachedAltinnToken(String key) {
         return altinnCache.get(key);
     }
 

@@ -77,8 +77,14 @@ public class PdpKlient {
                 .header("Accept", "application/json")
                 .otherAuthorizationSupplier(altinnTokenExchangeKlient::hentAltinn3Token);*/
 
+            var bkey_body = altinnTokenExchangeKlient.hentAltinn3Token();
+            var bkey = DefaultJsonMapper.fromJson(bkey_body, AltinnTokenResponse.class).access_token();
+
+            secureLogger.debug("Altinn - Skey: '{}'", subscriptionKey);
+            secureLogger.debug("Altinn - Bkey: '{}'", bkey);
+
             var httpPost = HttpRequest.newBuilder()
-                .header("Authorization", "Bearer " + altinnTokenExchangeKlient.hentAltinn3Token())
+                .header("Authorization", "Bearer " + bkey)
                 .header("Ocp-Apim-Subscription-Key", subscriptionKey)
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
@@ -144,5 +150,8 @@ public class PdpKlient {
         public PdpClientException() {
             super("Feil ved kall til pdp endepunkt");
         }
+    }
+
+    protected record AltinnTokenResponse(String access_token) {
     }
 }
