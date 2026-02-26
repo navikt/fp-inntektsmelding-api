@@ -14,6 +14,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+
+import no.nav.vedtak.log.mdc.MDCOperations;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,16 +50,29 @@ public class ForespørselRest {
     @GET
     @Path(HENT_FORESPØRSEL)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") UUID forespørselUuid) {
+    public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") String forespørselUuid) {
         LOG.info("Innkomende kall på hent forespørsel {}", forespørselUuid);
+        var uuid = tilUuidEllerNull(forespørselUuid);
+        if (uuid == null) {
+            return Response.ok(new ErrorResponse(EksponertFeilmelding.UGYLDIG_UUID.getVerdi(), MDCOperations.getCallId())).status(Response.Status.BAD_REQUEST).build();
+        }
 
-        Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
+        Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(uuid);
         if (forespørsel == null) {
-            return Response.ok(EksponertFeilmelding.TOM_FORESPØRSEL).build();
+            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
         }
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer()));
 
         //todo må lage kontrakt for forespørsel, og mappe til den før vi returnerer.
         return Response.ok(forespørsel).build();
+    }
+
+    private UUID tilUuidEllerNull(String uuidString) {
+        try {
+            return UUID.fromString(uuidString);
+        } catch (IllegalArgumentException _) {
+            LOG.warn("Ugyldig UUID mottatt for å hente forespørsel {}", uuidString);
+            return null;
+        }
     }
 }
