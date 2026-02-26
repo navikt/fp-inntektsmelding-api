@@ -1,23 +1,17 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.io.IOException;
 import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinn.AltinnTokenExchangeKlient;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
+import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.base.url", endpointDefault = "https://platform.altinn.no")
 public class PdpKlient {
@@ -28,10 +22,12 @@ public class PdpKlient {
     private final String baseUrl;
     private final String subscriptionKey;
     private static PdpKlient instance;
+    private final RestClient restClient;
     private final AltinnTokenExchangeKlient altinnTokenExchangeKlient;
 
 
     private PdpKlient() {
+        this.restClient = RestClient.client();
         this.baseUrl = ENV.getRequiredProperty("altinn.tre.base.url");
         this.subscriptionKey = ENV.getRequiredProperty("ALTINN_TRE_SUBSCRIPTION_KEY");
         this.altinnTokenExchangeKlient = AltinnTokenExchangeKlient.instance();
@@ -69,38 +65,22 @@ public class PdpKlient {
         secureLogger.debug("PDP kall for {}: {}", ressurs, pdpRequest);
 
         try {
-/*            RestRequest request = RestRequest.newPOSTJson(pdpRequest,
+            RestRequest request = RestRequest.newPOSTJson(pdpRequest,
                     URI.create(baseUrl + "/authorization/api/v1/authorize"),
                     RestConfig.forClient(PdpKlient.class))
                 .header("Ocp-Apim-Subscription-Key", subscriptionKey)
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .otherAuthorizationSupplier(altinnTokenExchangeKlient::hentAltinn3Token);*/
+                .otherAuthorizationSupplier(altinnTokenExchangeKlient::hentAltinn3Token);
 
-            var bkey = altinnTokenExchangeKlient.hentAltinn3Token();
-
-            secureLogger.debug("Altinn - Skey: '{}'", subscriptionKey);
-            secureLogger.debug("Altinn - Bkey: '{}'", bkey);
-
-            var httpPost = HttpRequest.newBuilder()
-                .header("Authorization", "Bearer " + bkey)
-                .header("Ocp-Apim-Subscription-Key", subscriptionKey)
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .header("Cache-Control", "no-cache")
-                .timeout(Duration.ofSeconds(3))
-                .uri(URI.create(baseUrl + "/authorization/api/v1/authorize"))
-                .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(pdpRequest)))
-                .build();
-
-            var pdpResponse = authorize(httpPost);
+            var pdpResponse = restClient.send(request, PdpResponse.class);
 
             if (ENV.isProd()) {
                 secureLogger.debug("PDP respons: {}", pdpResponse);
             } else {
                 logger.info("PDP respons: {}", pdpResponse);
             }
-            return DefaultJsonMapper.fromJson(pdpResponse, PdpResponse.class);
+            return pdpResponse;
         } catch (Exception e) {
             String message = "Feil ved kall til pdp endepunkt";
             if (ENV.isProd()) {
@@ -113,37 +93,6 @@ public class PdpKlient {
         }
     }
 
-    private static String authorize(HttpRequest request) {
-        try (var client = byggHttpClient()) {
-            var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
-            if (response == null || response.body() == null || !responskode2xx(response)) {
-                if (response != null && response.body() != null) {
-                    secureLogger.info("PDP error respons: {}", response.body().toString());
-                }
-                throw new TekniskException("F-157385", "Kunne ikke authorisete kall til pdp endepunkt, status: " + (response != null ? response.statusCode() : "null"));
-            }
-            return response.body();
-        } catch (IOException e) {
-            throw new TekniskException("F-432937", "IOException ved kommunikasjon med server", e);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new TekniskException("F-432938", "InterruptedException ved henting av token", e);
-        }
-    }
-
-    private static boolean responskode2xx(HttpResponse<String> response) {
-        var status = response.statusCode();
-        return status >= 200 && status < 300;
-    }
-
-    private static HttpClient byggHttpClient() {
-        return HttpClient.newBuilder()
-            .followRedirects(HttpClient.Redirect.NEVER)
-            .connectTimeout(Duration.ofSeconds(3))
-            .proxy(HttpClient.Builder.NO_PROXY)
-            .build();
-    }
-
     public record System(String id, String attributeId) {
     }
 
@@ -152,8 +101,5 @@ public class PdpKlient {
         public PdpClientException() {
             super("Feil ved kall til pdp endepunkt");
         }
-    }
-
-    protected record AltinnTokenResponse(String access_token) {
     }
 }

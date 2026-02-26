@@ -7,13 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AuthKlient;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -23,15 +18,14 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.util.LRUCache;
 
 @RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.token.exchange.path", endpointDefault = "https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten")
 public class AltinnTokenExchangeKlient {
     private static final Logger LOG = LoggerFactory.getLogger(AltinnTokenExchangeKlient.class);
-    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
     private static final Environment ENV = Environment.current();
     private static final RestClient restClient = RestClient.client();
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static AltinnTokenExchangeKlient instance;
     private final LRUCache<String, String> altinnCache;
 
@@ -80,11 +74,9 @@ public class AltinnTokenExchangeKlient {
         var altinnTokenFromCache = getCachedAltinnToken(altinnTokenCacheKey);
         if (altinnTokenFromCache != null) {
             LOG.debug("Fant altinn token i cache.");
-            SECURE_LOG.debug("altinntoken: {}", altinnTokenFromCache);
             return altinnTokenFromCache;
         } else {
             LOG.debug("Fant ingen gyldig Altinn token i cache.");
-
             var exchangeRequest = RestRequest.newGET(URI.create(ENV.getRequiredProperty("altinn.tre.base.url") + ENV.getRequiredProperty("altinn.tre.token.exchange.path")),
                     RestConfig.forClient(AltinnTokenExchangeKlient.class))
                 .header("Cache-Control", "no-cache")
@@ -93,16 +85,15 @@ public class AltinnTokenExchangeKlient {
 
             var token = hentTokenRetryable(exchangeRequest, 3);
             putTokenToCache(altinnTokenCacheKey, token);
-            SECURE_LOG.debug("altinntoken:{}", token);
             return token;
         }
     }
 
     private String hentMaskinportenToken() {
         String endpoint = ENV.getRequiredProperty("NAIS_TOKEN_ENDPOINT");
-        AltinnTokenExchangeKlient.MaskinportenTokenRequest tokenRequest = new MaskinportenTokenRequest("maskinporten",
+        var tokenRequest = new MaskinportenTokenRequest("maskinporten",
             "altinn:authorization/authorize");
-        RestRequest postRequest = RestRequest.newPOSTJson(tokenRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
+        var postRequest = RestRequest.newPOSTJson(tokenRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
         return restClient.send(postRequest, MaskinportenTokenResponse.class).access_token();
     }
 
