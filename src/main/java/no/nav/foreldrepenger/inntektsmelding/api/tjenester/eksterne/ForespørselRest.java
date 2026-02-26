@@ -6,6 +6,7 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -21,7 +22,9 @@ import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 @RequestScoped
 @Consumes(MediaType.APPLICATION_JSON)
@@ -46,12 +49,13 @@ public class ForespørselRest {
     @GET
     @Path(HENT_FORESPØRSEL)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") UUID forespørselUuid) {
+    public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespørselUuid) {
         LOG.info("Innkomende kall på hent forespørsel {}", forespørselUuid);
+        var uuid = UUID.fromString(forespørselUuid);
 
-        Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
+        Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(uuid);
         if (forespørsel == null) {
-            return Response.ok(EksponertFeilmelding.TOM_FORESPØRSEL).build();
+            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
         }
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer()));
 
