@@ -7,8 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +20,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.util.LRUCache;
 
-@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, application = FpApplication.NONFP)
+@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "altinn.tre.token.exchange.path", endpointDefault = "https://platform.tt02.altinn.no/authentication/api/v1/exchange/maskinporten")
 public class AltinnTokenExchangeKlient {
     private static final Logger LOG = LoggerFactory.getLogger(AltinnTokenExchangeKlient.class);
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
