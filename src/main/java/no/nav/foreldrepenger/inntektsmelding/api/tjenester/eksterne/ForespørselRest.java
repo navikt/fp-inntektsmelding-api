@@ -15,10 +15,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-
-import no.nav.vedtak.log.mdc.MDCOperations;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +22,9 @@ import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 @RequestScoped
 @Consumes(MediaType.APPLICATION_JSON)
@@ -63,14 +61,5 @@ public class ForespørselRest {
 
         //todo må lage kontrakt for forespørsel, og mappe til den før vi returnerer.
         return Response.ok(forespørsel).build();
-    }
-
-    private UUID tilUuidEllerNull(String uuidString) {
-        try {
-            return UUID.fromString(uuidString);
-        } catch (IllegalArgumentException _) {
-            LOG.warn("Ugyldig UUID mottatt for å hente forespørsel {}", uuidString);
-            return null;
-        }
     }
 }
