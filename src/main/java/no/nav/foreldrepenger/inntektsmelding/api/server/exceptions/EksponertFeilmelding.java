@@ -14,7 +14,6 @@ public enum EksponertFeilmelding {
     SERIALISERINGSFEIL("Serialiseringsfeil"),
     TOM_FORESPØRSEL("Finner ikke forespørsel"),
     MISSMATCH_ORGNR("Organisasjonsummer fra token og organisasjonsnummer fra etterspurt forespørsel matcher ikke"),
-    UGYLDIG_UUID("Ugyldig UUID brukt for å identifisere forespørsel"),
 
     // Default
     STANDARD_FEIL("Noe feilet");

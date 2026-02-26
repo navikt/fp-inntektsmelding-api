@@ -53,10 +53,7 @@ public class ForespørselRest {
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespørselUuid) {
         LOG.info("Innkomende kall på hent forespørsel {}", forespørselUuid);
-        var uuid = tilUuidEllerNull(forespørselUuid);
-        if (uuid == null) {
-            return Response.ok(new ErrorResponse(EksponertFeilmelding.UGYLDIG_UUID.getVerdi(), MDCOperations.getCallId())).status(Response.Status.BAD_REQUEST).build();
-        }
+        var uuid = UUID.fromString(forespørselUuid);
 
         Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(uuid);
         if (forespørsel == null) {
