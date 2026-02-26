@@ -7,8 +7,13 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AuthKlient;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -26,6 +31,7 @@ public class AltinnTokenExchangeKlient {
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
     private static final Environment ENV = Environment.current();
     private static final RestClient restClient = RestClient.client();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static AltinnTokenExchangeKlient instance;
     private final LRUCache<String, String> altinnCache;
 
@@ -59,7 +65,8 @@ public class AltinnTokenExchangeKlient {
         if (response == null || response.body() == null || !responskode2xx(response)) {
             throw new TekniskException("F-157385", "Kunne ikke hente token");
         }
-        return response.body();
+        // Altinn returns the token as a JSON string literal, so we deserialize it with Jackson
+        return DefaultJsonMapper.fromJson(response.body(), String.class);
     }
 
     private static boolean responskode2xx(HttpResponse<String> response) {
