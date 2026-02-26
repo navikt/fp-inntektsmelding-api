@@ -7,6 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +22,7 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.util.LRUCache;
 
-@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED)
+@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, application = FpApplication.NONFP)
 public class AltinnTokenExchangeKlient {
     private static final Logger LOG = LoggerFactory.getLogger(AltinnTokenExchangeKlient.class);
     private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
@@ -77,7 +79,6 @@ public class AltinnTokenExchangeKlient {
             return altinnTokenFromCache;
         } else {
             LOG.debug("Fant ingen gyldig Altinn token i cache.");
-
 
             var exchangeRequest = RestRequest.newGET(URI.create(ENV.getRequiredProperty("altinn.tre.base.url") + ENV.getRequiredProperty("altinn.tre.token.exchange.path")),
                     RestConfig.forClient(AltinnTokenExchangeKlient.class))
