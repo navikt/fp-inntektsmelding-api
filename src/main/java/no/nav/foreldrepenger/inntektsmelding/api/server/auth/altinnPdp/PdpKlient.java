@@ -77,8 +77,7 @@ public class PdpKlient {
                 .header("Accept", "application/json")
                 .otherAuthorizationSupplier(altinnTokenExchangeKlient::hentAltinn3Token);*/
 
-            var bkey_body = altinnTokenExchangeKlient.hentAltinn3Token();
-            var bkey = DefaultJsonMapper.fromJson(bkey_body, AltinnTokenResponse.class).access_token();
+            var bkey = altinnTokenExchangeKlient.hentAltinn3Token();
 
             secureLogger.debug("Altinn - Skey: '{}'", subscriptionKey);
             secureLogger.debug("Altinn - Bkey: '{}'", bkey);
