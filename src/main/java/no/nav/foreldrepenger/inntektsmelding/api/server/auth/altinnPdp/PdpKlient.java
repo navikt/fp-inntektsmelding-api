@@ -117,6 +117,9 @@ public class PdpKlient {
         try (var client = byggHttpClient()) {
             var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
             if (response == null || response.body() == null || !responskode2xx(response)) {
+                if (response != null && response.body() != null) {
+                    secureLogger.info("PDP error respons: {}", response.body());
+                }
                 throw new TekniskException("F-157385", "Kunne ikke authorisete kall til pdp endepunkt, status: " + (response != null ? response.statusCode() : "null"));
             }
             return response.body();
