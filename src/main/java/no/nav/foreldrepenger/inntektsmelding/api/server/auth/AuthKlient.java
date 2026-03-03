@@ -1,109 +1,94 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth;
 
-import java.net.URI;
-import java.net.http.HttpResponse;
-import java.util.List;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-import jakarta.ws.rs.core.Response;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.felles.integrasjon.rest.RestClient;
-import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
-import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
-import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 
-@RestClientConfig(tokenConfig = TokenFlow.NO_AUTH_NEEDED, endpointProperty = "NAIS_TOKEN_INTROSPECTION_ENDPOINT")
 public class AuthKlient {
+
     private static final Logger LOG = LoggerFactory.getLogger(AuthKlient.class);
+    private URI endpoint;
+
     private static final Environment ENV = Environment.current();
-    private static AuthKlient instance = new AuthKlient();
-    private final RestClient restClient;
 
-    private AuthKlient() {
-        this(RestClient.client());
-    }
+    private static AuthKlient instance;
 
-    AuthKlient(RestClient restClient) {
-        this.restClient = restClient;
+    protected AuthKlient(URI endpoint) {
+        this.endpoint = endpoint;
     }
 
     public static synchronized AuthKlient instance() {
         var inst = instance;
         if (inst == null) {
-            inst = new AuthKlient();
+            inst = new AuthKlient(ENV.getRequiredProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT", URI.class));
             instance = inst;
         }
         return inst;
     }
 
-    //TODO: vurdere om denne burde ligge i autentiseringsfilteret istedenfor i en egen klient
-    public void validerOgSettKontekst(TokenString tokenString) {
-
-        // Autentisering - valider token
-        String endpoint = ENV.getRequiredProperty("NAIS_TOKEN_INTROSPECTION_ENDPOINT");
+    public TokenIntrospectionResponse introspectToken(TokenString tokenString) {
         TokenValiderRequest tokenValiderRequest = new TokenValiderRequest("maskinporten", tokenString.token());
-        RestRequest postRequest = RestRequest.newPOSTJson(tokenValiderRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
-        HttpResponse<String> res = restClient.sendReturnResponseString(postRequest);
-
-        LOG.info("RES_NAIS_INTROSPECTION: {}", res.body());
-
-        var response = DefaultJsonMapper.fromJson(res.body(), TokenIntrospectionResponse.class);
-
-        if (!response.active) {
-            throw new InntektsmeldingAPIException(EksponertFeilmelding.UTGÅTT_TOKEN, Response.Status.UNAUTHORIZED);
-        }
-
-        List<String> scopes = List.of(response.scope().split(" "));
-        var gyldigScope = "nav:inntektsmelding/foreldrepenger";
-        boolean harGyldigScope = scopes.stream().anyMatch(s -> s.equals(gyldigScope));
-
-        if (!harGyldigScope) {
-            throw new InntektsmeldingAPIException(EksponertFeilmelding.FEIL_SCOPE, Response.Status.UNAUTHORIZED);
-        }
-
-        if (response.authorization_details() == null) {
-            throw new InntektsmeldingAPIException(EksponertFeilmelding.UGYLDIG_TOKEN, Response.Status.UNAUTHORIZED);
-        }
-        var tokenKontekst = new TokenKontekst(
-            response.consumer().ID(),
-            response.consumer().ID(),
-            response.authorization_details().getFirst().systemuser_org().ID(),
-            response.authorization_details().getFirst().systemuser_id().getFirst());
-
-        if (!ENV.isProd()) {
-            LOG.info("Token validering vellykket, consumerId: {}, systemuser_org: {}, systemuser_id: {}",
-                response.consumer.ID, response.authorization_details.getFirst().systemuser_org.ID, response.authorization_details.getFirst().systemuser_id.getFirst());
-        }
-
-        KontekstHolder.setKontekst(tokenKontekst);
+        var exchangeRequest = HttpRequest.newBuilder()
+            .header("Cache-Control", "no-cache")
+            .header("Content-Type", "application/json")
+            .timeout(Duration.ofSeconds(3))
+            .uri(endpoint)
+            .POST(HttpRequest.BodyPublishers.ofString(DefaultJsonMapper.toJson(tokenValiderRequest)))
+            .build();
+        return AuthKlient.introspectTokenRetryable(exchangeRequest, 3);
     }
 
-    protected record TokenIntrospectionResponse(boolean active, String error, Consumer consumer,
-                                                List<AuthorizationDetails> authorization_details,
-                                                String scope,
-                                                String acr_values) {
-
-        private record AuthorizationDetails(String type, List<String> systemuser_id, SystemuserOrg systemuser_org) {
+    private static TokenIntrospectionResponse introspectTokenRetryable(HttpRequest request, int retries) {
+        int i = retries;
+        while (i-- > 0) {
+            try {
+                return hentToken(request);
+            } catch (TekniskException e) {
+                LOG.info("Feilet {}. gang ved henting av token. Prøver på nytt", retries - i, e);
+            }
         }
+        return hentToken(request);
+    }
 
-        // Arbeidsgivers orgnummer
-        // kommer på følgende format i json: "0192:orgno"
-        private record SystemuserOrg(String ID) {
+    private static TokenIntrospectionResponse hentToken(HttpRequest request) {
+        try (var client = byggHttpClient()) {
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString(UTF_8));
+            if (response == null || response.body() == null || !responskode2xx(response)) {
+                throw new TekniskException("F-157385", "Kunne ikke validere token");
+            }
+            return DefaultJsonMapper.fromJson(response.body(), TokenIntrospectionResponse.class);
+        } catch (IOException e) {
+            throw new TekniskException("F-432937", "IOException ved kommunikasjon mot introspection endpoint", e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new TekniskException("F-432938", "InterruptedException ved introspection av token", e);
         }
+    }
 
-        //Lps orgnummer
-        // kommer på følgende format i json: "0192:orgno"
-        private record Consumer(String ID) {
-        }
+    private static boolean responskode2xx(HttpResponse<String> response) {
+        var status = response.statusCode();
+        return status >= 200 && status < 300;
+    }
+
+    private static HttpClient byggHttpClient() {
+        return HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.NEVER)
+            .connectTimeout(Duration.ofSeconds(2))
+            .proxy(HttpClient.Builder.NO_PROXY)
+            .build();
     }
 
     protected record TokenValiderRequest(String identity_provider, String token) {
