@@ -10,7 +10,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AuthKlient;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -93,7 +92,7 @@ public class AltinnTokenExchangeKlient {
         String endpoint = ENV.getRequiredProperty("NAIS_TOKEN_ENDPOINT");
         var tokenRequest = new MaskinportenTokenRequest("maskinporten",
             "altinn:authorization/authorize");
-        var postRequest = RestRequest.newPOSTJson(tokenRequest, URI.create(endpoint), RestConfig.forClient(AuthKlient.class));
+        var postRequest = RestRequest.newPOSTJson(tokenRequest, URI.create(endpoint), RestConfig.forClient(AltinnTokenExchangeKlient.class));
         return restClient.send(postRequest, MaskinportenTokenResponse.class).access_token();
     }
 
