@@ -77,7 +77,7 @@ public class InntektsmeldingRest {
         return Response.ok().build();
     }
 
-    public Optional<EksponertFeilmelding> validerInntektsmeldingMotForespørsel(SendInntektsmeldingApiDto innsendtInntektsmeldingDto, Forespørsel forespørsel) {
+    private Optional<EksponertFeilmelding> validerInntektsmeldingMotForespørsel(SendInntektsmeldingApiDto innsendtInntektsmeldingDto, Forespørsel forespørsel) {
         //Validering av data i inntektsmelding mot data i forespørsel, for å unngå at det sendes inn data for feil forespørsel
         if (!innsendtInntektsmeldingDto.aktørIdDto().equals(new AktørIdDto(forespørsel.aktørId()))) {
             LOG.warn("Aktørid fra inntektsmelding {} og aktørid fra forespørsel {} matcher ikke.",
