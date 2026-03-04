@@ -20,9 +20,7 @@ import org.slf4j.MDC;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
-import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
-import no.nav.vedtak.sikkerhet.kontekst.BasisKontekst;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
@@ -32,12 +30,13 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 public class AutentiseringFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
+    private AuthTjeneste authTjeneste;
 
     @Context
     private ResourceInfo resourceinfo;
 
     public AutentiseringFilter() {
-        // Ingenting
+        this.authTjeneste = new AuthTjeneste();
     }
 
     @Override
@@ -60,9 +59,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
 
         LOG.trace("{} i klasse {}", method.getName(), method.getDeclaringClass());
         fjernKontekstHvisFinnes();
-        var authKlient = AuthKlient.instance();
-        KontekstHolder.setKontekst(BasisKontekst.ikkeAutentisertRequest(MDCOperations.getConsumerId()));
-        authKlient.validerOgSettKontekst(tokenFromHeader.get());
+        authTjeneste.validerOgSettKontekst(tokenFromHeader.get());
     }
 
     public static Optional<TokenString> getTokenFromHeader(ContainerRequestContext request) {
