@@ -86,7 +86,7 @@ public class InntektsmeldingRest {
                 forespørsel.førsteUttaksdato());
             return Optional.of(EksponertFeilmelding.MISMATCH_FØRSTE_UTTAKSDATO);
         }
-        if (!inntektsmeldingApiDto.ytelse().equals(mapYtelseType(forespørsel.ytelseType()))) {
+        if (!mapYtelseType(inntektsmeldingApiDto.ytelse()).equals(mapYtelseType(forespørsel.ytelseType()))) {
             LOG.warn("Ytelsetype fra inntektsmelding {} og ytelsetype fra forespørsel {} matcher ikke.",
                 inntektsmeldingApiDto.ytelse(),
                 forespørsel.ytelseType());
@@ -96,6 +96,13 @@ public class InntektsmeldingRest {
     }
 
     private YtelseTypeDto mapYtelseType(Forespørsel.YtelseType ytelseType) {
+        return switch (ytelseType) {
+            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+        };
+    }
+
+    private YtelseTypeDto mapYtelseType(InntektsmeldingRequest.YtelseType ytelseType) {
         return switch (ytelseType) {
             case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
             case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
