@@ -29,7 +29,7 @@ public class TilgangTjeneste implements Tilgang {
         if (!orgnummerFraKontekst.equals(orgnummerFraForespørsel)) {
             SECURE_LOG.warn("Kontekst har ikke samme orgnummer som forespørsel. "
                 + "Orgnummer fra kontekst var {} og orgnummer fra forespørsel var {}", orgnummerFraKontekst, orgnummerFraForespørsel);
-            throw new InntektsmeldingAPIException(EksponertFeilmelding.MISSMATCH_ORGNR, Response.Status.BAD_REQUEST);
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.MISMATCH_ORGNR, Response.Status.BAD_REQUEST);
         }
         var ressurs = ENV.getRequiredProperty("altinn.tre.inntektsmelding.ressurs");
 
