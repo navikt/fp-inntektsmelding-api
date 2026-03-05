@@ -64,7 +64,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
         }
     }
 
-    record Endringsårsaker(@NotNull @Valid Endringsårsak årsak,
+    public record Endringsårsaker(@NotNull @Valid Endringsårsak årsak,
                            LocalDate fom,
                            LocalDate tom,
                            LocalDate bleKjentFom) {
