@@ -14,13 +14,14 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
-                                     @NotNull @Pattern(
-                                         regexp = "^[\\p{M}\\p{N}\\p{L}\\p{Z}\\p{Cf}\\p{P}\\p{Sc}\\p{Sk}\n\r\t+=]*$"
+                                     @Pattern(
+                                         regexp = "^\\d{11}$",
+                                         message = "Fødselsnummer må bestå av 11 siffer"
                                      ) @NotNull String fødselsnummer,
                                      @NotNull LocalDate startdato,
                                      @NotNull YtelseType ytelse,
                                      @NotNull @Valid Kontaktperson kontaktperson,
-                                     @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt,
+                                     @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt, //kan inntekt noen gang være 0?
                                      @NotNull List<@Valid Refusjon> refusjon,
                                      @NotNull List<@Valid BortfaltNaturalytelse> bortfaltNaturalytelsePerioder,
                                      @NotNull List<@Valid Endringsårsaker> endringAvInntektÅrsaker,
@@ -37,9 +38,9 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
 
 
     public record BortfaltNaturalytelse(@NotNull LocalDate fom,
-                                         LocalDate tom,
-                                         @NotNull Naturalytelsetype naturalytelsetype,
-                                         @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
+                                        LocalDate tom,
+                                        @NotNull Naturalytelsetype naturalytelsetype,
+                                        @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
         public enum Naturalytelsetype {
             ELEKTRISK_KOMMUNIKASJON,
             AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
@@ -64,9 +65,9 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
     }
 
     record Endringsårsaker(@NotNull @Valid Endringsårsak årsak,
-                                   LocalDate fom,
-                                   LocalDate tom,
-                                   LocalDate bleKjentFom) {
+                           LocalDate fom,
+                           LocalDate tom,
+                           LocalDate bleKjentFom) {
         public enum Endringsårsak {
             PERMITTERING,
             NY_STILLING,
@@ -87,6 +88,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
     public record Kontaktperson(@Size(max = 200) @NotNull String navn, @NotNull @Size(max = 50) String telefonnummer) {
     }
 
-    public record AvsenderSystem(@NotNull @Size(max = 100) String navn, @NotNull @Size(max = 100) String versjon) {}
+    public record AvsenderSystem(@NotNull @Size(max = 200) String navn, @NotNull @Size(max = 100) String versjon) {
+    }
 
 }
