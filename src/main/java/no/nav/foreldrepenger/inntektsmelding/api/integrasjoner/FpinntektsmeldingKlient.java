@@ -10,18 +10,16 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.FødselsnummerDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
-
-import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.FødselsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -108,7 +106,7 @@ public class FpinntektsmeldingKlient {
     }
 
     public record ForespørselResponse(UUID forespørselUuid, OrganisasjonsnummerDto orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
-                                      LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseType ytelseType) {
+                                      LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseTypeDto ytelseType) {
     }
 
 }

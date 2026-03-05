@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.Fpinntektsmelding
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
@@ -56,7 +56,7 @@ public class InntektsmeldingRest {
             LOG.warn("Avvist inntektsmelding for forespørselUuid {}. Forespørsel ikke funnet.", inntektsmeldingRequest.foresporselUuid());
             return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
         }
-        if (forespørsel.status() == Forespørsel.ForespørselStatus.UTGÅTT) {
+        if (forespørsel.status() == ForespørselStatus.UTGÅTT) {
             LOG.warn("Avvist inntektsmelding for forespørselUuid {}. Forespørsel har status UTGÅTT.", inntektsmeldingRequest.foresporselUuid());
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_FORESPØRSEL.getVerdi(), MDCOperations.getCallId()))
@@ -70,7 +70,7 @@ public class InntektsmeldingRest {
             return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(feilmelding.get().getVerdi(), MDCOperations.getCallId())).build();
         }
 
-        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer()));
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(forespørsel.orgnummer());
 
         //Todo Sende inntektsmelding videre til fpinntektsmelding
 

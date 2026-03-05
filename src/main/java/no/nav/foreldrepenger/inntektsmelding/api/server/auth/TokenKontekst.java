@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
