@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.auth;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.Kontekst;
 import no.nav.vedtak.sikkerhet.kontekst.SikkerhetContext;
@@ -43,13 +44,13 @@ public class TokenKontekst implements Kontekst {
         return konsumentId;
     }
 
-    public Organisasjonsnummer getOrganisasjonNummer() {
+    public OrganisasjonsnummerDto getOrganisasjonNummer() {
         return vaskOrgnummer(organisasjonNummer);
     }
 
-    private Organisasjonsnummer vaskOrgnummer(String orgnrString) {
+    private OrganisasjonsnummerDto vaskOrgnummer(String orgnrString) {
         var vasketOrgnr = orgnrString.substring(orgnrString.indexOf(":") + 1);
-        return new Organisasjonsnummer(vasketOrgnr);
+        return new OrganisasjonsnummerDto(vasketOrgnr);
     }
 
     public String getSystemUserId() {
