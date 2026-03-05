@@ -13,6 +13,7 @@ public enum EksponertFeilmelding {
     // Valideringsfeil
     SERIALISERINGSFEIL("Serialiseringsfeil"),
     TOM_FORESPØRSEL("Finner ikke forespørsel"),
+    UGYLDIG_PERIODE("Oppgitt forespørselsperiode er ugyldig, fom kan ikke være etter tom"),
     MISMATCH_ORGNR("Organisasjonsnummer fra token og organisasjonsnummer fra etterspurt forespørsel matcher ikke"),
     MISMATCH_FØRSTE_UTTAKSDATO("Første uttaksdato fra inntektsmelding og første uttaksdato fra etterspurt forespørsel matcher ikke"),
     MISMATCH_SKJÆRINGSTIDSPUNKT("Skjæringstidspunkt fra inntektsmelding og skjæringstidspunkt fra etterspurt forespørsel matcher ikke"),
