@@ -15,6 +15,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.ForespørselDto;
+
+import no.nav.foreldrepenger.inntektsmelding.api.typer.StatusDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +63,16 @@ public class ForespørselRest {
         }
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer()));
 
-        //todo må lage kontrakt for forespørsel, og mappe til den før vi returnerer.
-        return Response.ok(forespørsel).build();
+
+        var dto = new ForespørselDto (forespørsel.forespørselUuid(), forespørsel.orgnummer(), forespørsel.fødselsnummer(), forespørsel.førsteUttaksdato(), forespørsel.skjæringstidspunkt(), mapStatus(forespørsel.status()),forespørsel.ytelseType(), null );
+        return Response.ok(dto).build();
+    }
+
+    private StatusDto mapStatus(Forespørsel.ForespørselStatus status) {
+        return switch (status) {
+            case UNDER_BEHANDLING -> StatusDto.AKTIV;
+            case UTGÅTT -> StatusDto.FORKASTET;
+            case FERDIG -> StatusDto.BESVART;
+        };
     }
 }
