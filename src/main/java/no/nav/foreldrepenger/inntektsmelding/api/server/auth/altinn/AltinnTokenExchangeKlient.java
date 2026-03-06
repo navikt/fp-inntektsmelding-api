@@ -7,6 +7,10 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import no.nav.vedtak.sikkerhet.oidc.token.texas.HentTokenRequest;
+import no.nav.vedtak.sikkerhet.oidc.token.texas.IdProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.texas.TexasTokenKlient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,11 +93,7 @@ public class AltinnTokenExchangeKlient {
     }
 
     private String hentMaskinportenToken() {
-        String endpoint = ENV.getRequiredProperty("NAIS_TOKEN_ENDPOINT");
-        var tokenRequest = new MaskinportenTokenRequest("maskinporten",
-            "altinn:authorization/authorize");
-        var postRequest = RestRequest.newPOSTJson(tokenRequest, URI.create(endpoint), RestConfig.forClient(AltinnTokenExchangeKlient.class));
-        return restClient.send(postRequest, MaskinportenTokenResponse.class).access_token();
+        return TexasTokenKlient.instance().hentToken(new HentTokenRequest(IdProvider.MASKINPORTEN, "altinn:authorization/authorize")).access_token();
     }
 
     private String getCachedAltinnToken(String key) {
