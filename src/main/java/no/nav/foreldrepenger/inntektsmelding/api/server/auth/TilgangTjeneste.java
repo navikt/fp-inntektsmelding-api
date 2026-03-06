@@ -7,11 +7,12 @@ import jakarta.ws.rs.core.Response;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 
+import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.altinnPdp.PdpKlient;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -23,7 +24,7 @@ public class TilgangTjeneste implements Tilgang {
     private static final Environment ENV = Environment.current();
 
     @Override
-    public void sjekkAtSystemHarTilgangTilOrganisasjon(Organisasjonsnummer orgnummerFraForespørsel) {
+    public void sjekkAtSystemHarTilgangTilOrganisasjon(OrganisasjonsnummerDto orgnummerFraForespørsel) {
         var orgnummerFraKontekst = hentOrgnrFraKontekst();
         var systemId = hentSystemIdFraKontekst();
         if (!orgnummerFraKontekst.equals(orgnummerFraForespørsel)) {
@@ -44,7 +45,7 @@ public class TilgangTjeneste implements Tilgang {
         }
     }
 
-    private Organisasjonsnummer hentOrgnrFraKontekst() {
+    private OrganisasjonsnummerDto hentOrgnrFraKontekst() {
         if (KontekstHolder.getKontekst() instanceof TokenKontekst tk) {
             return tk.getOrganisasjonNummer();
         }
