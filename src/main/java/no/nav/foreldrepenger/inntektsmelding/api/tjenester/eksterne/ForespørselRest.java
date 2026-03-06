@@ -104,6 +104,7 @@ public class ForespørselRest {
         var forespørsler = fpinntektsmeldingTjeneste.hentForespørsler(filterRequest.orgnr(),
             filterRequest.fnr(),
             filterRequest.status(),
+            filterRequest.ytelseType(),
             filterRequest.fom(),
             filterRequest.tom());
 
