@@ -61,11 +61,12 @@ public class FpinntektsmeldingKlient {
     public List<Forespørsel> hentForespørsler(OrganisasjonsnummerDto organisasjonsnummerDto,
                                               FødselsnummerDto fødselsnummerDto,
                                               ForespørselStatus forespørselStatus,
+                                              YtelseTypeDto ytelseType,
                                               LocalDate fom,
                                               LocalDate tom) {
         try {
             LOG.info("Sender request til fpinntektsmelding for å hente filtrerte forespørsler for orgnr {} ", organisasjonsnummerDto);
-            var filter = new ForespørselFilterRequest(organisasjonsnummerDto, fødselsnummerDto, forespørselStatus, fom, tom);
+            var filter = new ForespørselFilterRequest(organisasjonsnummerDto, fødselsnummerDto, forespørselStatus, ytelseType, fom, tom);
             var request = RestRequest.newPOSTJson(filter, uriHentForespørsler, restConfig);
             var response = restClient.send(request, ForespørselResponse[].class);
             return Arrays.stream(response).map(this::mapResponseTilDomeneobjekt).toList();
@@ -101,7 +102,7 @@ public class FpinntektsmeldingKlient {
     }
 
     protected record ForespørselFilterRequest(OrganisasjonsnummerDto orgnr, FødselsnummerDto fnr,
-                                              ForespørselStatus status, LocalDate fom, LocalDate tom) {
+                                              ForespørselStatus status, YtelseTypeDto ytelseType, LocalDate fom, LocalDate tom) {
     }
 
     public record ForespørselResponse(UUID forespørselUuid, OrganisasjonsnummerDto orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
