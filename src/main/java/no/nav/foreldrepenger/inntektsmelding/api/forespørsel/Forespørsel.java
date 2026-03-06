@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record Forespørsel(UUID forespørselUuid, String orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
-                          LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseTypeDto ytelseType, LocalDateTime oprettetTid) {
+                          LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseTypeDto ytelseType, LocalDateTime opprettetTid) {
     public enum ForespørselStatus {
         UTGÅTT,
         UNDER_BEHANDLING,
