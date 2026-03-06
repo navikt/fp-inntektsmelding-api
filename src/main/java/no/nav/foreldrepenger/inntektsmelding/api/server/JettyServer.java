@@ -1,14 +1,29 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server;
 
+import jakarta.servlet.http.HttpServletRequest;
+
+import jakarta.servlet.http.HttpServletResponse;
+
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+
+import no.nav.vedtak.log.mdc.MDCOperations;
+
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
 import org.eclipse.jetty.ee11.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee11.cdi.CdiServletContainerInitializer;
 import org.eclipse.jetty.ee11.servlet.DefaultServlet;
+import org.eclipse.jetty.ee11.servlet.ErrorHandler;
 import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.eclipse.jetty.ee11.servlet.security.ConstraintMapping;
 import org.eclipse.jetty.ee11.servlet.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.security.Constraint;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.Callback;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +32,12 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.ApiConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.internal.InternalApiConfig;
 import no.nav.foreldrepenger.konfig.Environment;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
+import static no.nav.vedtak.mapper.json.DefaultJsonMapper.toJson;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
@@ -29,7 +50,7 @@ public class JettyServer {
         this.serverPort = serverPort;
     }
 
-    static void main(String[] args) throws Exception {
+    static void main() throws Exception {
         jettyServer().bootStrap();
     }
 
@@ -59,6 +80,7 @@ public class JettyServer {
 
             // Sikkerhet
             context.setSecurityHandler(simpleConstraints());
+            context.setErrorHandler(new JsonErrorHandler());
 
             // Servlets
             registerDefaultServlet(context);
@@ -113,4 +135,21 @@ public class JettyServer {
         return this.serverPort;
     }
 
+    private static class JsonErrorHandler extends ErrorHandler {
+        @Override
+        public boolean handle(Request request, Response response, Callback callback) {
+            // Set the content type to application/json
+            response.getHeaders().put("Content-Type", "application/json;charset=utf-8");
+
+            int code = response.getStatus();
+            var message = HttpStatus.getMessage(code);
+            var errorResponse = new ErrorResponse("[%s] %s".formatted(code, message), MDCOperations.generateCallId());
+
+            // Write the JSON response
+            response.write(true, ByteBuffer.wrap(toJson(errorResponse).getBytes(StandardCharsets.UTF_8)), callback);
+
+            // Return true to indicate that the request has been handled
+            return true;
+        }
+    }
 }

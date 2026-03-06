@@ -31,8 +31,6 @@ public class FpinntektsmeldingKlient {
     private final RestConfig restConfig;
     private final URI uriHentForespørsel;
 
-
-
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
