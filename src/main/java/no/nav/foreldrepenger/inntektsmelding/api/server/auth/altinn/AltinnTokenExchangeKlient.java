@@ -6,10 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import no.nav.vedtak.sikkerhet.oidc.token.texas.HentTokenRequest;
-import no.nav.vedtak.sikkerhet.oidc.token.texas.IdProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.texas.TexasTokenKlient;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +15,6 @@ import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 import no.nav.vedtak.sikkerhet.oidc.token.texas.HentTokenRequest;
 import no.nav.vedtak.sikkerhet.oidc.token.texas.IdProvider;
 import no.nav.vedtak.sikkerhet.oidc.token.texas.TexasTokenKlient;
@@ -88,7 +83,7 @@ public class AltinnTokenExchangeKlient {
             throw new TekniskException("F-157385", "Kunne ikke hente token");
         }
         // Altinn returns the token as a JSON string literal, so we deserialize it with Jackson
-        return DefaultJsonMapper.fromJson(response.body(), String.class);
+        return response.body();
     }
 
     private static boolean responskode2xx(HttpResponse<String> response) {
