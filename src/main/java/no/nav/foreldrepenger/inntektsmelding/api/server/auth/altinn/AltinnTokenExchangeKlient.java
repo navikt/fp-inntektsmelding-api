@@ -56,7 +56,7 @@ public class AltinnTokenExchangeKlient {
             var exchangeRequest = RestRequest.newGET(restConfig.endpoint(), restConfig)
                 .header("Cache-Control", "no-cache")
                 .header("Accept", "plain/text")
-                .otherAuthorizationSupplier(() -> "Bearer" + maskinportenToken)
+                .otherAuthorizationSupplier(() -> "Bearer " + maskinportenToken)
                 .timeout(Duration.ofSeconds(3));
 
             var token = hentTokenRetryable(exchangeRequest, 3);
