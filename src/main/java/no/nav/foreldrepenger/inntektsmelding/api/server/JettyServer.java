@@ -1,14 +1,9 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server;
 
-import jakarta.servlet.http.HttpServletRequest;
+import static no.nav.vedtak.mapper.json.DefaultJsonMapper.toJson;
 
-import jakarta.servlet.http.HttpServletResponse;
-
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-
-import no.nav.vedtak.log.mdc.MDCOperations;
-
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.jetty.ee11.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee11.cdi.CdiServletContainerInitializer;
@@ -31,13 +26,9 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.ApiConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.internal.InternalApiConfig;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.konfig.Environment;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-
-import static no.nav.vedtak.mapper.json.DefaultJsonMapper.toJson;
+import no.nav.vedtak.log.mdc.MDCOperations;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
