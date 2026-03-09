@@ -73,7 +73,7 @@ public class ForespørselRest {
     @Path(HENT_FLERE)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response hentFlereForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
+    public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
         LOG.info("Innkomende kall på søk etter forespørsler");
 
         // Det er spurt etter en spesifikk forespørsel, henter kun denne
@@ -83,11 +83,13 @@ public class ForespørselRest {
                 return Response.ok(List.of()).build();
             }
             tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(forespørsel.orgnummer());
-            return Response.ok(forespørsel).build();
+            return Response.ok(List.of(mapTilDto(forespørsel))).build();
         }
 
         if (datoerErUgyldige(filterRequest)) {
-            return Response.ok(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.getVerdi(), MDCOperations.getCallId())).build();
+            return Response.status(Response.Status.BAD_REQUEST)
+                 .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.getVerdi(), MDCOperations.getCallId()))
+                 .build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new OrganisasjonsnummerDto(filterRequest.orgnr()));

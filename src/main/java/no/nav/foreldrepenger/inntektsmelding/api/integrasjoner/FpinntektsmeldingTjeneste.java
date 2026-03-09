@@ -38,8 +38,8 @@ public class FpinntektsmeldingTjeneste {
                                               LocalDate fom,
                                               LocalDate tom) {
         return fpinntektsmeldingKlient.hentForespørsler(new OrganisasjonsnummerDto(orgnr),
-            new FødselsnummerDto(fnr),
-            KodeverkMapper.mapApiStatusTilForespørselStatus(status),
+            fnr == null ? null : new FødselsnummerDto(fnr),
+            status == null ? null : KodeverkMapper.mapApiStatusTilForespørselStatus(status),
             ytelseType,
             fom,
             tom);
