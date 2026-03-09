@@ -6,6 +6,8 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +57,7 @@ public class AltinnTokenExchangeKlient {
             LOG.debug("Fant ingen gyldig Altinn token i cache.");
             var exchangeRequest = RestRequest.newGET(restConfig.endpoint(), restConfig)
                 .header("Cache-Control", "no-cache")
-                .header("Accept", "plain/text")
-                .otherAuthorizationSupplier(() -> "Bearer " + maskinportenToken)
+                .header("Authorization", "Bearer " + maskinportenToken)
                 .timeout(Duration.ofSeconds(3));
 
             var token = hentTokenRetryable(exchangeRequest, 3);
@@ -80,10 +81,11 @@ public class AltinnTokenExchangeKlient {
     private static String hentToken(RestRequest request) {
         var response = restClient.sendReturnUnhandled(request);
         if (response == null || response.body() == null || !responskode2xx(response)) {
+            LOG.warn("Feil ved henting av token. Response: body: {}", response != null ? response.body() : null);
             throw new TekniskException("F-157385", "Kunne ikke hente token");
         }
         // Altinn returns the token as a JSON string literal, so we deserialize it with Jackson
-        return response.body();
+        return DefaultJsonMapper.fromJson(response.body(), String.class);
     }
 
     private static boolean responskode2xx(HttpResponse<String> response) {
