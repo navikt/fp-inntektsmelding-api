@@ -17,20 +17,17 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.ForespørselDto;
-
-import no.nav.foreldrepenger.inntektsmelding.api.typer.StatusDto;
-
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
+import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.ForespørselDto;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.KodeverkMapper;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @RequestScoped
@@ -67,17 +64,10 @@ public class ForespørselRest {
         }
 
 
-        var dto = new ForespørselDto (forespørsel.forespørselUuid(), forespørsel.orgnummer(), forespørsel.fødselsnummer(), forespørsel.førsteUttaksdato(), forespørsel.skjæringstidspunkt(), mapStatus(forespørsel.status()),forespørsel.ytelseType(), null );
+        var dto = mapTilDto(forespørsel);
         return Response.ok(dto).build();
     }
 
-    private StatusDto mapStatus(Forespørsel.ForespørselStatus status) {
-        return switch (status) {
-            case UNDER_BEHANDLING -> StatusDto.AKTIV;
-            case UTGÅTT -> StatusDto.FORKASTET;
-            case FERDIG -> StatusDto.BESVART;
-        };
-    }
 
     @POST
     @Path(HENT_FLERE)
@@ -108,11 +98,23 @@ public class ForespørselRest {
             filterRequest.fom(),
             filterRequest.tom());
 
-        // TODO map til dto før vi returnerer
-        return Response.ok(forespørsler).build();
+        var dtoer = forespørsler.stream().map(this::mapTilDto).toList();
+
+        return Response.ok(dtoer).build();
     }
 
     private boolean datoerErUgyldige(ForespørselFilter filterRequest) {
         return filterRequest.fom() != null && filterRequest.tom() != null && filterRequest.fom().isAfter(filterRequest.tom());
+    }
+
+    private ForespørselDto mapTilDto(Forespørsel forespørsel) {
+        return new ForespørselDto(forespørsel.forespørselUuid(),
+            forespørsel.orgnummer().orgnr(),
+            forespørsel.fødselsnummer(),
+            forespørsel.førsteUttaksdato(),
+            forespørsel.skjæringstidspunkt(),
+            KodeverkMapper.mapForespørselStatusTilApiStatus(forespørsel.status()),
+            forespørsel.ytelseType(),
+            forespørsel.opprettetTid());
     }
 }

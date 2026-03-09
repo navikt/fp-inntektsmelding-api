@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.inntektsmelding.api.integrasjoner;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -98,7 +99,8 @@ public class FpinntektsmeldingKlient {
             response.førsteUttaksdato(),
             response.skjæringstidspunkt(),
             response.status(),
-            response.ytelseType());
+            response.ytelseType(),
+            response.opprettetTid());
     }
 
     protected record ForespørselFilterRequest(OrganisasjonsnummerDto orgnr, FødselsnummerDto fnr,
@@ -106,7 +108,7 @@ public class FpinntektsmeldingKlient {
     }
 
     public record ForespørselResponse(UUID forespørselUuid, OrganisasjonsnummerDto orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
-                                      LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseTypeDto ytelseType) {
+                                      LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseTypeDto ytelseType, LocalDateTime opprettetTid) {
     }
 
 }

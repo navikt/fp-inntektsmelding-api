@@ -6,7 +6,7 @@ public class KodeverkMapper {
         // Skjuler default konstruktør
     }
 
-    public static ForespørselStatus mapApiStatusTilForespørselStatus(Status status) {
+    public static ForespørselStatus mapApiStatusTilForespørselStatus(StatusDto status) {
         return switch (status) {
             case AKTIV -> ForespørselStatus.UNDER_BEHANDLING;
             case BESVART -> ForespørselStatus.FERDIG;
@@ -14,12 +14,11 @@ public class KodeverkMapper {
         };
     }
 
-    public static Status mapForespørselStatusTilApiStatus(ForespørselStatus forespørselStatus) {
+    public static StatusDto mapForespørselStatusTilApiStatus(ForespørselStatus forespørselStatus) {
         return switch (forespørselStatus) {
-            case UTGÅTT -> Status.FORKASTET;
-            case UNDER_BEHANDLING -> Status.AKTIV;
-            case FERDIG -> Status.BESVART;
+            case UTGÅTT -> StatusDto.FORKASTET;
+            case UNDER_BEHANDLING -> StatusDto.AKTIV;
+            case FERDIG -> StatusDto.BESVART;
         };
-
     }
 }

@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.FødselsnummerDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.KodeverkMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.Status;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.StatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
 @Dependent
@@ -33,7 +33,7 @@ public class FpinntektsmeldingTjeneste {
 
     public List<Forespørsel> hentForespørsler(String orgnr,
                                               String fnr,
-                                              Status status,
+                                              StatusDto status,
                                               YtelseTypeDto ytelseType,
                                               LocalDate fom,
                                               LocalDate tom) {
