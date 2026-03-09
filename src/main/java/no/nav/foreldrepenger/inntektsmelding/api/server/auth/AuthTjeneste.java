@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.inntektsmelding.api.server.auth;
 
 import java.util.List;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -14,24 +12,29 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.Inntektsmeldi
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
+import no.nav.vedtak.sikkerhet.oidc.token.texas.IdProvider;
+import no.nav.vedtak.sikkerhet.oidc.token.texas.IntrospectTokenRequest;
+import no.nav.vedtak.sikkerhet.oidc.token.texas.TexasTokenKlient;
 
 public class AuthTjeneste {
     private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(AuthTjeneste.class);
-    private AuthKlient authKlient;
+    private final TexasTokenKlient tokenKlient;
 
     public AuthTjeneste() {
-        this(AuthKlient.instance());
+        this(TexasTokenKlient.instance());
     }
 
-    protected AuthTjeneste(AuthKlient authKlient) {
-        this.authKlient = authKlient;
+    protected AuthTjeneste(TexasTokenKlient tokenKlient) {
+        this.tokenKlient = tokenKlient;
     }
 
     public void validerOgSettKontekst(TokenString tokenString) {
-        var response = authKlient.introspectToken(tokenString);
+
+        var response = tokenKlient.introspectToken(new IntrospectTokenRequest(IdProvider.MASKINPORTEN, tokenString.token()));
 
         if (!response.active()) {
+            LOG.info("Token er inaktivt. Token introspect respons: {}", response.error());
             throw new InntektsmeldingAPIException(EksponertFeilmelding.UTGÅTT_TOKEN, Response.Status.UNAUTHORIZED);
         }
 
@@ -47,14 +50,14 @@ public class AuthTjeneste {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.UGYLDIG_TOKEN, Response.Status.UNAUTHORIZED);
         }
         var tokenKontekst = new TokenKontekst(
-            response.consumer().ID(),
-            response.consumer().ID(),
-            response.authorization_details().getFirst().systemuser_org().ID(),
+            response.consumer().id(),
+            response.consumer().id(),
+            response.authorization_details().getFirst().systemuser_org().id(),
             response.authorization_details().getFirst().systemuser_id().getFirst());
 
         if (!ENV.isProd()) {
             LOG.info("Token validering vellykket, consumerId: {}, systemuser_org: {}, systemuser_id: {}",
-                response.consumer().ID(), response.authorization_details().getFirst().systemuser_org().ID(), response.authorization_details().getFirst().systemuser_id().getFirst());
+                response.consumer().id(), response.authorization_details().getFirst().systemuser_org().id(), response.authorization_details().getFirst().systemuser_id().getFirst());
         }
 
         KontekstHolder.setKontekst(tokenKontekst);
