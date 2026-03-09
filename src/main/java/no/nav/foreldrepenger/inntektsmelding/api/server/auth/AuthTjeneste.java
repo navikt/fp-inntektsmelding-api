@@ -34,6 +34,7 @@ public class AuthTjeneste {
         var response = tokenKlient.introspectToken(new IntrospectTokenRequest(IdProvider.MASKINPORTEN, tokenString.token()));
 
         if (!response.active()) {
+            LOG.info("Token er inaktivt. Token introspect respons: {}", response.error());
             throw new InntektsmeldingAPIException(EksponertFeilmelding.UTGÅTT_TOKEN, Response.Status.UNAUTHORIZED);
         }
 
