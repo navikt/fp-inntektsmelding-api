@@ -6,10 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-import no.nav.vedtak.sikkerhet.oidc.token.texas.HentTokenRequest;
-import no.nav.vedtak.sikkerhet.oidc.token.texas.IdProvider;
-import no.nav.vedtak.sikkerhet.oidc.token.texas.TexasTokenKlient;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
