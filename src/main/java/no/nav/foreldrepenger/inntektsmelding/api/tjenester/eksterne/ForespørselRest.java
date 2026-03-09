@@ -63,7 +63,7 @@ public class ForespørselRest {
             return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
         }
 
-
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(forespørsel.orgnummer());
         var dto = mapTilDto(forespørsel);
         return Response.ok(dto).build();
     }
