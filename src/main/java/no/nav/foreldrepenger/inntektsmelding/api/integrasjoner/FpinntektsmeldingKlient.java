@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.integrasjoner;
 
 import java.net.URI;
-import java.util.Objects;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.vedtak.exception.TekniskException;
@@ -30,21 +29,36 @@ public class FpinntektsmeldingKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriHentForespørsel;
-
+    private final URI uriHentForespørsler;
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
         this.uriHentForespørsel = toUri(restConfig.fpContextPath(), "/api/foresporsel-ekstern/hent");
+        this.uriHentForespørsler = toUri(restConfig.fpContextPath(), "api/foresporsel-ekstern/hent-foresporsler");
     }
 
-    public Forespørsel hentForespørsel(UUID forespørselUuid) {
-        Objects.requireNonNull(forespørselUuid);
+    public ForespørselResponse hentForespørsel(UUID forespørselUuid) {
         try {
             LOG.info("Sender request til fpinntektsmelding for forespørselUuid {} ", forespørselUuid);
             var request = RestRequest.newGET(toUri(uriHentForespørsel, "/" + forespørselUuid), restConfig);
-           return restClient.send(request, Forespørsel.class);
+            return restClient.send(request, ForespørselResponse.class);
         } catch (Exception e) {
-            LOG.warn("FP-97215: Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}. Feilmelding var {}", forespørselUuid, e.getMessage());
+            LOG.warn("FP-97215: Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}. Feilmelding var {}",
+                forespørselUuid,
+                e.getMessage());
+            throw feilVedKallTilFpinntektsmelding();
+        }
+    }
+
+    public List<ForespørselResponse> hentForespørsler(ForespørselFilterRequest filter) {
+        try {
+            var request = RestRequest.newPOSTJson(filter, uriHentForespørsler, restConfig);
+            var response = restClient.send(request, ForespørselResponse[].class);
+            return List.of(response);
+        } catch (Exception e) {
+            LOG.warn("FP-97215: Feil ved henting av forespørsler fra fpinntektsmelding for orgnr: {}. Feilmelding var {}",
+                filter.orgnr(),
+                e.getMessage());
             throw feilVedKallTilFpinntektsmelding();
         }
     }
@@ -61,5 +75,6 @@ public class FpinntektsmeldingKlient {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
+
 }
 
