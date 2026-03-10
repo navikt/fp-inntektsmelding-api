@@ -28,7 +28,8 @@ public class FpinntektsmeldingTjeneste {
     }
 
     public Forespørsel hentForespørsel(UUID forespørselUuid) {
-        return fpinntektsmeldingKlient.hentForespørsel(forespørselUuid);
+        var response = fpinntektsmeldingKlient.hentForespørsel(forespørselUuid);
+        return mapResponseTilDomeneobjekt(response);
     }
 
     public List<Forespørsel> hentForespørsler(String orgnr,
@@ -37,12 +38,25 @@ public class FpinntektsmeldingTjeneste {
                                               YtelseTypeDto ytelseType,
                                               LocalDate fom,
                                               LocalDate tom) {
-        return fpinntektsmeldingKlient.hentForespørsler(new OrganisasjonsnummerDto(orgnr),
-            fnr == null ? null : new FødselsnummerDto(fnr),
+        var filter = new ForespørselFilterRequest(new OrganisasjonsnummerDto(orgnr), fnr == null ? null : new FødselsnummerDto(fnr),
             status == null ? null : KodeverkMapper.mapApiStatusTilForespørselStatus(status),
             ytelseType,
             fom,
             tom);
+        var response = fpinntektsmeldingKlient.hentForespørsler(filter);
+        return response.stream().map(this::mapResponseTilDomeneobjekt).toList();
     }
+
+    private Forespørsel mapResponseTilDomeneobjekt(ForespørselResponse response) {
+        return new Forespørsel(response.forespørselUuid(),
+            response.orgnummer(),
+            response.fødselsnummer(),
+            response.førsteUttaksdato(),
+            response.skjæringstidspunkt(),
+            response.status(),
+            response.ytelseType(),
+            response.opprettetTid());
+    }
+
 
 }
