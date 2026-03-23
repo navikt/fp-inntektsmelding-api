@@ -25,15 +25,19 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPINNTEKTSMELDING)
 public class FpinntektsmeldingKlient {
     private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingKlient.class);
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriHentForespørsel;
+    private final URI uriSendInntektsmelding;
     private final URI uriHentForespørsler;
+
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
-        this.uriHentForespørsel = toUri(restConfig.fpContextPath(), "/api/foresporsel-ekstern/hent");
+        this.uriHentForespørsel = toUri(restConfig.fpContextPath(), "/imapi/foresporsel/hent");
+        this.uriSendInntektsmelding = toUri(restConfig.fpContextPath(), "/imapi/inntektsmelding/send-inntektsmelding");
         this.uriHentForespørsler = toUri(restConfig.fpContextPath(), "/api/foresporsel-ekstern/hent/foresporsler");
     }
 
@@ -63,6 +67,18 @@ public class FpinntektsmeldingKlient {
         }
     }
 
+    Response sendInntektsmelding(InntektsmeldingRequestDto inntektsmeldingRequestDto) {
+        try {
+            LOG.info("Sender inntektsmelding til fpinntektsmelding for forespørselUuid {} ", inntektsmeldingRequestDto.forespørselUuid());
+            var request = RestRequest.newPOSTJson(inntektsmeldingRequestDto, uriSendInntektsmelding, restConfig);
+            return restClient.send(request, Response.class);
+        } catch (Exception e) {
+            LOG.warn("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding for uuid: {}. Feilmelding var {}", inntektsmeldingRequestDto.forespørselUuid(), e.getMessage());
+            SECURE_LOG.info("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding. InntektsmeldingRequestDto er {}", inntektsmeldingRequestDto);
+            throw feilVedKallTilFpinntektsmelding();
+        }
+    }
+
     private static TekniskException feilVedKallTilFpinntektsmelding() {
         throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
     }
@@ -75,6 +91,5 @@ public class FpinntektsmeldingKlient {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
 

@@ -68,6 +68,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
                            LocalDate fom,
                            LocalDate tom,
                            LocalDate bleKjentFom) {
+
         public enum Endringsårsak {
             PERMITTERING,
             NY_STILLING,

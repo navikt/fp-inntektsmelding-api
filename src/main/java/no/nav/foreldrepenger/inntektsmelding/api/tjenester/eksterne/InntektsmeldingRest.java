@@ -13,16 +13,16 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
+
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @RequestScoped
@@ -32,7 +32,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class InntektsmeldingRest {
     public static final String BASE_PATH = "/inntektsmelding";
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRest.class);
-    private static final String SEND_INNTEKTSMELDING = "/send-inn";
+    private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
     private Tilgang tilgang;
 
@@ -53,53 +53,24 @@ public class InntektsmeldingRest {
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(inntektsmeldingRequest.foresporselUuid());
 
         if (forespørsel == null) {
-            LOG.warn("Avvist inntektsmelding for forespørselUuid {}. Forespørsel ikke funnet.", inntektsmeldingRequest.foresporselUuid());
+            LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel ikke funnet.", inntektsmeldingRequest.foresporselUuid());
             return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
         }
-        if (forespørsel.status() == ForespørselStatus.UTGÅTT) {
-            LOG.warn("Avvist inntektsmelding for forespørselUuid {}. Forespørsel har status UTGÅTT.", inntektsmeldingRequest.foresporselUuid());
+
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new OrganisasjonsnummerDto(forespørsel.orgnummer().orgnr()));
+
+        var feilmelding  =  InntektsmeldingValidererUtil.validerInntektsmelding(inntektsmeldingRequest, forespørsel);
+        if (feilmelding.isPresent()) {
+            LOG.info("Avvist inntektsmelding for forespørselUuid {}. Validering av inntektsmelding feilet. Feilmelding: {}",
+                inntektsmeldingRequest.foresporselUuid(), feilmelding.get().getVerdi());
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_FORESPØRSEL.getVerdi(), MDCOperations.getCallId()))
+                .entity(new ErrorResponse(feilmelding.get().getVerdi(), MDCOperations.getCallId()))
                 .build();
         }
-
-        var feilmelding = validerInntektsmeldingMotForespørsel(inntektsmeldingRequest, forespørsel);
-        if (feilmelding.isPresent()) {
-            LOG.warn("Avvist inntektsmelding for forespørselUuid {}. Data i inntektsmelding samsvarer ikke med data i forespørsel.",
-                inntektsmeldingRequest.foresporselUuid());
-            return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(feilmelding.get().getVerdi(), MDCOperations.getCallId())).build();
-        }
-
-        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(forespørsel.orgnummer());
-
-        //Todo Sende inntektsmelding videre til fpinntektsmelding
+        var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
 
         //Må gi et svar tilbake
-        return Response.ok().build();
-    }
-
-    private Optional<EksponertFeilmelding> validerInntektsmeldingMotForespørsel(InntektsmeldingRequest inntektsmeldingApiDto, Forespørsel forespørsel) {
-
-        if (!inntektsmeldingApiDto.startdato().equals(forespørsel.førsteUttaksdato())) {
-            LOG.warn("Første uttaksdato fra inntektsmelding {} og første uttaksdato fra forespørsel {} matcher ikke.",
-                inntektsmeldingApiDto.startdato(),
-                forespørsel.førsteUttaksdato());
-            return Optional.of(EksponertFeilmelding.MISMATCH_FØRSTE_UTTAKSDATO);
-        }
-        if (!mapYtelseType(inntektsmeldingApiDto.ytelse()).equals(forespørsel.ytelseType())) {
-            LOG.warn("Ytelsetype fra inntektsmelding {} og ytelsetype fra forespørsel {} matcher ikke.",
-                inntektsmeldingApiDto.ytelse(),
-                forespørsel.ytelseType());
-            return Optional.of(EksponertFeilmelding.MISMATCH_YTELSE);
-        }
-        return Optional.empty();
-    }
-
-    private YtelseTypeDto mapYtelseType(InntektsmeldingRequest.YtelseType ytelseType) {
-        return switch (ytelseType) {
-            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
-        };
+        return Response.ok(response).build();
     }
 }
 
