@@ -32,7 +32,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 public class InntektsmeldingRest {
     public static final String BASE_PATH = "/inntektsmelding";
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRest.class);
-    private static final String SEND_INNTEKTSMELDING = "/send-inntektsmelding";
+    private static final String SEND_INNTEKTSMELDING = "/send-inn";
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
     private Tilgang tilgang;
 
