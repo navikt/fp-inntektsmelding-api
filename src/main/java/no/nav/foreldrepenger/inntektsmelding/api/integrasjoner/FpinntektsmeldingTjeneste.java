@@ -138,9 +138,6 @@ public class FpinntektsmeldingTjeneste {
     }
 
     private InntektsmeldingRequestDto.KontaktpersonDto mapKontaktPersonDto(InntektsmeldingRequest.Kontaktperson kontaktperson) {
-         if (kontaktperson == null) {
-            return null;
-        }
         return new InntektsmeldingRequestDto.KontaktpersonDto(kontaktperson.navn(), kontaktperson.telefonnummer());
     }
 

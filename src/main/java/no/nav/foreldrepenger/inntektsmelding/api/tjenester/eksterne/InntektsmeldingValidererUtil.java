@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
 
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class InntektsmeldingValidererUtil {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingValidererUtil.class);
@@ -84,21 +86,14 @@ public class InntektsmeldingValidererUtil {
                 refusjon.stream().map(InntektsmeldingRequest.Refusjon::fom).toList());
             return Optional.of(EksponertFeilmelding.UGYLDIG_FRA_DATO_LISTE);
         }
-        var sortertRefusjonsliste = refusjon.stream()
-            .sorted(Comparator.comparing(InntektsmeldingRequest.Refusjon::fom))
+
+        var fomListe = refusjon.stream()
+            .map(InntektsmeldingRequest.Refusjon::fom)
             .toList();
-        var foms = new java.util.HashSet<>();
-        InntektsmeldingRequest.Refusjon forrigeRefusjon = null;
-        for (InntektsmeldingRequest.Refusjon r : sortertRefusjonsliste) {
-            if (!foms.add(r.fom())) {
-                LOG.info("Refusjon har duplikat fom-dato: {}", r.fom());
-                return Optional.of(EksponertFeilmelding.LIK_FOM_REFUSJON);
-            }
-            if (forrigeRefusjon != null && !r.fom().isEqual(forrigeRefusjon.fom().plusDays(1))) {
-                LOG.info("Refusjonslisten er ikke sammenhengende. Forrige fra dato{}, neste fra dato {}", r.fom(), forrigeRefusjon.fom());
-                return Optional.of(EksponertFeilmelding.UGYLDIG_FRA_DATO_LISTE);
-            }
-            forrigeRefusjon = r;
+        var harDuplikateFoms = fomListe.size() > 1 && fomListe.size() != new java.util.HashSet<>(fomListe).size();
+        if (harDuplikateFoms) {
+            LOG.info("Refusjon har duplikate fom-datoer: {}", fomListe);
+            return Optional.of(EksponertFeilmelding.LIK_FOM_REFUSJON);
         }
         return Optional.empty();
     }
@@ -111,8 +106,7 @@ public class InntektsmeldingValidererUtil {
         var perioderMedFomOgTomDato = bortfaltNaturalytelsePerioder.stream()
             .filter(periode -> periode.fom() != null && periode.tom() != null)
             .toList();
-        if (perioderMedFomOgTomDato.size() > 1 && finnesOverlapp(
-            bortfaltNaturalytelsePerioder,
+        if (finnesOverlapp(perioderMedFomOgTomDato,
             InntektsmeldingRequest.BortfaltNaturalytelse::fom,
             InntektsmeldingRequest.BortfaltNaturalytelse::tom)) {
             LOG.info("Bortfalt naturalytelse har overlappende perioder");
@@ -133,10 +127,11 @@ public class InntektsmeldingValidererUtil {
         if (harDuplikater) {
             LOG.info("Bortfalt naturalytelse har duplikate fom-datoer for perioder uten tom-dato: {}",
                 perioderMedKunFomDato.stream().map(InntektsmeldingRequest.BortfaltNaturalytelse::fom).toList());
-            return Optional.of(EksponertFeilmelding.LIK_FOM_REFUSJON);
+            return Optional.of(EksponertFeilmelding.LIK_FOM_NATURALYTELSER);
         }
         return Optional.empty();
     }
+
 
     public static Optional<EksponertFeilmelding> validerEndringsårsaker(List<InntektsmeldingRequest.Endringsårsaker> oppgitteEndringsårsaker,
                                                                         LocalDate startdato) {
@@ -202,7 +197,6 @@ public class InntektsmeldingValidererUtil {
                 return Optional.of(EksponertFeilmelding.OVERLAPP_I_PERIODER);
             }
         }
-
         return Optional.empty();
     }
 
@@ -231,6 +225,7 @@ public class InntektsmeldingValidererUtil {
 
     /**
      * Generisk metode for å sjekke om perioder overlapper i en liste.
+     * Bruker LocalDateInterval fra tidsserie-biblioteket for å sjekke overlapp.
      * Fungerer med alle typer som har datoperiode (fra og til dato).
      *
      * @param periods           listen av perioder som skal valideres
@@ -246,24 +241,16 @@ public class InntektsmeldingValidererUtil {
             return false;
         }
 
-        for (int i = 0; i < periods.size(); i++) {
-            for (int j = i + 1; j < periods.size(); j++) {
-                T period1 = periods.get(i);
-                T period2 = periods.get(j);
+        // Konverter alle perioder til LocalDateInterval objekter
+        var intervals = periods.stream()
+            .map(p -> new LocalDateInterval(fromDateExtractor.apply(p), toDateExtractor.apply(p)))
+            .toList();
 
-                if (overlappIPerioder(fromDateExtractor.apply(period1),
-                    toDateExtractor.apply(period1),
-                    fromDateExtractor.apply(period2),
-                    toDateExtractor.apply(period2))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static boolean overlappIPerioder(LocalDate fom1, LocalDate tom1, LocalDate fom2, LocalDate tom2) {
-        return fom1.isBefore(tom2.plusDays(1)) && fom2.isBefore(tom1.plusDays(1));
+        // Sjekk om noen interval overlapper med en annen
+        return intervals.stream()
+            .anyMatch(interval -> intervals.stream()
+                .filter(other -> !interval.equals(other))
+                .anyMatch(interval::overlaps));
     }
 
     private static boolean kreverFomDato(InntektsmeldingRequest.Endringsårsaker.Endringsårsak årsak) {
@@ -285,5 +272,4 @@ public class InntektsmeldingValidererUtil {
             || årsak == InntektsmeldingRequest.Endringsårsaker.Endringsårsak.PERMITTERING
             || årsak == InntektsmeldingRequest.Endringsårsaker.Endringsårsak.SYKEFRAVÆR);
     }
-
 }
