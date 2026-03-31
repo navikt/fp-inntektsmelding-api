@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -13,8 +11,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +18,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.Fpinntektsmelding
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-
+import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @RequestScoped

@@ -6,15 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import jakarta.validation.constraints.NotNull;
-
-import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
