@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.inntektsmelding.api.integrasjoner;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import jakarta.validation.constraints.Pattern;
@@ -28,38 +31,38 @@ record InntektsmeldingResponse(
     @NotNull BigDecimal månedInntekt,
     @NotNull LocalDateTime innsendtTidspunkt,
     @NotNull @Valid KildesystemDto kildesystem,
-    @NotNull @Valid AvsenderSystem avsenderSystem,
-    BigDecimal månedRefusjon,
+    @Valid AvsenderSystem avsenderSystem,
+    @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal månedRefusjon,
     @NotNull LocalDate opphørsdatoRefusjon,
     @NotNull List<@Valid RefusjonEndring> refusjonsendringer,
     @NotNull List<@Valid BortfaltNaturalytelse> bortfaltNaturalytelsePerioder,
     @NotNull List<@Valid Endringsårsaker> endringAvInntektÅrsaker) {
 
-    record RefusjonEndring(LocalDate fom,
-                               BigDecimal beløp) {
+    record RefusjonEndring(@NotNull LocalDate fom,
+                           @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 
-    record BortfaltNaturalytelse(LocalDate fom,
-                                        LocalDate tom,
-                                        NaturalytelsetypeDto naturalytelsetype,
-                                        BigDecimal beløp) {
+    record BortfaltNaturalytelse(@NotNull LocalDate fom,
+                                 LocalDate tom,
+                                 @NotNull NaturalytelsetypeDto naturalytelsetype,
+                                 @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
     }
 
-    record Endringsårsaker(EndringsårsakDto årsak,
-                                  LocalDate fom,
-                                  LocalDate tom,
-                                  LocalDate bleKjentFom) {
+    record Endringsårsaker(@NotNull EndringsårsakDto årsak,
+                           LocalDate fom,
+                           LocalDate tom,
+                           LocalDate bleKjentFom) {
     }
 
     record Kontaktperson(
-        String telefonnummer,
-        String navn
+        @NotNull String telefonnummer,
+        @NotNull String navn
     ) {
     }
 
     record AvsenderSystem(
-        String navn,
-        String versjon
+        @NotNull String navn,
+        @NotNull String versjon
     ) {
     }
 }
