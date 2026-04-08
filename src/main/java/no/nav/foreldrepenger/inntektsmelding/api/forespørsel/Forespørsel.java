@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 
-public record Forespørsel(UUID forespørselUuid, OrganisasjonsnummerDto orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
-                          LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseTypeDto ytelseType, LocalDateTime opprettetTid) {
+public record Forespørsel(UUID forespørselUuid, Organisasjonsnummer orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
+                          LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseType ytelseType, LocalDateTime opprettetTid) {
 
 }

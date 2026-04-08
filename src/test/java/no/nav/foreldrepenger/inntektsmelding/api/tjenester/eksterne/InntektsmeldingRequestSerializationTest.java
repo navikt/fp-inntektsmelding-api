@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
@@ -77,7 +79,7 @@ class InntektsmeldingRequestSerializationTest {
         );
 
         var originalRequest = new InntektsmeldingRequest(
-            uuid, fødselsnummer, startdato, InntektsmeldingRequest.YtelseType.FORELDREPENGER,
+            uuid, fødselsnummer, startdato, YtelseType.FORELDREPENGER,
             kontaktperson, new BigDecimal("25000.00"), refusjon, bortfaltNaturalytelse,
             endringsårsaker, avsenderSystem
         );
@@ -142,7 +144,7 @@ class InntektsmeldingRequestSerializationTest {
             UUID.randomUUID(),
             "12345678901",
             LocalDate.of(2024, 1, 15),
-            InntektsmeldingRequest.YtelseType.FORELDREPENGER,
+            YtelseType.FORELDREPENGER,
             new InntektsmeldingRequest.Kontaktperson("Test Kontaktperson", "12345678"),
             new BigDecimal("25000.00"),
             List.of(new InntektsmeldingRequest.Refusjon(LocalDate.of(2024, 1, 1), new BigDecimal("25000.00"))),

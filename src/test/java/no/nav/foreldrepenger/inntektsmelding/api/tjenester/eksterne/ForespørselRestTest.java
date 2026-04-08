@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,9 +22,8 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.auth.TilgangTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.StatusDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
 @ExtendWith(MockitoExtension.class)
 class ForespørselRestTest {
@@ -51,9 +52,9 @@ class ForespørselRestTest {
     void skal_returnere_et_resultat_om_uuid_oppgit_og_ignorere_andre_filter_valg() {
         var orgnummer = "999999999";
         var uuid = UUID.randomUUID();
-        when(fpinntektsmeldingTjeneste.hentForespørsel(uuid)).thenReturn(new Forespørsel(uuid, new OrganisasjonsnummerDto(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
-            ForespørselStatus.UNDER_BEHANDLING, YtelseTypeDto.FORELDREPENGER, LocalDate.now().atStartOfDay()));
-        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, uuid, StatusDto.FORKASTET, YtelseTypeDto.SVANGERSKAPSPENGER, null, null));
+        when(fpinntektsmeldingTjeneste.hentForespørsel(uuid)).thenReturn(new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
+            ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDate.now().atStartOfDay()));
+        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, uuid, StatusDto.FORKASTET, YtelseType.SVANGERSKAPSPENGER, null, null));
         assertThat(response.getStatus()).isEqualTo(200);
         var forespørsler = (List<ForespørselDto>) response.getEntity();
         assertThat(forespørsler).hasSize(1);
@@ -65,7 +66,7 @@ class ForespørselRestTest {
     @Test
     void skal_returnere_feil_om_datoer_er_feil() {
         var orgnummer = "999999999";
-        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, StatusDto.FORKASTET, YtelseTypeDto.SVANGERSKAPSPENGER, LocalDate.now(), LocalDate.now().minusMonths(1)));
+        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, StatusDto.FORKASTET, YtelseType.SVANGERSKAPSPENGER, LocalDate.now(), LocalDate.now().minusMonths(1)));
         assertThat(response.getStatus()).isEqualTo(400);
         var forespørsler = (ErrorResponse) response.getEntity();
         assertThat(forespørsler.feilmelding()).isEqualTo(EksponertFeilmelding.UGYLDIG_PERIODE.getVerdi());
@@ -74,10 +75,10 @@ class ForespørselRestTest {
     @Test
     void skal_returnere_liste_om_flere_matcher() {
         var orgnummer = "999999999";
-        var forespørsel2 = new Forespørsel(UUID.randomUUID(), new OrganisasjonsnummerDto(orgnummer), "22222222222", LocalDate.now(), LocalDate.now(),
-            ForespørselStatus.UNDER_BEHANDLING, YtelseTypeDto.FORELDREPENGER, LocalDate.now().atStartOfDay());
-        var forespørsel1 = new Forespørsel(UUID.randomUUID(), new OrganisasjonsnummerDto(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
-            ForespørselStatus.UNDER_BEHANDLING, YtelseTypeDto.FORELDREPENGER, LocalDate.now().atStartOfDay());
+        var forespørsel2 = new Forespørsel(UUID.randomUUID(), new Organisasjonsnummer(orgnummer), "22222222222", LocalDate.now(), LocalDate.now(),
+            ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDate.now().atStartOfDay());
+        var forespørsel1 = new Forespørsel(UUID.randomUUID(), new Organisasjonsnummer(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
+            ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDate.now().atStartOfDay());
         when(fpinntektsmeldingTjeneste.hentForespørsler(orgnummer, null, null, null, null, null)).thenReturn(List.of(forespørsel1, forespørsel2));
         var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, null, null, null, null));
         assertThat(response.getStatus()).isEqualTo(200);

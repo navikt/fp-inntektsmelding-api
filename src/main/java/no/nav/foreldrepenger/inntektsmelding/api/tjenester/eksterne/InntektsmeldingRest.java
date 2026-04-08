@@ -18,7 +18,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.Fpinntektsmelding
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @RequestScoped
@@ -53,7 +53,7 @@ public class InntektsmeldingRest {
             return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
         }
 
-        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new OrganisasjonsnummerDto(forespørsel.orgnummer().orgnr()));
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer().orgnr()));
 
         var feilmelding  =  InntektsmeldingValidererUtil.validerInntektsmelding(inntektsmeldingRequest, forespørsel);
         if (feilmelding.isPresent()) {
@@ -65,8 +65,13 @@ public class InntektsmeldingRest {
         }
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
 
-        //Må gi et svar tilbake
-        return Response.ok(response).build();
+        if (response.success()) {
+            return Response.ok(response.inntektsmeldingUuid()).build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(new ErrorResponse(response.melding(), MDCOperations.getCallId()))
+                .build();
+        }
     }
 }
 

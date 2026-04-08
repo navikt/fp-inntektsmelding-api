@@ -13,6 +13,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
+
 public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
                                      @Pattern(
                                          regexp = "^\\d{11}$",
@@ -27,10 +29,6 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
                                      @NotNull List<@Valid Endringsårsaker> endringAvInntektÅrsaker,
                                      @NotNull @Valid AvsenderSystem avsenderSystem) {
 
-    public enum YtelseType {
-        FORELDREPENGER,
-        SVANGERSKAPSPENGER
-    }
 
     public record Refusjon(@NotNull LocalDate fom,
                            @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {

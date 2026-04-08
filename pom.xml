@@ -35,6 +35,11 @@
                 <artifactId>fpsak-tidsserie</artifactId>
                 <version>2.7.4</version>
             </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.inntektsmelding</groupId>
+                <artifactId>inntektsmelding-kontrakt</artifactId>
+                <version>0.1.1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -138,7 +143,10 @@
             <groupId>no.nav.fpsak.tidsserie</groupId>
             <artifactId>fpsak-tidsserie</artifactId>
         </dependency>
-
+        <dependency>
+        <groupId>no.nav.foreldrepenger.inntektsmelding</groupId>
+        <artifactId>inntektsmelding-kontrakt</artifactId>
+        </dependency>
         <!-- test -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -203,6 +211,10 @@
         <repository>
             <id>github-tidsserie</id>
             <url>https://maven.pkg.github.com/navikt/fpsak-tidsserie</url>
+        </repository>
+        <repository>
+            <id>github-inntektsmelding</id>
+            <url>https://maven.pkg.github.com/navikt/fp-inntektsmelding</url>
         </repository>
     </repositories>
 </project>

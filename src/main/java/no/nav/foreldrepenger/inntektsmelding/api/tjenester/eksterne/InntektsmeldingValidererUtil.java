@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 public class InntektsmeldingValidererUtil {
@@ -54,20 +53,13 @@ public class InntektsmeldingValidererUtil {
                 forespørsel.førsteUttaksdato());
             return Optional.of(EksponertFeilmelding.MISMATCH_FØRSTE_UTTAKSDATO);
         }
-        if (!mapYtelseType(inntektsmeldingRequest.ytelse()).equals(forespørsel.ytelseType())) {
+        if (!inntektsmeldingRequest.ytelse().equals(forespørsel.ytelseType())) {
             LOG.warn("Ytelsetype fra inntektsmelding {} og ytelsetype fra forespørsel {} matcher ikke.",
                 inntektsmeldingRequest.ytelse(),
                 forespørsel.ytelseType());
             return Optional.of(EksponertFeilmelding.MISMATCH_YTELSE);
         }
         return Optional.empty();
-    }
-
-    private static YtelseTypeDto mapYtelseType(InntektsmeldingRequest.YtelseType ytelseType) {
-        return switch (ytelseType) {
-            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
-        };
     }
 
     public static Optional<EksponertFeilmelding> validerRefusjon(List<InntektsmeldingRequest.Refusjon> refusjon, LocalDate startdato) {

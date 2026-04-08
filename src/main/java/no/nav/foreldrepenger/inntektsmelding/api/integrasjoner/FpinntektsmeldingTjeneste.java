@@ -6,17 +6,26 @@ import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRequest;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.FødselsnummerDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.KodeverkMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.StatusDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
+import no.nav.foreldrepenger.inntektsmelding.felles.AvsenderSystemDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.BortfaltNaturalytelseDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.EndringsårsakDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.EndringsårsakerDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.FødselsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.KontaktpersonDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.NaturalytelsetypeDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.SøktRefusjonDto;
+import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
+import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 
 @Dependent
 public class FpinntektsmeldingTjeneste {
@@ -33,28 +42,28 @@ public class FpinntektsmeldingTjeneste {
 
     public Forespørsel hentForespørsel(UUID forespørselUuid) {
         var response = fpinntektsmeldingKlient.hentForespørsel(forespørselUuid);
-        return mapResponseTilDomeneobjekt(response);
+        return response != null ? mapResponseTilDomeneobjekt(response) : null;
     }
 
     public List<Forespørsel> hentForespørsler(String orgnr,
                                               String fnr,
                                               StatusDto status,
-                                              YtelseTypeDto ytelseType,
+                                              YtelseType ytelseType,
                                               LocalDate fom,
                                               LocalDate tom) {
         var filter = new ForespørselFilterRequest(new OrganisasjonsnummerDto(orgnr), fnr == null ? null : new FødselsnummerDto(fnr),
             status == null ? null : KodeverkMapper.mapApiStatusTilForespørselStatus(status),
-            ytelseType,
+            ytelseType == null ? null : mapYtelseType(ytelseType),
             fom,
             tom);
         var response = fpinntektsmeldingKlient.hentForespørsler(filter);
         return response.stream().map(this::mapResponseTilDomeneobjekt).toList();
     }
 
-    public Response sendInntektsmelding(InntektsmeldingRequest inntektsmeldingRequest, Forespørsel forespørsel) {
-        var inntektsmeldingRequestDto = new InntektsmeldingRequestDto(
+    public SendInntektsmeldingResponse sendInntektsmelding(InntektsmeldingRequest inntektsmeldingRequest, Forespørsel forespørsel) {
+        var inntektsmeldingRequestDto = new SendInntektsmeldingRequest(
             forespørsel.forespørselUuid(),
-            forespørsel.fødselsnummer(),
+            new FødselsnummerDto(forespørsel.fødselsnummer()),
             new OrganisasjonsnummerDto(forespørsel.orgnummer().orgnr()),
             inntektsmeldingRequest.startdato(),
             mapYtelseType(inntektsmeldingRequest.ytelse()),
@@ -63,16 +72,16 @@ public class FpinntektsmeldingTjeneste {
             mapRefusjonDto(inntektsmeldingRequest.refusjon()),
             mapNaturalYtelseDto(inntektsmeldingRequest.bortfaltNaturalytelsePerioder()),
             mapEndringsårsakerDto(inntektsmeldingRequest.endringAvInntektÅrsaker()),
-            new InntektsmeldingRequestDto.AvsenderSystemDto(inntektsmeldingRequest.avsenderSystem().navn(),
+            new AvsenderSystemDto(inntektsmeldingRequest.avsenderSystem().navn(),
                 inntektsmeldingRequest.avsenderSystem().versjon())
             );
 
        return fpinntektsmeldingKlient.sendInntektsmelding(inntektsmeldingRequestDto);
     }
 
-    private List<InntektsmeldingRequestDto.EndringsårsakerDto> mapEndringsårsakerDto(List<InntektsmeldingRequest.Endringsårsaker> endringsårsaker) {
+    private List<EndringsårsakerDto> mapEndringsårsakerDto(List<InntektsmeldingRequest.Endringsårsaker> endringsårsaker) {
         return endringsårsaker.stream()
-            .map(e -> new InntektsmeldingRequestDto.EndringsårsakerDto(mapÅrsakType(e.årsak()), e.fom(), e.tom(), e.bleKjentFom()))
+            .map(e -> new EndringsårsakerDto(mapÅrsakType(e.årsak()), e.fom(), e.tom(), e.bleKjentFom()))
             .toList();
     }
 
@@ -94,9 +103,9 @@ public class FpinntektsmeldingTjeneste {
         };
     }
 
-    private List<InntektsmeldingRequestDto.BortfaltNaturalYtelseDto> mapNaturalYtelseDto(List<InntektsmeldingRequest.BortfaltNaturalytelse> bortfalteNaturalYtelser) {
+    private List<BortfaltNaturalytelseDto> mapNaturalYtelseDto(List<InntektsmeldingRequest.BortfaltNaturalytelse> bortfalteNaturalYtelser) {
         return bortfalteNaturalYtelser.stream()
-            .map(b -> new InntektsmeldingRequestDto.BortfaltNaturalYtelseDto(b.fom(), b.tom(), mapNaturalYtelseType(b.naturalytelsetype()), b.beløp()))
+            .map(b -> new BortfaltNaturalytelseDto(b.fom(), b.tom(), mapNaturalYtelseType(b.naturalytelsetype()), b.beløp()))
             .toList();
     }
 
@@ -124,33 +133,32 @@ public class FpinntektsmeldingTjeneste {
         };
     }
 
-    private List<InntektsmeldingRequestDto.RefusjonDto> mapRefusjonDto(List<InntektsmeldingRequest.Refusjon> refusjon) {
+    private List<SøktRefusjonDto> mapRefusjonDto(List<InntektsmeldingRequest.Refusjon> refusjon) {
         return refusjon.stream()
-            .map(r -> new InntektsmeldingRequestDto.RefusjonDto(r.fom(), r.beløp()))
+            .map(r -> new SøktRefusjonDto(r.fom(), r.beløp()))
             .toList();
     }
 
-    private YtelseTypeDto mapYtelseType(InntektsmeldingRequest.YtelseType ytelseType) {
+
+    private no.nav.foreldrepenger.inntektsmelding.felles.YtelseTypeDto mapYtelseType(YtelseType ytelseType) {
         return switch (ytelseType) {
-            case FORELDREPENGER -> YtelseTypeDto.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> YtelseTypeDto.SVANGERSKAPSPENGER;
+            case FORELDREPENGER -> no.nav.foreldrepenger.inntektsmelding.felles.YtelseTypeDto.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> no.nav.foreldrepenger.inntektsmelding.felles.YtelseTypeDto.SVANGERSKAPSPENGER;
         };
     }
 
-    private InntektsmeldingRequestDto.KontaktpersonDto mapKontaktPersonDto(InntektsmeldingRequest.Kontaktperson kontaktperson) {
-        return new InntektsmeldingRequestDto.KontaktpersonDto(kontaktperson.navn(), kontaktperson.telefonnummer());
+    private KontaktpersonDto mapKontaktPersonDto(InntektsmeldingRequest.Kontaktperson kontaktperson) {
+        return new KontaktpersonDto(kontaktperson.navn(), kontaktperson.telefonnummer());
     }
 
     private Forespørsel mapResponseTilDomeneobjekt(ForespørselResponse response) {
         return new Forespørsel(response.forespørselUuid(),
-            response.orgnummer(),
-            response.fødselsnummer(),
+            new Organisasjonsnummer(response.orgnummer().orgnr()),
+            response.fødselsnummer().fnr(),
             response.førsteUttaksdato(),
             response.skjæringstidspunkt(),
-            response.status(),
-            response.ytelseType(),
+            KodeverkMapper.mapForespørselStatus(response.status()),
+            KodeverkMapper.mapYtelseType(response.ytelseType()),
             response.opprettetTid());
     }
-
-
 }

@@ -8,6 +8,12 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 
+import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
+import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
+
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,10 +60,10 @@ public class FpinntektsmeldingKlient {
         }
     }
 
-    public List<ForespørselResponse> hentForespørsler(ForespørselFilterRequest filter) {
+    public List<no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse> hentForespørsler(ForespørselFilterRequest filter) {
         try {
             var request = RestRequest.newPOSTJson(filter, uriHentForespørsler, restConfig);
-            var response = restClient.send(request, ForespørselResponse[].class);
+            var response = restClient.send(request, no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse[].class);
             return List.of(response);
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av forespørsler fra fpinntektsmelding for orgnr: {}. Feilmelding var {}",
@@ -67,14 +73,14 @@ public class FpinntektsmeldingKlient {
         }
     }
 
-    Response sendInntektsmelding(InntektsmeldingRequestDto inntektsmeldingRequestDto) {
+    SendInntektsmeldingResponse sendInntektsmelding(SendInntektsmeldingRequest inntektsmeldingRequest) {
         try {
-            LOG.info("Sender inntektsmelding til fpinntektsmelding for forespørselUuid {} ", inntektsmeldingRequestDto.forespørselUuid());
-            var request = RestRequest.newPOSTJson(inntektsmeldingRequestDto, uriSendInntektsmelding, restConfig);
-            return restClient.send(request, Response.class);
+            LOG.info("Sender inntektsmelding til fpinntektsmelding for forespørselUuid {} ", inntektsmeldingRequest.foresporselUuid());
+            var request = RestRequest.newPOSTJson(inntektsmeldingRequest, uriSendInntektsmelding, restConfig);
+            return restClient.send(request, SendInntektsmeldingResponse.class);
         } catch (Exception e) {
-            LOG.warn("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding for uuid: {}. Feilmelding var {}", inntektsmeldingRequestDto.forespørselUuid(), e.getMessage());
-            SECURE_LOG.info("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding. InntektsmeldingRequestDto er {}", inntektsmeldingRequestDto);
+            LOG.warn("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding for uuid: {}. Feilmelding var {}", inntektsmeldingRequest.foresporselUuid(), e.getMessage());
+            SECURE_LOG.info("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding. InntektsmeldingRequestDto er {}", inntektsmeldingRequest);
             throw feilVedKallTilFpinntektsmelding();
         }
     }
