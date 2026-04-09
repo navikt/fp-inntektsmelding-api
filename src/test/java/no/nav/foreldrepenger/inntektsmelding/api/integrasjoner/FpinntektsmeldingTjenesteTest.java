@@ -1,8 +1,11 @@
 package no.nav.foreldrepenger.inntektsmelding.api.integrasjoner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,9 +17,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
+import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRequest;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
+import no.nav.foreldrepenger.inntektsmelding.felles.ForespørselStatusDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.FødselsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.YtelseTypeDto;
+import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
+import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 
 @ExtendWith(MockitoExtension.class)
 class FpinntektsmeldingTjenesteTest {
@@ -31,16 +43,17 @@ class FpinntektsmeldingTjenesteTest {
     }
 
     @Test
-    void skal_bestemt_forespørsel() {
+    void skal_hente_bestemt_forespørsel() {
         var orgnummer = "999999999";
         var uuid = UUID.randomUUID();
-        var response = new ForespørselResponse(uuid, new OrganisasjonsnummerDto(orgnummer), "123",
-            LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseTypeDto.FORELDREPENGER, LocalDateTime.now());
+        var fødselsnummer = "123";
+        var response = new ForespørselResponse(uuid, new OrganisasjonsnummerDto(orgnummer), new FødselsnummerDto(fødselsnummer),
+            LocalDate.now(), LocalDate.now(), ForespørselStatusDto.UNDER_BEHANDLING, YtelseTypeDto.FORELDREPENGER, LocalDateTime.now());
         when(fpinntektsmeldingKlient.hentForespørsel(uuid)).thenReturn(response);
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(uuid);
         assertThat(forespørsel.orgnummer().orgnr()).isEqualTo(orgnummer);
-        assertThat(forespørsel.ytelseType()).isEqualTo(response.ytelseType());
-        assertThat(forespørsel.fødselsnummer()).isEqualTo(response.fødselsnummer());
+        assertThat(forespørsel.ytelseType()).isEqualTo(YtelseType.FORELDREPENGER);
+        assertThat(forespørsel.fødselsnummer()).isEqualTo(fødselsnummer);
     }
 
     @Test
@@ -60,10 +73,11 @@ class FpinntektsmeldingTjenesteTest {
     @Test
     void skal_hente_liste_forespørsler() {
         var orgnummer = "999999999";
-        var response1 = new ForespørselResponse(UUID.randomUUID(), new OrganisasjonsnummerDto(orgnummer), "123",
-            LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseTypeDto.FORELDREPENGER, LocalDateTime.now());
-        var response2 = new ForespørselResponse(UUID.randomUUID(), new OrganisasjonsnummerDto(orgnummer), "321",
-            LocalDate.now(), LocalDate.now(), ForespørselStatus.UTGÅTT, YtelseTypeDto.SVANGERSKAPSPENGER, LocalDateTime.now());
+        var fødselsnummer = "123";
+        var response1 = new ForespørselResponse(UUID.randomUUID(), new OrganisasjonsnummerDto(orgnummer), new FødselsnummerDto(fødselsnummer),
+            LocalDate.now(), LocalDate.now(), ForespørselStatusDto.UNDER_BEHANDLING, YtelseTypeDto.FORELDREPENGER, LocalDateTime.now());
+        var response2 = new ForespørselResponse(UUID.randomUUID(), new OrganisasjonsnummerDto(orgnummer), new FødselsnummerDto(fødselsnummer),
+            LocalDate.now(), LocalDate.now(), ForespørselStatusDto.UTGÅTT, YtelseTypeDto.SVANGERSKAPSPENGER, LocalDateTime.now());
 
         when(fpinntektsmeldingKlient.hentForespørsler(new ForespørselFilterRequest(new OrganisasjonsnummerDto(orgnummer),
             null,
@@ -74,16 +88,144 @@ class FpinntektsmeldingTjenesteTest {
             List.of(response1, response2));
         var forespørsler = fpinntektsmeldingTjeneste.hentForespørsler(orgnummer, null, null, null, null, null);
         assertThat(forespørsler).hasSize(2);
-        var forespørsel1 = forespørsler.stream().filter(f -> f.ytelseType().equals(YtelseTypeDto.FORELDREPENGER)).findFirst().orElseThrow();
-        var forespørsel2 = forespørsler.stream().filter(f -> f.ytelseType().equals(YtelseTypeDto.SVANGERSKAPSPENGER)).findFirst().orElseThrow();
+        var forespørsel1 = forespørsler.stream().filter(f -> f.ytelseType().equals(YtelseType.FORELDREPENGER)).findFirst().orElseThrow();
+        var forespørsel2 = forespørsler.stream().filter(f -> f.ytelseType().equals(YtelseType.SVANGERSKAPSPENGER)).findFirst().orElseThrow();
 
         assertThat(forespørsel1.orgnummer().orgnr()).isEqualTo(orgnummer);
-        assertThat(forespørsel1.status()).isEqualTo(response1.status());
-        assertThat(forespørsel1.fødselsnummer()).isEqualTo(response1.fødselsnummer());
+        assertThat(forespørsel1.status()).isEqualTo(ForespørselStatus.UNDER_BEHANDLING);
+        assertThat(forespørsel1.fødselsnummer()).isEqualTo(fødselsnummer);
 
         assertThat(forespørsel2.orgnummer().orgnr()).isEqualTo(orgnummer);
-        assertThat(forespørsel2.status()).isEqualTo(response2.status());
-        assertThat(forespørsel2.fødselsnummer()).isEqualTo(response2.fødselsnummer());
+        assertThat(forespørsel2.status()).isEqualTo(ForespørselStatus.UTGÅTT);
+        assertThat(forespørsel2.fødselsnummer()).isEqualTo(fødselsnummer);
 
+    }
+
+    @Test
+    void skal_sende_inntektsmelding_med_foreldrepenger() {
+        var orgnummer = "999999999";
+        var fødselsnummer = "12345678901";
+        var uuid = UUID.randomUUID();
+        var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
+            LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
+        var inntektsmeldingRequest = new InntektsmeldingRequest(
+            uuid,
+            fødselsnummer,
+            LocalDate.now(),
+            YtelseType.FORELDREPENGER,
+            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
+            new BigDecimal("25000.00"),
+            List.of(new InntektsmeldingRequest.Refusjon(LocalDate.now(), new BigDecimal("25000.00"))),
+            List.of(),
+            List.of(),
+            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+        );
+        var responseUuid = UUID.randomUUID();
+        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "Inntektsmelding mottatt"));
+
+        var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
+
+        assertThat(response).isNotNull();
+        verify(fpinntektsmeldingKlient).sendInntektsmelding(any());
+    }
+
+    @Test
+    void skal_sende_inntektsmelding_med_bortfalt_naturalytelse() {
+        var orgnummer = "777777777";
+        var fødselsnummer = "11111111111";
+        var uuid = UUID.randomUUID();
+        var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
+            LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
+        var bortfaltNaturalytelse = new InntektsmeldingRequest.BortfaltNaturalytelse(
+            LocalDate.now(),
+            LocalDate.now().plusDays(10),
+            InntektsmeldingRequest.BortfaltNaturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
+            new BigDecimal("500.00")
+        );
+        var inntektsmeldingRequest = new InntektsmeldingRequest(
+            uuid,
+            fødselsnummer,
+            LocalDate.now(),
+            YtelseType.FORELDREPENGER,
+            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
+            new BigDecimal("25000.00"),
+            List.of(),
+            List.of(bortfaltNaturalytelse),
+            List.of(),
+            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+        );
+        var responseUuid = UUID.randomUUID();
+        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "Inntektsmelding mottatt"));
+
+        var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
+
+        assertThat(response).isNotNull();
+        verify(fpinntektsmeldingKlient).sendInntektsmelding(any());
+    }
+
+    @Test
+    void skal_sende_inntektsmelding_med_endringsaarsaker() {
+        var orgnummer = "666666666";
+        var fødselsnummer = "22222222222";
+        var uuid = UUID.randomUUID();
+        var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
+            LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
+        var endringsårsak = new InntektsmeldingRequest.Endringsårsaker(
+            InntektsmeldingRequest.Endringsårsaker.Endringsårsak.PERMISJON,
+            LocalDate.now(),
+            LocalDate.now().plusDays(5),
+            LocalDate.now().minusDays(1)
+        );
+        var inntektsmeldingRequest = new InntektsmeldingRequest(
+            uuid,
+            fødselsnummer,
+            LocalDate.now(),
+            YtelseType.FORELDREPENGER,
+            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
+            new BigDecimal("25000.00"),
+            List.of(new InntektsmeldingRequest.Refusjon(LocalDate.now(), new BigDecimal("25000.00"))),
+            List.of(),
+            List.of(endringsårsak),
+            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+        );
+        var responseUuid = UUID.randomUUID();
+        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "Inntektsmelding mottatt"));
+
+        var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
+
+        assertThat(response).isNotNull();
+        verify(fpinntektsmeldingKlient).sendInntektsmelding(any());
+    }
+
+    @Test
+    void skal_sende_inntektsmelding_med_flere_refusjonsperioder() {
+        var orgnummer = "555555555";
+        var fødselsnummer = "33333333333";
+        var uuid = UUID.randomUUID();
+        var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
+            LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
+        var refusjoner = List.of(
+            new InntektsmeldingRequest.Refusjon(LocalDate.now(), new BigDecimal("25000.00")),
+            new InntektsmeldingRequest.Refusjon(LocalDate.now().plusMonths(1), new BigDecimal("20000.00"))
+        );
+        var inntektsmeldingRequest = new InntektsmeldingRequest(
+            uuid,
+            fødselsnummer,
+            LocalDate.now(),
+            YtelseType.FORELDREPENGER,
+            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
+            new BigDecimal("25000.00"),
+            refusjoner,
+            List.of(),
+            List.of(),
+            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+        );
+        var responseUuid = UUID.randomUUID();
+        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "Inntektsmelding mottatt"));
+
+        var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
+
+        assertThat(response).isNotNull();
+        verify(fpinntektsmeldingKlient).sendInntektsmelding(any());
     }
 }

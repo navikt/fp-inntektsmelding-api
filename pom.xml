@@ -29,6 +29,17 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+
+            <dependency>
+                <groupId>no.nav.fpsak.tidsserie</groupId>
+                <artifactId>fpsak-tidsserie</artifactId>
+                <version>2.7.4</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.inntektsmelding</groupId>
+                <artifactId>inntektsmelding-kontrakt</artifactId>
+                <version>0.1.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -44,10 +55,6 @@
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
             <artifactId>felles-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-testutilities</artifactId>
         </dependency>
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -133,10 +140,13 @@
             <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
         <dependency>
-            <groupId>no.nav.foreldrepenger.felles</groupId>
-            <artifactId>felles-server</artifactId>
+            <groupId>no.nav.fpsak.tidsserie</groupId>
+            <artifactId>fpsak-tidsserie</artifactId>
         </dependency>
-
+        <dependency>
+        <groupId>no.nav.foreldrepenger.inntektsmelding</groupId>
+        <artifactId>inntektsmelding-kontrakt</artifactId>
+        </dependency>
         <!-- test -->
         <dependency>
             <groupId>no.nav.foreldrepenger.felles</groupId>
@@ -197,6 +207,14 @@
         <repository>
             <id>github</id> <!-- OBS: Brukes også av fp-gha-workflows for action/setup-java -->
             <url>https://maven.pkg.github.com/navikt/fp-felles</url> <!-- Samme url som brukes i dependabot.yml -->
+        </repository>
+        <repository>
+            <id>github-tidsserie</id>
+            <url>https://maven.pkg.github.com/navikt/fpsak-tidsserie</url>
+        </repository>
+        <repository>
+            <id>github-inntektsmelding</id>
+            <url>https://maven.pkg.github.com/navikt/fp-inntektsmelding</url>
         </repository>
     </repositories>
 </project>

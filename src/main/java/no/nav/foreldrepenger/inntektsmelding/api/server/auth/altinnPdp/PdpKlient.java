@@ -96,7 +96,6 @@ public class PdpKlient {
     public record System(String id, String attributeId) {
     }
 
-    //Todo: burde vi her opprette en InntektsmeldingAPIException med en EksponertFeilmelding som kan brukes i TilgangTjeneste istedenfor en egen PdpClientException?
     static class PdpClientException extends Exception {
         public PdpClientException() {
             super("Feil ved kall til pdp endepunkt");

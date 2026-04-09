@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.KodeverkMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
 @RequestScoped
@@ -92,7 +92,7 @@ public class ForespørselRest {
                  .build();
         }
 
-        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new OrganisasjonsnummerDto(filterRequest.orgnr()));
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(filterRequest.orgnr()));
         var forespørsler = fpinntektsmeldingTjeneste.hentForespørsler(filterRequest.orgnr(),
             filterRequest.fnr(),
             filterRequest.status(),
@@ -115,8 +115,8 @@ public class ForespørselRest {
             forespørsel.fødselsnummer(),
             forespørsel.førsteUttaksdato(),
             forespørsel.skjæringstidspunkt(),
-            KodeverkMapper.mapForespørselStatusTilApiStatus(forespørsel.status()),
-            forespørsel.ytelseType(),
+            KodeverkMapper.mapTilDto(forespørsel.status()),
+            KodeverkMapper.mapTilDto(forespørsel.ytelseType()),
             forespørsel.opprettetTid());
     }
 }

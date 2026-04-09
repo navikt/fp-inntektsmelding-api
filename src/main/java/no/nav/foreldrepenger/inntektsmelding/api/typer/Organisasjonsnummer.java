@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public record OrganisasjonsnummerDto(
+public record Organisasjonsnummer(
     @JsonValue @NotNull @Pattern(regexp = VALID_REGEXP, message = "orgnr ${validatedValue} har ikke gyldig verdi (pattern '{regexp}')") String orgnr) {
     private static final String VALID_REGEXP = "^\\d{9}$";
 
@@ -19,7 +19,7 @@ public record OrganisasjonsnummerDto(
         if (obj == null || obj.getClass() != this.getClass()) {
             return false;
         }
-        var that = (OrganisasjonsnummerDto) obj;
+        var that = (Organisasjonsnummer) obj;
         return Objects.equals(this.orgnr, that.orgnr);
     }
 

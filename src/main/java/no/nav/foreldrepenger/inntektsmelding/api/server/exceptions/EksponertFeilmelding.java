@@ -19,7 +19,18 @@ public enum EksponertFeilmelding {
     MISMATCH_SKJÆRINGSTIDSPUNKT("Skjæringstidspunkt fra inntektsmelding og skjæringstidspunkt fra etterspurt forespørsel matcher ikke"),
     MISMATCH_YTELSE("Ytelse fra inntektsmelding og ytelse fra etterspurt forespørsel matcher ikke"),
     UGYLDIG_FORESPØRSEL("Det er ikke tillatt å sende inn en inntektsmelding på en forkastet forespørsel."),
-
+    LIK_FOM_REFUSJON("Flere refusjonsperioder kan ikke starte på samme dato"),
+    LIK_FOM_NATURALYTELSER("Flere naturalytelsesperioder kan ikke starte på samme dato"),
+    REFUSJON_FOM_LIK_STARTDATO("Refusjonslisten må inneholde en fra dato som starter på startdato for permisjonen"),
+    UGYLDIG_FRA_DATO_LISTE("Fra datoene i listen må være sammenhengende"),
+    FRA_DATO_ETTER_TOM("Fra dato kan ikke være etter til dato"),
+    OVERLAPP_I_PERIODER("Perioder kan ikke overlappe"),
+    ÅRSAK_KREVER_FRA_DATO("Endringsårskene NY_STILLING, NY_STILLINGSPROSENT og VARIG_LØNNSENDRING krever at det oppgis en fra dato"),
+    ÅRSAK_KREVER_FRA_OG_TIL_DATO("Endringsårskene FERIE, PERMISJON, PERMITTERING og SYKEFRAVÆR krever at det oppgis en fra dato og en til dato"),
+    KREVER_FRA_OG_BLE_KJENT_DATO("Endringsårsaken Tariffendring krever at fra dato og ble kjent dato er oppgitt"),
+    FRA_DATO_FØR_STARTDATO("Dato for varig lønnsendring må være før fraværsdato"),
+    DUPLIKATER_IKKE_TILATT(
+        "Duplikate endringsårsker er ikke tillatt for årsakene: NY_STILLING, NY_STILLINGSPROSENT, VARIG_LØNNSENDRING, BONUS, TARIFF_ENDRING, FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER, NYANSATT, MANGELFULL_RAPPORTERING_A-ORDNING, INNTEKT_IKKE_RAPPRTERT_ENDA_A-ORDNING"),
     // Default
     STANDARD_FEIL("Noe feilet");
 

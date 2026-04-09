@@ -8,6 +8,12 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 
+import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
+import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
+
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,16 +31,20 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @RestClientConfig(tokenConfig = TokenFlow.AZUREAD_CC, application = FpApplication.FPINNTEKTSMELDING)
 public class FpinntektsmeldingKlient {
     private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingKlient.class);
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriHentForespørsel;
+    private final URI uriSendInntektsmelding;
     private final URI uriHentForespørsler;
+
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
-        this.uriHentForespørsel = toUri(restConfig.fpContextPath(), "/api/foresporsel-ekstern/hent");
-        this.uriHentForespørsler = toUri(restConfig.fpContextPath(), "/api/foresporsel-ekstern/hent/foresporsler");
+        this.uriHentForespørsel = toUri(restConfig.fpContextPath(), "/imapi/foresporsel/hent");
+        this.uriHentForespørsler = toUri(restConfig.fpContextPath(), "/imapi/foresporsel/foresporsler");
+        this.uriSendInntektsmelding = toUri(restConfig.fpContextPath(), "/imapi/inntektsmelding/send-inntektsmelding");
     }
 
     public ForespørselResponse hentForespørsel(UUID forespørselUuid) {
@@ -50,15 +60,27 @@ public class FpinntektsmeldingKlient {
         }
     }
 
-    public List<ForespørselResponse> hentForespørsler(ForespørselFilterRequest filter) {
+    public List<no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse> hentForespørsler(ForespørselFilterRequest filter) {
         try {
             var request = RestRequest.newPOSTJson(filter, uriHentForespørsler, restConfig);
-            var response = restClient.send(request, ForespørselResponse[].class);
+            var response = restClient.send(request, no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse[].class);
             return List.of(response);
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av forespørsler fra fpinntektsmelding for orgnr: {}. Feilmelding var {}",
                 filter.orgnr(),
                 e.getMessage());
+            throw feilVedKallTilFpinntektsmelding();
+        }
+    }
+
+    SendInntektsmeldingResponse sendInntektsmelding(SendInntektsmeldingRequest inntektsmeldingRequest) {
+        try {
+            LOG.info("Sender inntektsmelding til fpinntektsmelding for forespørselUuid {} ", inntektsmeldingRequest.foresporselUuid());
+            var request = RestRequest.newPOSTJson(inntektsmeldingRequest, uriSendInntektsmelding, restConfig);
+            return restClient.send(request, SendInntektsmeldingResponse.class);
+        } catch (Exception e) {
+            LOG.warn("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding for uuid: {}. Feilmelding var {}", inntektsmeldingRequest.foresporselUuid(), e.getMessage());
+            SECURE_LOG.info("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding. InntektsmeldingRequestDto er {}", inntektsmeldingRequest);
             throw feilVedKallTilFpinntektsmelding();
         }
     }
@@ -75,6 +97,5 @@ public class FpinntektsmeldingKlient {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
-
 }
 

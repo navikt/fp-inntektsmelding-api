@@ -7,7 +7,7 @@ import jakarta.ws.rs.core.Response;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class TilgangTjeneste implements Tilgang {
     private static final Environment ENV = Environment.current();
 
     @Override
-    public void sjekkAtSystemHarTilgangTilOrganisasjon(OrganisasjonsnummerDto orgnummerFraForespørsel) {
+    public void sjekkAtSystemHarTilgangTilOrganisasjon(Organisasjonsnummer orgnummerFraForespørsel) {
         var orgnummerFraKontekst = hentOrgnrFraKontekst();
         var systemId = hentSystemIdFraKontekst();
         if (!orgnummerFraKontekst.equals(orgnummerFraForespørsel)) {
@@ -45,7 +45,7 @@ public class TilgangTjeneste implements Tilgang {
         }
     }
 
-    private OrganisasjonsnummerDto hentOrgnrFraKontekst() {
+    private Organisasjonsnummer hentOrgnrFraKontekst() {
         if (KontekstHolder.getKontekst() instanceof TokenKontekst tk) {
             return tk.getOrganisasjonNummer();
         }
