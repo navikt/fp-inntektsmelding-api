@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
@@ -120,22 +119,21 @@ class InntektsmeldingValidererUtilTest {
     }
 
     @Test
-    @Disabled
-    void skal_avvise_ikke_sammenhengende_refusjoner() {
-        var refusjon = List.of(
-            new InntektsmeldingRequest.Refusjon(STARTDATO, DEFAULT_BELØP),
-            new InntektsmeldingRequest.Refusjon(STARTDATO.plusDays(3), new BigDecimal("20000.00"))
-        );
-        var result = InntektsmeldingValidererUtil.validerRefusjon(refusjon, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.UGYLDIG_FRA_DATO_LISTE);
-    }
-
-    @Test
     void skal_godkjenne_usorterte_sammenhengende_refusjoner() {
         var refusjon = List.of(
             new InntektsmeldingRequest.Refusjon(STARTDATO.plusDays(2), new BigDecimal("15000.00")),
             new InntektsmeldingRequest.Refusjon(STARTDATO, DEFAULT_BELØP),
             new InntektsmeldingRequest.Refusjon(STARTDATO.plusDays(1), new BigDecimal("20000.00"))
+        );
+        var result = InntektsmeldingValidererUtil.validerRefusjon(refusjon, STARTDATO);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void skal_godkjenne_usammenhengende_refusjonsperioder() {
+        var refusjon = List.of(
+            new InntektsmeldingRequest.Refusjon(STARTDATO, new BigDecimal("15000.00")),
+            new InntektsmeldingRequest.Refusjon(STARTDATO.plusDays(30), new BigDecimal("20000.00"))
         );
         var result = InntektsmeldingValidererUtil.validerRefusjon(refusjon, STARTDATO);
         assertThat(result).isEmpty();
@@ -200,7 +198,7 @@ class InntektsmeldingValidererUtilTest {
     }
 
     @Test
-    void skal_godkjenne_sammenhengende_perioder() {
+    void skal_godkjenne_usammenhengende_perioder() {
         var perioder = List.of(
             lagNaturalytelse(STARTDATO, STARTDATO.plusDays(10)),
             lagNaturalytelse(STARTDATO.plusDays(11), STARTDATO.plusDays(20))

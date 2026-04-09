@@ -236,10 +236,14 @@ public class InntektsmeldingValidererUtil {
             .toList();
 
         // Sjekk om noen interval overlapper med en annen
-        return intervals.stream()
-            .anyMatch(interval -> intervals.stream()
-                .filter(other -> !interval.equals(other))
-                .anyMatch(interval::overlaps));
+        for (int i = 0; i < intervals.size(); i++) {
+            for (int j = i + 1; j < intervals.size(); j++) {
+                if (intervals.get(i).overlaps(intervals.get(j))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean kreverFomDato(InntektsmeldingRequest.Endringsårsaker.Endringsårsak årsak) {
