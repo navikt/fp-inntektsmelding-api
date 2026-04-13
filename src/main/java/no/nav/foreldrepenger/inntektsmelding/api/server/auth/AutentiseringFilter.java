@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.OpenApiRest;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
@@ -46,6 +47,9 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
 
     @Override
     public void filter(ContainerRequestContext req) {
+        if (OpenApiRest.class.equals(getResourceinfo().getResourceClass())) {
+            return;
+        }
         assertValidRequest(req);
     }
 

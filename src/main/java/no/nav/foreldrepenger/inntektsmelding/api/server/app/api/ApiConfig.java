@@ -19,6 +19,8 @@ import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AutentiseringFilter;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintViolationMapper;
@@ -27,6 +29,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonMappingEx
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
+import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -58,7 +61,12 @@ public class ApiConfig extends ResourceConfig {
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("API for inntektsmelding for foreldrepenger og svangerskapspenger");
 
-        oas.info(info).addServersItem(new Server());
+        oas.info(info).addServersItem(new Server())
+            .schemaRequirement("bearer", new SecurityScheme()
+                .type(SecurityScheme.Type.HTTP)
+                .scheme("bearer")
+                .bearerFormat("JWT"))
+            .addSecurityItem(new SecurityRequirement().addList("bearer"));
         var oasConfig = new SwaggerConfiguration().openAPI(oas)
             .prettyPrint(true)
             .resourceClasses(getApplicationClasses().stream().map(Class::getName).collect(Collectors.toSet()));
@@ -79,7 +87,7 @@ public class ApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of(ForespørselRest.class);
+        return Set.of(ForespørselRest.class, InntektsmeldingRest.class);
     }
 
     private Map<String, Object> getApplicationProperties() {
