@@ -44,6 +44,8 @@ public class InntektsmeldingRest {
 
     @POST
     @Path(SEND_INNTEKTSMELDING)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         LOG.info("Mottatt inntektsmelding for forespørselUuid {} ", inntektsmeldingRequest.foresporselUuid());
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(inntektsmeldingRequest.foresporselUuid());
