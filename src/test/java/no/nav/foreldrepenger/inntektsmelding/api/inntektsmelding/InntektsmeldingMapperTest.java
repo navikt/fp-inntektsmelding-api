@@ -8,12 +8,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.KildesystemDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
 class InntektsmeldingMapperTest {
@@ -179,7 +180,7 @@ class InntektsmeldingMapperTest {
             TEST_UUID,
             FNR,
             YtelseTypeDto.FORELDREPENGER,
-            new OrganisasjonsnummerDto(ORGNR),
+            new Organisasjonsnummer(ORGNR),
             new Inntektsmelding.Kontaktperson("Ola Nordmann", "12345678"),
             STARTDATO,
             MÅNEDS_INNTEKT,

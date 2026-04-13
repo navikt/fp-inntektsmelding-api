@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Pattern;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.KildesystemDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
 import java.math.BigDecimal;
@@ -24,7 +24,7 @@ record InntektsmeldingResponse(
     @NotNull UUID inntektsmeldingUuid,
     @Pattern(regexp = "^\\d{11}$") @NotNull String fnr,
     @NotNull @Valid YtelseTypeDto ytelse,
-    @NotNull @Valid OrganisasjonsnummerDto orgnr,
+    @NotNull @Valid Organisasjonsnummer orgnr,
     @NotNull @Valid Kontaktperson kontaktperson,
     @NotNull LocalDate startdato,
     @NotNull LocalDate skjæringstidspunkt,

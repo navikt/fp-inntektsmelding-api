@@ -9,14 +9,14 @@ import java.util.UUID;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.KildesystemDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.OrganisasjonsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
 public record Inntektsmelding(
     UUID inntektsmeldingUuid,
     String fnr,
     YtelseTypeDto ytelse,
-    OrganisasjonsnummerDto orgnr,
+    Organisasjonsnummer orgnr,
     Kontaktperson kontaktperson,
     LocalDate startdato,
     BigDecimal månedInntekt,
