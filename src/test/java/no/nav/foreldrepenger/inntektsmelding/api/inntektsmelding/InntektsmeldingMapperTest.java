@@ -73,7 +73,7 @@ class InntektsmeldingMapperTest {
 
     @Test
     void skal_mappe_refusjon_uten_opphørsdato() {
-        var refusjonsendring = new Inntektsmelding.Refusjonsendringer(LocalDate.of(2024, 3, 1), new BigDecimal("20000.00"));
+        var refusjonsendring = new Inntektsmelding.Refusjon(LocalDate.of(2024, 3, 1), new BigDecimal("20000.00"));
         var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(refusjonsendring), List.of(), null);
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
@@ -101,7 +101,7 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_mappe_refusjon_med_endringer_og_opphørsdato() {
         var opphørsdato = LocalDate.of(2024, 6, 1);
-        var refusjonsendring = new Inntektsmelding.Refusjonsendringer(LocalDate.of(2024, 3, 1), new BigDecimal("20000.00"));
+        var refusjonsendring = new Inntektsmelding.Refusjon(LocalDate.of(2024, 3, 1), new BigDecimal("20000.00"));
         var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(refusjonsendring), List.of(), opphørsdato);
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
@@ -172,7 +172,7 @@ class InntektsmeldingMapperTest {
 
     private Inntektsmelding lagInntektsmeldingBuilder(
         List<Inntektsmelding.Endringsårsaker> endringsårsaker,
-        List<Inntektsmelding.Refusjonsendringer> refusjonsendringer,
+        List<Inntektsmelding.Refusjon> refusjonsendringer,
         List<Inntektsmelding.BortfaltNaturalytelse> naturalytelser,
         LocalDate opphørsdatoRefusjon
     ) {
@@ -188,8 +188,6 @@ class InntektsmeldingMapperTest {
             INNSENDT_TIDSPUNKT,
             KildesystemDto.ARBEIDSGIVERPORTAL,
             new Inntektsmelding.AvsenderSystem("TestSystem", "1.0"),
-            MÅNEDS_REFUSJON,
-            opphørsdatoRefusjon,
             refusjonsendringer,
             naturalytelser,
             endringsårsaker

@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingResponse;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
 
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
@@ -38,6 +39,7 @@ public class FpinntektsmeldingKlient {
     private final URI uriHentForespørsel;
     private final URI uriSendInntektsmelding;
     private final URI uriHentForespørsler;
+    private final URI uriHentInntektsmelding;
 
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
@@ -45,6 +47,7 @@ public class FpinntektsmeldingKlient {
         this.uriHentForespørsel = toUri(restConfig.fpContextPath(), "api/imapi/foresporsel/hent");
         this.uriHentForespørsler = toUri(restConfig.fpContextPath(), "api/imapi/foresporsel/foresporsler");
         this.uriSendInntektsmelding = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/send-inntektsmelding");
+        this.uriHentInntektsmelding = toUri(restConfig.fpContextPath(), "/imapi/inntektsmelding/hent");
     }
 
     public ForespørselResponse hentForespørsel(UUID forespørselUuid) {
@@ -85,6 +88,17 @@ public class FpinntektsmeldingKlient {
         }
     }
 
+    HentInntektsmeldingResponse hentInntektsmelding(UUID innsendingId) {
+        try {
+            LOG.info("Sender inntektsmelding til fpinntektsmelding for forespørselUuid {} ", innsendingId);
+            var fullUri = uriHentInntektsmelding.toString() + "/" + innsendingId;
+            var request = RestRequest.newGET(URI.create(fullUri), restConfig);
+            return restClient.send(request, HentInntektsmeldingResponse.class);
+        } catch (Exception e) {
+            LOG.warn("FP-97215: Feil ved henting av inntektsmelding fra fpinntektsmelding for uuid: {}. Feilmelding var {}", innsendingId, e.getMessage());
+            throw feilVedKallTilFpinntektsmelding();
+        }
+    }
     private static TekniskException feilVedKallTilFpinntektsmelding() {
         throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
     }

@@ -16,9 +16,9 @@ public class InntektsmeldingMapper {
         var inntekt = new InntektsmeldingDto.Inntekt(inntektsmelding.månedInntekt(), inntektsmelding.skjæringstidspunkt(), inntektEndringsårsaker);
         var avsendersystemDto = new InntektsmeldingDto.AvsenderSystem(inntektsmelding.avsenderSystem().navn(),
             inntektsmelding.avsenderSystem().versjon());
-        var alleRefusjonsendringer = mapRefusjon(inntektsmelding);
+        var alleRefusjonsendringer = mapRefusjon(inntektsmelding); // TODO vi må lande hvordan refusjonsmodellen skal være
         var naturalytelser = mapNaturalytelser(inntektsmelding);
-        var refusjon = new InntektsmeldingDto.Refusjon(inntektsmelding.månedRefusjon(), alleRefusjonsendringer);
+        var refusjon = new InntektsmeldingDto.Refusjon(alleRefusjonsendringer.getFirst().beloepPrMnd(), alleRefusjonsendringer);
         return new InntektsmeldingDto(inntektsmelding.inntektsmeldingUuid(),
             inntektsmelding.fnr(),
             inntektsmelding.ytelse(),
@@ -48,16 +48,10 @@ public class InntektsmeldingMapper {
     }
 
     private static List<InntektsmeldingDto.RefusjonEndring> mapRefusjon(Inntektsmelding inntektsmelding) {
-        var refusjonsendringer = inntektsmelding.refusjonEndringer()
+        return inntektsmelding.refusjon()
             .stream()
             .map(r -> new InntektsmeldingDto.RefusjonEndring(r.beløp(), r.fom()))
             .toList();
-        return inntektsmelding.opphørsdatoRefusjon() == null
-                                     ? refusjonsendringer
-                                     : Stream.concat(
-                                         refusjonsendringer.stream(),
-                                         Stream.of(new InntektsmeldingDto.RefusjonEndring(BigDecimal.ZERO, inntektsmelding.opphørsdatoRefusjon()))
-                                     ).toList();
     }
 
 }

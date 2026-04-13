@@ -24,14 +24,12 @@ public record Inntektsmelding(
     LocalDateTime innsendtTidspunkt,
     KildesystemDto kildesystem,
     AvsenderSystem avsenderSystem,
-    BigDecimal månedRefusjon,
-    LocalDate opphørsdatoRefusjon,
-    List<Refusjonsendringer> refusjonEndringer,
+    List<Refusjon> refusjon,
     List<BortfaltNaturalytelse> bortfaltNaturalytelsePerioder,
     List<Endringsårsaker> endringAvInntektÅrsaker) {
 
-    public record Refusjonsendringer(LocalDate fom,
-                                     BigDecimal beløp) {
+    public record Refusjon(LocalDate fom,
+                           BigDecimal beløp) {
     }
 
     public record BortfaltNaturalytelse(LocalDate fom,
