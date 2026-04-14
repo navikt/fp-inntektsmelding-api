@@ -9,7 +9,7 @@ public record FødselsnummerDto(@Pattern(
     regexp = "^[\\p{M}\\p{N}\\p{L}\\p{Z}\\p{Cf}\\p{P}\\p{Sc}\\p{Sk}\n\r\t+=]*$"
 ) String value) {
     public String toString() {
-        return this.getClass().getSimpleName() + " [fnr=******]";
+        return this.getClass().getSimpleName() + " [soekerFnr=******]";
     }
 
     @JsonValue

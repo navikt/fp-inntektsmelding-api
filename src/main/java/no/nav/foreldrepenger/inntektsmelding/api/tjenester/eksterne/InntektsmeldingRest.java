@@ -4,12 +4,17 @@ import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingDto;
+import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingMapper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +26,8 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
+import java.util.UUID;
+
 @RequestScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,6 +36,7 @@ public class InntektsmeldingRest {
     public static final String BASE_PATH = "/inntektsmelding";
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRest.class);
     private static final String SEND_INNTEKTSMELDING = "/send-inn";
+    private static final String HENT_INNTEKTSMELDING = "/hent/{uuid}";
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
     private Tilgang tilgang;
 
@@ -57,7 +65,7 @@ public class InntektsmeldingRest {
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer().orgnr()));
 
-        var feilmelding  =  InntektsmeldingValidererUtil.validerInntektsmelding(inntektsmeldingRequest, forespørsel);
+        var feilmelding = InntektsmeldingValidererUtil.validerInntektsmelding(inntektsmeldingRequest, forespørsel);
         if (feilmelding.isPresent()) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Validering av inntektsmelding feilet. Feilmelding: {}",
                 inntektsmeldingRequest.foresporselUuid(), feilmelding.get().getVerdi());
@@ -74,6 +82,28 @@ public class InntektsmeldingRest {
                 .entity(new ErrorResponse(response.melding(), MDCOperations.getCallId()))
                 .build();
         }
+    }
+
+    @POST
+    @Path(HENT_INNTEKTSMELDING)
+    public Response hentInntektsmelding(@NotNull @Valid @PathParam("uuid")
+                                        @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format")
+                                        String innsendingId) {
+        LOG.info("Hent inntektsmelding med innsendingId {} ", innsendingId);
+        var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(UUID.fromString(innsendingId));
+
+        if (inntektsmelding == null) {
+            LOG.info("Avvist inntektsmelding for innsendingId {}. Inntektsmelding ikke funnet.", innsendingId);
+            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
+        }
+
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmelding.orgnr().orgnr()));
+
+        InntektsmeldingDto dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
+
+        return Response.status(Response.Status.OK)
+            .entity(dto)
+            .build();
     }
 }
 
