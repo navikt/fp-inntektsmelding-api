@@ -22,8 +22,9 @@ public record Inntektsmelding(
     BigDecimal månedInntekt,
     LocalDate skjæringstidspunkt,
     LocalDateTime innsendtTidspunkt,
-    KildesystemDto kildesystem,
     AvsenderSystem avsenderSystem,
+    BigDecimal månedRefusjon,
+    LocalDate opphørsdatoRefusjon,
     List<Refusjon> refusjon,
     List<BortfaltNaturalytelse> bortfaltNaturalytelsePerioder,
     List<Endringsårsaker> endringAvInntektÅrsaker) {

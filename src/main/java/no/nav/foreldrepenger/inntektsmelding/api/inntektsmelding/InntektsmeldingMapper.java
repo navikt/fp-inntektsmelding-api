@@ -1,7 +1,10 @@
 package no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding;
 
+import no.nav.vedtak.konfig.Tid;
+
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class InntektsmeldingMapper {
@@ -16,18 +19,16 @@ public class InntektsmeldingMapper {
         var inntekt = new InntektsmeldingDto.Inntekt(inntektsmelding.månedInntekt(), inntektsmelding.skjæringstidspunkt(), inntektEndringsårsaker);
         var avsendersystemDto = new InntektsmeldingDto.AvsenderSystem(inntektsmelding.avsenderSystem().navn(),
             inntektsmelding.avsenderSystem().versjon());
-        var alleRefusjonsendringer = mapRefusjon(inntektsmelding); // TODO vi må lande hvordan refusjonsmodellen skal være
+        var alleRefusjonsendringer = mapRefusjon(inntektsmelding);
         var naturalytelser = mapNaturalytelser(inntektsmelding);
-        var refusjon = new InntektsmeldingDto.Refusjon(alleRefusjonsendringer.getFirst().beloepPrMnd(), alleRefusjonsendringer);
+        var refusjon = new InntektsmeldingDto.Refusjon(inntektsmelding.månedRefusjon(), alleRefusjonsendringer);
         return new InntektsmeldingDto(inntektsmelding.inntektsmeldingUuid(),
             inntektsmelding.fnr(),
             inntektsmelding.ytelse(),
-            inntektsmelding.orgnr().orgnr(),
-            kontakpersonDto,
+            new InntektsmeldingDto.InntektsmeldingArbeidsgiver(inntektsmelding.orgnr().orgnr(), kontakpersonDto),
             inntektsmelding.startdato(),
             inntekt,
             inntektsmelding.innsendtTidspunkt(),
-            inntektsmelding.kildesystem(),
             avsendersystemDto,
             refusjon,
             naturalytelser);
@@ -48,10 +49,14 @@ public class InntektsmeldingMapper {
     }
 
     private static List<InntektsmeldingDto.RefusjonEndring> mapRefusjon(Inntektsmelding inntektsmelding) {
-        return inntektsmelding.refusjon()
+        var listeMedEndringer = inntektsmelding.refusjon()
             .stream()
             .map(r -> new InntektsmeldingDto.RefusjonEndring(r.beløp(), r.fom()))
-            .toList();
+            .collect(Collectors.toList());
+        if (inntektsmelding.opphørsdatoRefusjon() != null && !inntektsmelding.opphørsdatoRefusjon().equals(Tid.TIDENES_ENDE)) {
+            listeMedEndringer.add(new InntektsmeldingDto.RefusjonEndring(BigDecimal.ZERO, inntektsmelding.opphørsdatoRefusjon()));
+        }
+        return listeMedEndringer;
     }
 
 }

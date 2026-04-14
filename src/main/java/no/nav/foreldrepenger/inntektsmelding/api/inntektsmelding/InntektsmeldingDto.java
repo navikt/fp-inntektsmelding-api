@@ -7,24 +7,24 @@ import java.util.List;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.KildesystemDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
-public record InntektsmeldingDto(UUID inntektsmeldingId,
-                                 String fnr,
+public record InntektsmeldingDto(UUID id,
+                                 String soekerFnr,
                                  YtelseTypeDto ytelse,
-                                 String arbeidsgiver,
-                                 Kontaktperson kontaktperson,
+                                 InntektsmeldingArbeidsgiver arbeidsgiver,
                                  LocalDate startdato,
                                  Inntekt inntekt,
-                                 LocalDateTime innsendtTidspunkt,
-                                 KildesystemDto kildesystem, // TODO trengs denne?
-                                 AvsenderSystem avsenderSystem,
+                                 LocalDateTime innsendtTid,
+                                 AvsenderSystem avsender,
                                  Refusjon refusjon,
-                                 List<Naturalytelse> bortfaltNaturalytelsePerioder) {
+                                 List<Naturalytelse> naturalytelser) {
 
     public record Inntekt(BigDecimal beloep, LocalDate inntektsdato, List<InntektEndringsårsaker> endringAarsaker) {
+    }
+
+    public record InntektsmeldingArbeidsgiver(String orgnr, Kontaktperson kontaktperson) {
     }
 
     public record Refusjon(BigDecimal beloepPrMnd, List<RefusjonEndring> endringer) {

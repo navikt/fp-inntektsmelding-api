@@ -82,9 +82,10 @@ public class FpinntektsmeldingTjeneste {
             response.inntekt(),
             response.startdato(), // TODO: legg inn skjæringstidspunkt
             response.innsendtTidspunkt(),
-            null, // TODO kildesystem
             new Inntektsmelding.AvsenderSystem(response.avsenderSystem().systemNavn(), response.avsenderSystem().systemVersjon()),
-            response.søkteRefusjonsperioder().stream()
+            response.refusjonPrMnd(),
+            response.opphørsdatoRefusjon(),
+            response.refusjonsendringer().stream()
                 .map(r -> new Inntektsmelding.Refusjon(r.fom(), r.beløp()))
                 .toList(),
             response.bortfaltNaturalytelsePerioder().stream()

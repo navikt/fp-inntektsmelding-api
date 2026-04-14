@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 
+import no.nav.vedtak.konfig.Tid;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
@@ -34,17 +36,16 @@ class InntektsmeldingMapperTest {
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
-        assertThat(dto.inntektsmeldingId()).isEqualTo(TEST_UUID);
-        assertThat(dto.fnr()).isEqualTo(FNR);
+        assertThat(dto.id()).isEqualTo(TEST_UUID);
+        assertThat(dto.soekerFnr()).isEqualTo(FNR);
         assertThat(dto.ytelse()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
-        assertThat(dto.arbeidsgiver()).isEqualTo(ORGNR);
+        assertThat(dto.arbeidsgiver().orgnr()).isEqualTo(ORGNR);
         assertThat(dto.startdato()).isEqualTo(STARTDATO);
-        assertThat(dto.innsendtTidspunkt()).isEqualTo(INNSENDT_TIDSPUNKT);
-        assertThat(dto.kildesystem()).isEqualTo(KildesystemDto.ARBEIDSGIVERPORTAL);
-        assertThat(dto.kontaktperson().navn()).isEqualTo("Ola Nordmann");
-        assertThat(dto.kontaktperson().telefonnummer()).isEqualTo("12345678");
-        assertThat(dto.avsenderSystem().systemnavn()).isEqualTo("TestSystem");
-        assertThat(dto.avsenderSystem().versjon()).isEqualTo("1.0");
+        assertThat(dto.innsendtTid()).isEqualTo(INNSENDT_TIDSPUNKT);
+        assertThat(dto.arbeidsgiver().kontaktperson().navn()).isEqualTo("Ola Nordmann");
+        assertThat(dto.arbeidsgiver().kontaktperson().telefonnummer()).isEqualTo("12345678");
+        assertThat(dto.avsender().systemnavn()).isEqualTo("TestSystem");
+        assertThat(dto.avsender().versjon()).isEqualTo("1.0");
         assertThat(dto.inntekt().beloep()).isEqualByComparingTo(MÅNEDS_INNTEKT);
         assertThat(dto.inntekt().inntektsdato()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(dto.inntekt().endringAarsaker()).isEmpty();
@@ -59,7 +60,7 @@ class InntektsmeldingMapperTest {
             LocalDate.of(2024, 1, 31),
             LocalDate.of(2024, 1, 15)
         );
-        var inntektsmelding = lagInntektsmeldingBuilder(List.of(endringsårsak), List.of(), List.of(), null);
+        var inntektsmelding = lagInntektsmeldingBuilder(List.of(endringsårsak), List.of(), List.of());
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
@@ -74,7 +75,7 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_mappe_refusjon_uten_opphørsdato() {
         var refusjonsendring = new Inntektsmelding.Refusjon(LocalDate.of(2024, 3, 1), new BigDecimal("20000.00"));
-        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(refusjonsendring), List.of(), null);
+        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(refusjonsendring), List.of());
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
@@ -87,7 +88,7 @@ class InntektsmeldingMapperTest {
     @Test
     void skal_mappe_refusjon_med_opphørsdato() {
         var opphørsdato = LocalDate.of(2024, 6, 1);
-        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(), List.of(), opphørsdato);
+        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(), List.of(), opphørsdato, MÅNEDS_REFUSJON);
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
@@ -102,7 +103,7 @@ class InntektsmeldingMapperTest {
     void skal_mappe_refusjon_med_endringer_og_opphørsdato() {
         var opphørsdato = LocalDate.of(2024, 6, 1);
         var refusjonsendring = new Inntektsmelding.Refusjon(LocalDate.of(2024, 3, 1), new BigDecimal("20000.00"));
-        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(refusjonsendring), List.of(), opphørsdato);
+        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(refusjonsendring), List.of(), opphørsdato, MÅNEDS_REFUSJON);
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
@@ -121,12 +122,12 @@ class InntektsmeldingMapperTest {
             NaturalytelsetypeDto.BIL,
             new BigDecimal("3000.00")
         );
-        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(), List.of(naturalytelse), null);
+        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(), List.of(naturalytelse));
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
-        assertThat(dto.bortfaltNaturalytelsePerioder()).hasSize(1);
-        var mappetNaturalytelse = dto.bortfaltNaturalytelsePerioder().getFirst();
+        assertThat(dto.naturalytelser()).hasSize(1);
+        var mappetNaturalytelse = dto.naturalytelser().getFirst();
         assertThat(mappetNaturalytelse.verdi()).isEqualByComparingTo(new BigDecimal("3000.00"));
         assertThat(mappetNaturalytelse.sluttdato()).isEqualTo(LocalDate.of(2024, 2, 1));
         assertThat(mappetNaturalytelse.naturalytelse()).isEqualTo(NaturalytelsetypeDto.BIL);
@@ -146,13 +147,13 @@ class InntektsmeldingMapperTest {
             NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON,
             new BigDecimal("500.00")
         );
-        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(), List.of(naturalytelse1, naturalytelse2), null);
+        var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(), List.of(naturalytelse1, naturalytelse2));
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
-        assertThat(dto.bortfaltNaturalytelsePerioder()).hasSize(2);
-        assertThat(dto.bortfaltNaturalytelsePerioder().get(0).naturalytelse()).isEqualTo(NaturalytelsetypeDto.BIL);
-        assertThat(dto.bortfaltNaturalytelsePerioder().get(1).naturalytelse()).isEqualTo(NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON);
+        assertThat(dto.naturalytelser()).hasSize(2);
+        assertThat(dto.naturalytelser().get(0).naturalytelse()).isEqualTo(NaturalytelsetypeDto.BIL);
+        assertThat(dto.naturalytelser().get(1).naturalytelse()).isEqualTo(NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON);
     }
 
     @Test
@@ -163,18 +164,25 @@ class InntektsmeldingMapperTest {
 
         assertThat(dto.inntekt().endringAarsaker()).isEmpty();
         assertThat(dto.refusjon().endringer()).isEmpty();
-        assertThat(dto.bortfaltNaturalytelsePerioder()).isEmpty();
+        assertThat(dto.naturalytelser()).isEmpty();
     }
 
     private Inntektsmelding lagInntektsmeldingMedTommeLister() {
-        return lagInntektsmeldingBuilder(List.of(), List.of(), List.of(), null);
+        return lagInntektsmeldingBuilder(List.of(), List.of(), List.of(), null, null);
+    }
+    private Inntektsmelding lagInntektsmeldingBuilder(
+        List<Inntektsmelding.Endringsårsaker> endringsårsaker,
+        List<Inntektsmelding.Refusjon> refusjonsendringer,
+        List<Inntektsmelding.BortfaltNaturalytelse> naturalytelser){
+         return lagInntektsmeldingBuilder(endringsårsaker, refusjonsendringer, naturalytelser, Tid.TIDENES_ENDE, MÅNEDS_REFUSJON);
     }
 
     private Inntektsmelding lagInntektsmeldingBuilder(
         List<Inntektsmelding.Endringsårsaker> endringsårsaker,
         List<Inntektsmelding.Refusjon> refusjonsendringer,
         List<Inntektsmelding.BortfaltNaturalytelse> naturalytelser,
-        LocalDate opphørsdatoRefusjon
+        LocalDate opphørsdatoRefusjon,
+        BigDecimal refusjonPrMnd
     ) {
         return new Inntektsmelding(
             TEST_UUID,
@@ -186,8 +194,9 @@ class InntektsmeldingMapperTest {
             MÅNEDS_INNTEKT,
             SKJÆRINGSTIDSPUNKT,
             INNSENDT_TIDSPUNKT,
-            KildesystemDto.ARBEIDSGIVERPORTAL,
             new Inntektsmelding.AvsenderSystem("TestSystem", "1.0"),
+            refusjonPrMnd,
+            opphørsdatoRefusjon,
             refusjonsendringer,
             naturalytelser,
             endringsårsaker
