@@ -47,6 +47,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
 
     @Override
     public void filter(ContainerRequestContext req) {
+        // Swagger UI trenger tilgang til OpenAPI-spesifikasjonen uten autentisering for å kunne vise API-dokumentasjonen
         if (OpenApiRest.class.equals(getResourceinfo().getResourceClass())) {
             return;
         }
