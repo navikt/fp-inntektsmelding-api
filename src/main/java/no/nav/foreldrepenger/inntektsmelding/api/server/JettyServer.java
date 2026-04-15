@@ -117,9 +117,11 @@ public class JettyServer {
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, InternalApiConfig.API_URI + "/*"));
         // Slipp gjennom til autentisering i JaxRs / auth-filter
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, ApiConfig.API_URI + "/*"));
-        // Swagger UI statiske ressurser
-        handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, "/swagger/*"));
-        handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, "/swagger-ui/*"));
+        // Swagger UI statiske ressurser - kun tilgjengelig utenfor prod
+        if (!ENV.isProd()) {
+            handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, "/swagger/*"));
+            handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, "/swagger-ui/*"));
+        }
         // Alt annet av paths og metoder forbudt - 403
         handler.addConstraintMapping(pathConstraint(Constraint.FORBIDDEN, "/*"));
         return handler;
