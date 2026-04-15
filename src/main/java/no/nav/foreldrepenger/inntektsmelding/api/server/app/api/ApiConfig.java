@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ApplicationPath;
 
+import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
