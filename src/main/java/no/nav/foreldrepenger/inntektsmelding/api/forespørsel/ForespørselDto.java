@@ -7,7 +7,7 @@ import java.util.UUID;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.StatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
-public record ForespørselDto(UUID forespørselUuid, String orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
-                             LocalDate skjæringstidspunkt, StatusDto status, YtelseTypeDto ytelseType, LocalDateTime opprettetTid) {
+public record ForespørselDto(UUID forespoerselId, String orgnr, String fnr, LocalDate foersteUttaksdato,
+                             LocalDate inntektsdato, StatusDto status, YtelseTypeDto ytelseType, LocalDateTime opprettetTid) {
 
 }
