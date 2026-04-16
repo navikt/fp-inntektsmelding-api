@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -84,7 +85,7 @@ public class InntektsmeldingRest {
         }
     }
 
-    @POST
+    @GET
     @Path(HENT_INNTEKTSMELDING)
     public Response hentInntektsmelding(@NotNull @Valid @PathParam("uuid")
                                         @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format")
