@@ -58,8 +58,8 @@ class ForespørselRestTest {
         assertThat(response.getStatus()).isEqualTo(200);
         var forespørsler = (List<ForespørselDto>) response.getEntity();
         assertThat(forespørsler).hasSize(1);
-        assertThat(forespørsler.getFirst().forespørselUuid()).isEqualTo(uuid);
-        assertThat(forespørsler.getFirst().orgnummer()).isEqualTo(orgnummer);
+        assertThat(forespørsler.getFirst().forespoerselId()).isEqualTo(uuid);
+        assertThat(forespørsler.getFirst().orgnr()).isEqualTo(orgnummer);
         assertThat(forespørsler.getFirst().status()).isEqualTo(StatusDto.AKTIV);
     }
 
