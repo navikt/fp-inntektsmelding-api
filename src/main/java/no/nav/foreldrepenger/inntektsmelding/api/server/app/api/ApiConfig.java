@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ApplicationPath;
 
-import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
-
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -29,11 +27,11 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintVio
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.GeneralRestExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonMappingExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonParseExceptionMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.server.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.server.rest.jackson.Jackson2MapperFeature;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends ResourceConfig {
@@ -45,13 +43,13 @@ public class ApiConfig extends ResourceConfig {
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
+        register(Jackson2MapperFeature.class);
         register(AutentiseringFilter.class);
+        registerExceptionMappers();
+
         registerOpenApi();
         // REST
         registerClasses(getApplicationClasses());
-
-        registerExceptionMappers();
-        register(JacksonJsonConfig.class);
 
         setProperties(getApplicationProperties());
         LOG.info("Ferdig med initialisering av {}", API_URI);
@@ -82,6 +80,7 @@ public class ApiConfig extends ResourceConfig {
     }
 
     void registerExceptionMappers() {
+        // TODO: Snakke gjennom disse og om de fra felles er bra nok.
         register(GeneralRestExceptionMapper.class);
         register(ConstraintViolationMapper.class);
         register(JsonMappingExceptionMapper.class);
