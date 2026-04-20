@@ -11,13 +11,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.inntektsmelding.felles.AvsenderSystemDto;
-import no.nav.foreldrepenger.inntektsmelding.felles.KontaktpersonDto;
-import no.nav.foreldrepenger.inntektsmelding.felles.SøktRefusjonDto;
-import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
-
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
