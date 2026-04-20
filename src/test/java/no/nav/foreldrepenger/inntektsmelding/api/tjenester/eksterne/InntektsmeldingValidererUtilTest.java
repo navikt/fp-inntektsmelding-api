@@ -81,7 +81,7 @@ class InntektsmeldingValidererUtilTest {
     void skal_avvise_refusjon_uten_startdato_i_listen() {
         var refusjon = List.of(new InntektsmeldingRequest.Refusjon(STARTDATO.plusDays(1), DEFAULT_BELØP));
         var result = InntektsmeldingValidererUtil.validerRefusjon(refusjon, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.UGYLDIG_FRA_DATO_LISTE);
+        assertThat(result).hasValue(EksponertFeilmelding.REFUSJON_FOM_LIK_STARTDATO);
     }
 
     @Test
