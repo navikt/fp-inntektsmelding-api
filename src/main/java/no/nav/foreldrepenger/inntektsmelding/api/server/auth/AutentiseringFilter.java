@@ -18,8 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.OpenApiRest;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.sikkerhet.jaxrs.AuthenticationFilterDelegate;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.oidc.token.OpenIDToken;
@@ -30,6 +32,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 public class AutentiseringFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
+    private static final Environment ENV = Environment.current();
     private AuthTjeneste authTjeneste;
 
     @Context
@@ -46,6 +49,10 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
 
     @Override
     public void filter(ContainerRequestContext req) {
+        // Swagger UI er kun tilgjengelig utenfor prod og trenger tilgang uten autentisering
+        if (!ENV.isProd() && OpenApiRest.class.equals(getResourceinfo().getResourceClass())) {
+            return;
+        }
         assertValidRequest(req);
     }
 

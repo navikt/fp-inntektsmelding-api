@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.eclipse.jetty.ee11.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee11.cdi.CdiServletContainerInitializer;
-import org.eclipse.jetty.ee11.servlet.DefaultServlet;
+import org.eclipse.jetty.ee11.servlet.ResourceServlet;
 import org.eclipse.jetty.ee11.servlet.ErrorHandler;
 import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
@@ -19,6 +19,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.Callback;
+import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +74,12 @@ public class JettyServer {
             context.setSecurityHandler(simpleConstraints());
             context.setErrorHandler(new JsonErrorHandler());
 
+            // Statiske ressurser (Swagger UI)
+            var factory = ResourceFactory.of(context);
+            context.setBaseResource(ResourceFactory.combine(
+                factory.newClassLoaderResource("/META-INF/resources/webjars/", false),
+                factory.newClassLoaderResource("/web", false)));
+
             // Servlets
             registerDefaultServlet(context);
             registerServlet(context, 0, InternalApiConfig.API_URI, InternalApiConfig.class);
@@ -93,7 +100,7 @@ public class JettyServer {
     }
 
     private static void registerDefaultServlet(ServletContextHandler context) {
-        var defaultServlet = new ServletHolder(new DefaultServlet());
+        var defaultServlet = new ServletHolder(new ResourceServlet());
         context.addServlet(defaultServlet, "/*");
     }
 
@@ -110,6 +117,11 @@ public class JettyServer {
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, InternalApiConfig.API_URI + "/*"));
         // Slipp gjennom til autentisering i JaxRs / auth-filter
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, ApiConfig.API_URI + "/*"));
+        // Swagger UI statiske ressurser - kun tilgjengelig utenfor prod
+        if (!ENV.isProd()) {
+            handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, "/swagger/*"));
+            handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, "/swagger-ui/*"));
+        }
         // Alt annet av paths og metoder forbudt - 403
         handler.addConstraintMapping(pathConstraint(Constraint.FORBIDDEN, "/*"));
         return handler;
