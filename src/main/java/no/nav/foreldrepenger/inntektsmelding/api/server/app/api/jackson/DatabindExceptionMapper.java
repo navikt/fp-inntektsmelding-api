@@ -20,12 +20,20 @@ public class DatabindExceptionMapper implements ExceptionMapper<DatabindExceptio
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabindExceptionMapper.class);
 
+    private static final String ERROR_CODE = "FIM-252294";
+
     @Override
     public Response toResponse(DatabindException exception) {
-        var feil = "FIM-252294: JSON-mapping feil";
-        LOG.warn(feil);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(EksponertFeilmelding.SERIALISERINGSFEIL.getVerdi(), MDCOperations.getCallId())).type(
-            MediaType.APPLICATION_JSON).build();
+        LOG.error("{}: JSON-mapping feil - {}", ERROR_CODE, exception.getMessage());
+
+        var callId = MDCOperations.getCallId();
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(new ErrorResponse(
+                EksponertFeilmelding.SERIALISERINGSFEIL.name(),
+                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst(),
+                callId))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 
 }

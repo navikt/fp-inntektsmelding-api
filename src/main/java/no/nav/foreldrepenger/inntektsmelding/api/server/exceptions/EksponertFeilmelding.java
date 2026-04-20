@@ -33,15 +33,16 @@ public enum EksponertFeilmelding {
     DUPLIKATER_IKKE_TILATT(
         "Duplikate endringsårsker er ikke tillatt for årsakene: NY_STILLING, NY_STILLINGSPROSENT, VARIG_LØNNSENDRING, BONUS, TARIFF_ENDRING, FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER, NYANSATT, MANGELFULL_RAPPORTERING_A-ORDNING, INNTEKT_IKKE_RAPPRTERT_ENDA_A-ORDNING"),
     // Default
-    STANDARD_FEIL("Noe feilet");
+    //todo hvor skal de melde feil til oss?
+    STANDARD_FEIL("Noe feilet. Meld feil ....");
 
-    private final String verdi;
+    private final String tekst;
 
-    EksponertFeilmelding(String verdi) {
-        this.verdi = verdi;
+    EksponertFeilmelding(String tekst) {
+        this.tekst = tekst;
     }
 
-    public String getVerdi() {
-        return verdi;
+    public String getTekst() {
+        return tekst;
     }
 }

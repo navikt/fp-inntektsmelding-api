@@ -147,7 +147,7 @@ public class JettyServer {
 
             int code = response.getStatus();
             var message = HttpStatus.getMessage(code);
-            var errorResponse = new ErrorResponse("[%s] %s".formatted(code, message), MDCOperations.generateCallId());
+            var errorResponse = new ErrorResponse("JSON_ERROR", "[%s] %s".formatted(code, message), MDCOperations.generateCallId());
 
             // Write the JSON response
             response.write(true, ByteBuffer.wrap(toJson(errorResponse).getBytes(StandardCharsets.UTF_8)), callback);

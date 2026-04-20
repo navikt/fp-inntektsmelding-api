@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.ws.rs.core.Response;
 
+import no.nav.vedtak.server.rest.FeilUtils;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,15 +19,15 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.MemoryAppender;
 
 @Execution(ExecutionMode.SAME_THREAD)
-class GeneralRestExceptionMapperTest {
+class LokalRestExceptionMapperTest {
 
     private static MemoryAppender logSniffer;
 
-    private final GeneralRestExceptionMapper exceptionMapper = new GeneralRestExceptionMapper();
+    private final LokalRestExceptionMapper exceptionMapper = new LokalRestExceptionMapper();
 
     @BeforeEach
     void setUp() {
-        logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
+        logSniffer = MemoryAppender.sniff(FeilUtils.class);
     }
 
     @AfterEach
@@ -43,7 +45,7 @@ class GeneralRestExceptionMapperTest {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.IKKE_TILGANG_ALTINN.getVerdi());
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.IKKE_TILGANG_ALTINN.getTekst());
             assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).isEmpty();
         }
     }
@@ -56,7 +58,7 @@ class GeneralRestExceptionMapperTest {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi());
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.TOM_FORESPØRSEL.getTekst());
         }
     }
 
@@ -69,7 +71,7 @@ class GeneralRestExceptionMapperTest {
         })) {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
-            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getVerdi());
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getTekst());
             assertThat(logSniffer.search("en teknisk feilmelding", Level.WARN)).hasSize(1);
         }
     }
@@ -86,7 +88,7 @@ class GeneralRestExceptionMapperTest {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getVerdi());
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getTekst());
             assertThat(logSniffer.search("TEKST", Level.WARN)).hasSize(1);
         }
     }
@@ -103,7 +105,7 @@ class GeneralRestExceptionMapperTest {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getVerdi());
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getTekst());
             assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
         }
     }

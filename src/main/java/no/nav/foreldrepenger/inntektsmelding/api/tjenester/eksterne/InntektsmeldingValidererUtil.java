@@ -73,7 +73,7 @@ public class InntektsmeldingValidererUtil {
                 "Refusjonslisten må inneholde en fra dato som starter på startdato for permisjonen. Startdato for permisjon {}, Refusjonslistens fra-datoer {}",
                 startdato,
                 refusjon.stream().map(InntektsmeldingRequest.Refusjon::fom).toList());
-            return Optional.of(EksponertFeilmelding.UGYLDIG_FRA_DATO_LISTE);
+            return Optional.of(EksponertFeilmelding.REFUSJON_FOM_LIK_STARTDATO);
         }
 
         var fomListe = refusjon.stream()

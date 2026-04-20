@@ -17,13 +17,14 @@ import jakarta.ws.rs.core.Response;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingDto;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingMapper;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
@@ -61,7 +62,7 @@ public class InntektsmeldingRest {
 
         if (forespørsel == null) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel ikke funnet.", inntektsmeldingRequest.foresporselUuid());
-            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
+            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.name(), EksponertFeilmelding.TOM_FORESPØRSEL.getTekst(), MDCOperations.getCallId())).build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer().orgnr()));
@@ -69,9 +70,9 @@ public class InntektsmeldingRest {
         var feilmelding = InntektsmeldingValidererUtil.validerInntektsmelding(inntektsmeldingRequest, forespørsel);
         if (feilmelding.isPresent()) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Validering av inntektsmelding feilet. Feilmelding: {}",
-                inntektsmeldingRequest.foresporselUuid(), feilmelding.get().getVerdi());
+                inntektsmeldingRequest.foresporselUuid(), feilmelding.get().getTekst());
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(new ErrorResponse(feilmelding.get().getVerdi(), MDCOperations.getCallId()))
+                .entity(new ErrorResponse(feilmelding.get().name(), feilmelding.get().getTekst(), MDCOperations.getCallId()))
                 .build();
         }
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
@@ -80,7 +81,8 @@ public class InntektsmeldingRest {
             return Response.ok(response.inntektsmeldingUuid()).build();
         } else {
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(new ErrorResponse(response.melding(), MDCOperations.getCallId()))
+                //todo skal opprette en feilDto i responsen fra fp-inntektsmelding som kan mappes til errorResponse her
+                .entity(new ErrorResponse(null, response.melding(), MDCOperations.getCallId()))
                 .build();
         }
     }
@@ -95,7 +97,7 @@ public class InntektsmeldingRest {
 
         if (inntektsmelding == null) {
             LOG.info("Avvist inntektsmelding for innsendingId {}. Inntektsmelding ikke funnet.", innsendingId);
-            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.getVerdi(), MDCOperations.getCallId())).build();
+            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.name(), EksponertFeilmelding.TOM_FORESPØRSEL.getTekst(), MDCOperations.getCallId())).build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmelding.orgnr().orgnr()));
