@@ -560,7 +560,7 @@ class InntektsmeldingValidererUtilTest {
             List.of(new InntektsmeldingRequest.Refusjon(STARTDATO.plusDays(5), DEFAULT_BELØP)),
             Collections.emptyList(), Collections.emptyList());
         var result = InntektsmeldingValidererUtil.validerInntektsmelding(request, lagDefaultForespørsel());
-        assertThat(result).hasValue(EksponertFeilmelding.UGYLDIG_FRA_DATO_LISTE);
+        assertThat(result).hasValue(EksponertFeilmelding.REFUSJON_FOM_LIK_STARTDATO);
     }
 
     @Test
