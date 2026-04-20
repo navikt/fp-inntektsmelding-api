@@ -46,14 +46,14 @@ class InntektsmeldingValidererUtilTest {
     void skal_avvise_utgått_forespørsel() {
         var forespørsel = lagForespørsel(ForespørselStatus.UTGÅTT, STARTDATO, YtelseType.FORELDREPENGER);
         var result = InntektsmeldingValidererUtil.validerInntektsmeldingMotForespørsel(lagDefaultRequest(), forespørsel);
-        assertThat(result).hasValue(EksponertFeilmelding.UGYLDIG_FORESPØRSEL);
+        assertThat(result).hasValue(EksponertFeilmelding.UGYLDIG_FORESPOERSEL);
     }
 
     @Test
     void skal_avvise_mismatch_startdato() {
         var forespørsel = lagForespørsel(ForespørselStatus.UNDER_BEHANDLING, STARTDATO.plusDays(5), YtelseType.FORELDREPENGER);
         var result = InntektsmeldingValidererUtil.validerInntektsmeldingMotForespørsel(lagDefaultRequest(), forespørsel);
-        assertThat(result).hasValue(EksponertFeilmelding.MISMATCH_FØRSTE_UTTAKSDATO);
+        assertThat(result).hasValue(EksponertFeilmelding.MISMATCH_FOERSTE_UTTAKSDATO);
     }
 
     @Test
@@ -321,7 +321,7 @@ class InntektsmeldingValidererUtilTest {
             lagEndringsårsak(InntektsmeldingRequest.Endringsårsaker.Endringsårsak.NY_STILLING, null, null, null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.ÅRSAK_KREVER_FRA_DATO);
+        assertThat(result).hasValue(EksponertFeilmelding.AARSAK_KREVER_FRA_DATO);
     }
 
     @Test
@@ -330,7 +330,7 @@ class InntektsmeldingValidererUtilTest {
             lagEndringsårsak(InntektsmeldingRequest.Endringsårsaker.Endringsårsak.NY_STILLINGSPROSENT, null, null, null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.ÅRSAK_KREVER_FRA_DATO);
+        assertThat(result).hasValue(EksponertFeilmelding.AARSAK_KREVER_FRA_DATO);
     }
 
     @Test
@@ -339,7 +339,7 @@ class InntektsmeldingValidererUtilTest {
             lagEndringsårsak(InntektsmeldingRequest.Endringsårsaker.Endringsårsak.VARIG_LØNNSENDRING, null, null, null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.ÅRSAK_KREVER_FRA_DATO);
+        assertThat(result).hasValue(EksponertFeilmelding.AARSAK_KREVER_FRA_DATO);
     }
 
     @Test
@@ -357,7 +357,7 @@ class InntektsmeldingValidererUtilTest {
             lagEndringsårsak(InntektsmeldingRequest.Endringsårsaker.Endringsårsak.VARIG_LØNNSENDRING, STARTDATO.plusDays(1), null, null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.FRA_DATO_FØR_STARTDATO);
+        assertThat(result).hasValue(EksponertFeilmelding.FRA_DATO_FOER_STARTDATO);
     }
 
     @Test
@@ -384,7 +384,7 @@ class InntektsmeldingValidererUtilTest {
             lagEndringsårsak(InntektsmeldingRequest.Endringsårsaker.Endringsårsak.FERIE, null, STARTDATO.plusDays(5), null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.ÅRSAK_KREVER_FRA_OG_TIL_DATO);
+        assertThat(result).hasValue(EksponertFeilmelding.AARSAK_KREVER_FRA_OG_TIL_DATO);
     }
 
     @Test
@@ -393,7 +393,7 @@ class InntektsmeldingValidererUtilTest {
             lagEndringsårsak(InntektsmeldingRequest.Endringsårsaker.Endringsårsak.FERIE, STARTDATO, null, null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.ÅRSAK_KREVER_FRA_OG_TIL_DATO);
+        assertThat(result).hasValue(EksponertFeilmelding.AARSAK_KREVER_FRA_OG_TIL_DATO);
     }
 
     @Test
@@ -402,7 +402,7 @@ class InntektsmeldingValidererUtilTest {
             lagEndringsårsak(InntektsmeldingRequest.Endringsårsaker.Endringsårsak.PERMITTERING, null, null, null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.ÅRSAK_KREVER_FRA_OG_TIL_DATO);
+        assertThat(result).hasValue(EksponertFeilmelding.AARSAK_KREVER_FRA_OG_TIL_DATO);
     }
 
     @Test
@@ -411,7 +411,7 @@ class InntektsmeldingValidererUtilTest {
             lagEndringsårsak(InntektsmeldingRequest.Endringsårsaker.Endringsårsak.SYKEFRAVÆR, STARTDATO, null, null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.ÅRSAK_KREVER_FRA_OG_TIL_DATO);
+        assertThat(result).hasValue(EksponertFeilmelding.AARSAK_KREVER_FRA_OG_TIL_DATO);
     }
 
     @Test
@@ -582,7 +582,7 @@ class InntektsmeldingValidererUtilTest {
             List.of(new InntektsmeldingRequest.Endringsårsaker(
                 InntektsmeldingRequest.Endringsårsaker.Endringsårsak.NY_STILLING, null, null, null)));
         var result = InntektsmeldingValidererUtil.validerInntektsmelding(request, lagDefaultForespørsel());
-        assertThat(result).hasValue(EksponertFeilmelding.ÅRSAK_KREVER_FRA_DATO);
+        assertThat(result).hasValue(EksponertFeilmelding.AARSAK_KREVER_FRA_DATO);
     }
 
     // --- Hjelpemetoder for testdata ---

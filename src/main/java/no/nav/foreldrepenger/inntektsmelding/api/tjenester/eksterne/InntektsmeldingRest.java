@@ -62,7 +62,7 @@ public class InntektsmeldingRest {
 
         if (forespørsel == null) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel ikke funnet.", inntektsmeldingRequest.foresporselUuid());
-            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.name(), EksponertFeilmelding.TOM_FORESPØRSEL.getTekst(), MDCOperations.getCallId())).build();
+            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst(), MDCOperations.getCallId())).build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer().orgnr()));
@@ -97,7 +97,7 @@ public class InntektsmeldingRest {
 
         if (inntektsmelding == null) {
             LOG.info("Avvist inntektsmelding for innsendingId {}. Inntektsmelding ikke funnet.", innsendingId);
-            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPØRSEL.name(), EksponertFeilmelding.TOM_FORESPØRSEL.getTekst(), MDCOperations.getCallId())).build();
+            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst(), MDCOperations.getCallId())).build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmelding.orgnr().orgnr()));

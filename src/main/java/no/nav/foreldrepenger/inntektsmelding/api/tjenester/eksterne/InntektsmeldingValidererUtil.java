@@ -45,13 +45,13 @@ public class InntektsmeldingValidererUtil {
                                                                                       Forespørsel forespørsel) {
         if (forespørsel.status() == ForespørselStatus.UTGÅTT) {
             LOG.warn("Forespørsel med uuid {} har status UTGÅTT, og kan ikke motta inntektsmelding.", forespørsel.forespørselUuid());
-            return Optional.of(EksponertFeilmelding.UGYLDIG_FORESPØRSEL);
+            return Optional.of(EksponertFeilmelding.UGYLDIG_FORESPOERSEL);
         }
         if (!inntektsmeldingRequest.startdato().equals(forespørsel.førsteUttaksdato())) {
             LOG.warn("Startdato fra inntektsmelding {} og første uttaksdato fra forespørsel {} matcher ikke.",
                 inntektsmeldingRequest.startdato(),
                 forespørsel.førsteUttaksdato());
-            return Optional.of(EksponertFeilmelding.MISMATCH_FØRSTE_UTTAKSDATO);
+            return Optional.of(EksponertFeilmelding.MISMATCH_FOERSTE_UTTAKSDATO);
         }
         if (!inntektsmeldingRequest.ytelse().equals(forespørsel.ytelseType())) {
             LOG.warn("Ytelsetype fra inntektsmelding {} og ytelsetype fra forespørsel {} matcher ikke.",
@@ -149,7 +149,7 @@ public class InntektsmeldingValidererUtil {
 
         if (oppgitteEndringsårsaker.stream().anyMatch(årsak -> kreverFomDato(årsak.årsak()) && årsak.fom() == null)) {
             LOG.info("Endringsårsak mangler fra dato");
-            return Optional.of(EksponertFeilmelding.ÅRSAK_KREVER_FRA_DATO);
+            return Optional.of(EksponertFeilmelding.AARSAK_KREVER_FRA_DATO);
         }
 
         var varigLønnsendringFraDato = oppgitteEndringsårsaker.stream()
@@ -161,7 +161,7 @@ public class InntektsmeldingValidererUtil {
             LOG.info("Endringsårsak varig lønnsendring har ugyldig dato. Fra dato {} må være før fraværsdato {}",
                 varigLønnsendringFraDato.get(),
                 startdato);
-            return Optional.of(EksponertFeilmelding.FRA_DATO_FØR_STARTDATO);
+            return Optional.of(EksponertFeilmelding.FRA_DATO_FOER_STARTDATO);
         }
 
         var årsakerSomKreverFomOgTomDato = oppgitteEndringsårsaker.stream()
@@ -171,7 +171,7 @@ public class InntektsmeldingValidererUtil {
         if (!årsakerSomKreverFomOgTomDato.isEmpty()) {
             if (årsakerSomKreverFomOgTomDato.stream().anyMatch(årsak -> årsak.fom() == null || årsak.tom() == null)) {
                 LOG.info("Endringsårsak mangler fra eller til dato");
-                return Optional.of(EksponertFeilmelding.ÅRSAK_KREVER_FRA_OG_TIL_DATO);
+                return Optional.of(EksponertFeilmelding.AARSAK_KREVER_FRA_OG_TIL_DATO);
             }
 
             if (årsakerSomKreverFomOgTomDato.stream().anyMatch( årsak -> fraDatoEtterTom(årsak.fom(), årsak.tom()))) {

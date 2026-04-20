@@ -68,7 +68,7 @@ class AuthTjenesteTest {
         var ex = assertThrows(InntektsmeldingAPIException.class, () -> authTjeneste.validerOgSettKontekst(tokenString));
 
         // Assert
-        assertThat(ex.getFeilmelding()).isEqualTo(EksponertFeilmelding.UTGÅTT_TOKEN);
+        assertThat(ex.getFeilmelding()).isEqualTo(EksponertFeilmelding.UTGAATT_TOKEN);
     }
 
     @Test

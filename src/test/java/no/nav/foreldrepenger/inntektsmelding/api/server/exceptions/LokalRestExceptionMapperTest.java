@@ -58,7 +58,7 @@ class LokalRestExceptionMapperTest {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.TOM_FORESPØRSEL.getTekst());
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.TOM_FORESPOERSEL.getTekst());
         }
     }
 
@@ -111,7 +111,7 @@ class LokalRestExceptionMapperTest {
     }
 
     private static InntektsmeldingAPIException funksjonellFeil() {
-        return new InntektsmeldingAPIException(EksponertFeilmelding.TOM_FORESPØRSEL, Response.Status.INTERNAL_SERVER_ERROR);
+        return new InntektsmeldingAPIException(EksponertFeilmelding.TOM_FORESPOERSEL, Response.Status.INTERNAL_SERVER_ERROR);
     }
 
     private static InntektsmeldingAPIException manglerTilgangFeil() {
