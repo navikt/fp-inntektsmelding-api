@@ -22,16 +22,14 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson.Jackson2ApiFeature;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AutentiseringFilter;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintViolationMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.GeneralRestExceptionMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonMappingExceptionMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.server.rest.jackson.Jackson2MapperFeature;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends ResourceConfig {
@@ -43,7 +41,7 @@ public class ApiConfig extends ResourceConfig {
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
-        register(Jackson2MapperFeature.class);
+        register(Jackson2ApiFeature.class);
         register(AutentiseringFilter.class);
         registerExceptionMappers();
 
@@ -83,8 +81,6 @@ public class ApiConfig extends ResourceConfig {
         // TODO: Snakke gjennom disse og om de fra felles er bra nok.
         register(GeneralRestExceptionMapper.class);
         register(ConstraintViolationMapper.class);
-        register(JsonMappingExceptionMapper.class);
-        register(JsonParseExceptionMapper.class);
     }
 
     private Set<Class<?>> getApplicationClasses() {

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.inntektsmelding.api.server.exceptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson.JsonMappingExceptionMapper;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
