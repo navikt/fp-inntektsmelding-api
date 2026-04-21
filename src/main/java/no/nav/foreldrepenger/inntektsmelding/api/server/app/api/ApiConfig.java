@@ -22,7 +22,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
-import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson.Jackson2ApiFeature;
+import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson.Jackson3ApiFeature;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AutentiseringFilter;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintViolationMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.LokalRestExceptionMapper;
@@ -41,7 +41,7 @@ public class ApiConfig extends ResourceConfig {
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
-        register(Jackson2ApiFeature.class);
+        register(Jackson3ApiFeature.class);
         register(AutentiseringFilter.class);
         registerExceptionMappers();
 
