@@ -69,7 +69,7 @@ class ForespørselRestTest {
         var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, StatusDto.FORKASTET, YtelseType.SVANGERSKAPSPENGER, LocalDate.now(), LocalDate.now().minusMonths(1)));
         assertThat(response.getStatus()).isEqualTo(400);
         var forespørsler = (ErrorResponse) response.getEntity();
-        assertThat(forespørsler.feilmelding()).isEqualTo(EksponertFeilmelding.UGYLDIG_PERIODE.getVerdi());
+        assertThat(forespørsler.feilmelding()).isEqualTo(EksponertFeilmelding.UGYLDIG_PERIODE.getTekst());
     }
 
     @Test

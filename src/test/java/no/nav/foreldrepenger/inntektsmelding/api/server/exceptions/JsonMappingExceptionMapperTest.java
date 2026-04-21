@@ -14,7 +14,7 @@ class JsonMappingExceptionMapperTest {
         var mapper = new JsonMappingExceptionMapper();
         var resultat = mapper.toResponse(new InvalidTypeIdException(null, "Ukjent type-kode", null, "23525"));
         var dto = (ErrorResponse) resultat.getEntity();
-        assertThat(dto.feilmelding()).isEqualTo(EksponertFeilmelding.SERIALISERINGSFEIL.getVerdi());
+        assertThat(dto.feilmelding()).isEqualTo(EksponertFeilmelding.SERIALISERINGSFEIL.getTekst());
     }
 
 }

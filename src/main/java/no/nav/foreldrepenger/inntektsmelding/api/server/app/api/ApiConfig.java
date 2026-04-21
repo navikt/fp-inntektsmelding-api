@@ -25,7 +25,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson.Jackson2ApiFeature;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AutentiseringFilter;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.GeneralRestExceptionMapper;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.LokalRestExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -79,7 +79,7 @@ public class ApiConfig extends ResourceConfig {
 
     void registerExceptionMappers() {
         // TODO: Snakke gjennom disse og om de fra felles er bra nok.
-        register(GeneralRestExceptionMapper.class);
+        register(LokalRestExceptionMapper.class);
         register(ConstraintViolationMapper.class);
     }
 

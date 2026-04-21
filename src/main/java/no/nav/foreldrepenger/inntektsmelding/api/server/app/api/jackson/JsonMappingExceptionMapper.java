@@ -13,14 +13,26 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeil
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
+/**
+ * Håndterer JsonMappingException ved deserializering av innkommende JSON.
+ * Logger feildetaljer for debugging og returnerer en standard feilmelding til klient.
+ */
 public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonMappingExceptionMapper.class);
+    private static final String ERROR_CODE = "FIM-252294";
 
     @Override
     public Response toResponse(JsonMappingException exception) {
-        var feil = "FIM-252294: JSON-mapping feil";
-        LOG.warn(feil);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(EksponertFeilmelding.SERIALISERINGSFEIL.getVerdi(), MDCOperations.getCallId())).type(MediaType.APPLICATION_JSON).build();
+        LOG.error("{}: JSON-mapping feil - {}", ERROR_CODE, exception.getMessage());
+
+        var callId = MDCOperations.getCallId();
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(new ErrorResponse(
+                EksponertFeilmelding.SERIALISERINGSFEIL.name(),
+                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst(),
+                callId))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 }

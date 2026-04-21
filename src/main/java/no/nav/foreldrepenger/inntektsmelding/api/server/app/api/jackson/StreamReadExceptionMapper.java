@@ -24,8 +24,7 @@ public class StreamReadExceptionMapper implements ExceptionMapper<StreamReadExce
     public Response toResponse(StreamReadException exception) {
         var feil = String.format("FIM-299955: JSON-parsing feil: %s", exception.getMessage());
         LOG.warn(feil);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(EksponertFeilmelding.SERIALISERINGSFEIL.getVerdi(), MDCOperations.getCallId())).type(
-            MediaType.APPLICATION_JSON).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(EksponertFeilmelding.SERIALISERINGSFEIL.name(), EksponertFeilmelding.SERIALISERINGSFEIL.getTekst(), MDCOperations.getCallId())).type(MediaType.APPLICATION_JSON).build();
     }
 
 
