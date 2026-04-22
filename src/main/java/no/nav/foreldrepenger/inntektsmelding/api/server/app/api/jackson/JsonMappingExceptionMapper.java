@@ -15,7 +15,7 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  * Håndterer JsonMappingException ved deserializering av innkommende JSON.
- * Logger feildetaljer for debugging og returnerer en standard feilmelding til klient.
+ * Logger feildetaljer og returnerer feilmelding til klient.
  */
 public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingException> {
 
@@ -24,13 +24,13 @@ public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingEx
 
     @Override
     public Response toResponse(JsonMappingException exception) {
-        LOG.error("{}: JSON-mapping feil - {}", ERROR_CODE, exception.getMessage());
+        LOG.warn("{}: JSON-mapping feil - {}", ERROR_CODE, exception.getMessage());
 
         var callId = MDCOperations.getCallId();
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(new ErrorResponse(
                 EksponertFeilmelding.SERIALISERINGSFEIL.name(),
-                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst(),
+                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + exception.getMessage(),
                 callId))
             .type(MediaType.APPLICATION_JSON)
             .build();

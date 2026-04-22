@@ -31,6 +31,4 @@ public class StreamReadExceptionMapper implements ExceptionMapper<StreamReadExce
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
-
-
 }

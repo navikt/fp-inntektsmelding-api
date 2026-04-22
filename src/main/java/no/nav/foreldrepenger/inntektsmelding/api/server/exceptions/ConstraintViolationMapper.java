@@ -41,9 +41,8 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             feilene.add(new FeltFeilDto(feltNavn, constraintViolation.getMessage()));
         }
         var feltNavn = feilene.stream().map(FeltFeilDto::navn).toList();
-        var feilmelding = String.format("Det oppstod en valideringsfeil på felt %s. " + "Vennligst kontroller at alle feltverdier er korrekte.",
-            feltNavn);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse("CONSTRAINT_VIOLATION", feilmelding, MDCOperations.getCallId())).type(MediaType.APPLICATION_JSON).build();
+        var feilmelding = String.format("Valideringsfeil på felt %s. " , feltNavn);
+        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(EksponertFeilmelding.VALIDERINGSFEIL.name(), feilmelding, MDCOperations.getCallId())).type(MediaType.APPLICATION_JSON).build();
     }
 
     private static Set<String> getInputs(ConstraintViolationException exception) {

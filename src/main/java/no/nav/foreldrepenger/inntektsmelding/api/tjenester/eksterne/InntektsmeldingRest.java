@@ -57,12 +57,17 @@ public class InntektsmeldingRest {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
-        LOG.info("Mottatt inntektsmelding for forespørselUuid {} ", inntektsmeldingRequest.foresporselUuid());
-        var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(inntektsmeldingRequest.foresporselUuid());
+        var forespørselUuid = inntektsmeldingRequest.foresporselUuid();
+        LOG.info("Mottatt inntektsmelding for forespørselUuid {} ", forespørselUuid);
+        var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
 
         if (forespørsel == null) {
-            LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel ikke funnet.", inntektsmeldingRequest.foresporselUuid());
-            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst(), MDCOperations.getCallId())).build();
+            LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel ikke funnet.", forespørselUuid);
+            return Response.status(Response.Status.NOT_FOUND)
+                .entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(),
+                    EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid,
+                    MDCOperations.getCallId()))
+                .build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer().orgnr()));
@@ -97,7 +102,11 @@ public class InntektsmeldingRest {
 
         if (inntektsmelding == null) {
             LOG.info("Avvist inntektsmelding for innsendingId {}. Inntektsmelding ikke funnet.", innsendingId);
-            return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst(), MDCOperations.getCallId())).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                .entity(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(),
+                    EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst() + ": " + innsendingId,
+                    MDCOperations.getCallId()))
+                .build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmelding.orgnr().orgnr()));

@@ -57,6 +57,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     void assertValidRequest(ContainerRequestContext req) {
         var method = getResourceinfo().getResourceMethod();
         Optional<TokenString> tokenFromHeader = AuthenticationFilterDelegate.getTokenFromHeader(req);
+        //TODO vi må finne ut hvordan vi skal håndrer feilreferanse - skal vi generere calllId her, eller skal vi kreve at det settes i header. Hva gjør sykepenger?
 
         if (tokenFromHeader.isEmpty()) {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.MANGLER_TOKEN, Response.Status.UNAUTHORIZED);

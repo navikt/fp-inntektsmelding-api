@@ -103,8 +103,8 @@ public class InntektsmeldingRestTest {
         var response = inntektsmeldingRest.sendInntektsmelding(inntektsmeldingRequest);
 
         // Assert
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
         var errorResponse = (ErrorResponse) response.getEntity();
-        assertThat(errorResponse.feilmelding()).isEqualTo(EksponertFeilmelding.TOM_FORESPOERSEL.getTekst());
+        assertThat(errorResponse.feilmelding()).isEqualTo(EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid);
     }
 }
