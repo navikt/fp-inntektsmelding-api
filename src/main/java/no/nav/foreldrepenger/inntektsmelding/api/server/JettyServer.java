@@ -76,9 +76,7 @@ public class JettyServer {
 
             // Statiske ressurser (Swagger UI)
             var factory = ResourceFactory.of(context);
-            context.setBaseResource(ResourceFactory.combine(
-                factory.newClassLoaderResource("/META-INF/resources/webjars/", false),
-                factory.newClassLoaderResource("/web", false)));
+            context.setBaseResource(factory.newClassLoaderResource("/web", false));
 
             // Servlets
             registerDefaultServlet(context);
