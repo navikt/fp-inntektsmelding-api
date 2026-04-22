@@ -12,6 +12,7 @@ public enum EksponertFeilmelding {
 
     // Valideringsfeil
     SERIALISERINGSFEIL("Serialiseringsfeil"),
+    VALIDERINGSFEIL("Valideringsfeil"),
     TOM_FORESPOERSEL("Finner ikke forespørsel"),
     TOM_INNTEKTSMELDING("Finner ikke inntektsmelding"),
     UGYLDIG_PERIODE("Oppgitt forespørselsperiode er ugyldig, fom kan ikke være etter tom"),
@@ -33,8 +34,7 @@ public enum EksponertFeilmelding {
     DUPLIKATER_IKKE_TILATT(
         "Duplikate endringsårsker er ikke tillatt for årsakene: NY_STILLING, NY_STILLINGSPROSENT, VARIG_LØNNSENDRING, BONUS, TARIFF_ENDRING, FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER, NYANSATT, MANGELFULL_RAPPORTERING_A-ORDNING, INNTEKT_IKKE_RAPPRTERT_ENDA_A-ORDNING"),
     // Default
-    //todo hvor skal de melde feil til oss?
-    STANDARD_FEIL("Noe feilet. Meld feil ....");
+    STANDARD_FEIL("Noe feilet.");
 
     private final String tekst;
 

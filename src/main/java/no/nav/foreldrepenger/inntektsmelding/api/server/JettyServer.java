@@ -139,6 +139,7 @@ public class JettyServer {
         return this.serverPort;
     }
 
+    //Todo spørre Michal hva tanken er med denne
     private static class JsonErrorHandler extends ErrorHandler {
         @Override
         public boolean handle(Request request, Response response, Callback callback) {

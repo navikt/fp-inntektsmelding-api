@@ -13,6 +13,10 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeil
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.vedtak.log.mdc.MDCOperations;
 
+/**
+ * Håndterer JsonParsingException ved serialisering av innkommende JSON.
+ * Logger feildetaljer  og returnerer feilmelding til klient.
+ */
 public class JsonParseExceptionMapper implements ExceptionMapper<JsonParseException> {
 
     private static final Logger LOG = LoggerFactory.getLogger(JsonParseExceptionMapper.class);
@@ -21,6 +25,11 @@ public class JsonParseExceptionMapper implements ExceptionMapper<JsonParseExcept
     public Response toResponse(JsonParseException exception) {
         var feil = String.format("FIM-299955: JSON-parsing feil: %s", exception.getMessage());
         LOG.warn(feil);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(EksponertFeilmelding.SERIALISERINGSFEIL.name(), EksponertFeilmelding.SERIALISERINGSFEIL.getTekst(), MDCOperations.getCallId())).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(new ErrorResponse(EksponertFeilmelding.SERIALISERINGSFEIL.name(),
+                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + exception.getMessage(),
+                MDCOperations.getCallId()))
+            .type(MediaType.APPLICATION_JSON)
+            .build();
     }
 }

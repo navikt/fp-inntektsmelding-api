@@ -26,7 +26,7 @@ public class DatabindExceptionMapper implements ExceptionMapper<DatabindExceptio
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(new ErrorResponse(
                 EksponertFeilmelding.SERIALISERINGSFEIL.name(),
-                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " +exception.getMessage(),
+                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + exception.getMessage(),
                 MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
