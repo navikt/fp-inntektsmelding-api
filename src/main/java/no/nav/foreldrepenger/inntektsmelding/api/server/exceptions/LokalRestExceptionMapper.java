@@ -26,7 +26,7 @@ public class LokalRestExceptionMapper implements ExceptionMapper<Throwable> {
                 .build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.name(), EksponertFeilmelding.STANDARD_FEIL.getTekst() + ": " + feil.getMessage(), MDCOperations.getCallId()))
+            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.name(), EksponertFeilmelding.STANDARD_FEIL.getTekst(), MDCOperations.getCallId()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

@@ -62,7 +62,7 @@ public class ForespørselRest {
         Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(uuid);
         if (forespørsel == null) {
             return Response.status(Response.Status.NOT_FOUND).
-                entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst(),
+                entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid,
                     MDCOperations.getCallId())).build();
         }
 
