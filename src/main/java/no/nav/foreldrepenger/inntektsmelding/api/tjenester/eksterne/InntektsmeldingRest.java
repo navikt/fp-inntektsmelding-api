@@ -14,7 +14,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingDto;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingMapper;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
@@ -39,6 +38,7 @@ public class InntektsmeldingRest {
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRest.class);
     private static final String SEND_INNTEKTSMELDING = "/send-inn";
     private static final String HENT_INNTEKTSMELDING = "/hent/{uuid}";
+    private static final String HENT_INNTEKTSMELDINGER = "/hent/inntektsmeldinger";
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
     private Tilgang tilgang;
 
@@ -102,11 +102,53 @@ public class InntektsmeldingRest {
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmelding.orgnr().orgnr()));
 
-        InntektsmeldingDto dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
+        var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
         return Response.status(Response.Status.OK)
             .entity(dto)
             .build();
+    }
+
+    @POST
+    @Path(HENT_INNTEKTSMELDINGER)
+    public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
+        LOG.info("Innkomende kall på søk etter inntektsmeldinger");
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmeldingFilter.orgnr()));
+        if (inntektsmeldingFilter.innsendingId() != null) {
+            var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingFilter.innsendingId());
+            if (inntektsmelding == null) {
+                LOG.info("Inntektsmelding med innsendingId {} ikke funnet.", inntektsmeldingFilter.innsendingId());
+                return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(), EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst(), MDCOperations.getCallId())).build();
+            }
+            if (datoerErUgyldige(inntektsmeldingFilter)) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst(), MDCOperations.getCallId()))
+                    .build();
+            }
+
+            var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
+
+            return Response.status(Response.Status.OK)
+                .entity(dto)
+                .build();
+        }
+
+        var inntektsmeldinger = fpinntektsmeldingTjeneste.hentInntektsmeldinger(inntektsmeldingFilter.orgnr(),
+            inntektsmeldingFilter.fnr(),
+            inntektsmeldingFilter.forespørselId(),
+            inntektsmeldingFilter.ytelseType(),
+            inntektsmeldingFilter.fom(),
+            inntektsmeldingFilter.tom());
+
+        var dto = inntektsmeldinger.stream().map(InntektsmeldingMapper::mapTilDto).toList();
+
+        return Response.status(Response.Status.OK)
+            .entity(dto)
+            .build();
+    }
+
+    private boolean datoerErUgyldige(InntektsmeldingFilter filterRequest) {
+        return filterRequest.fom() != null && filterRequest.tom() != null && filterRequest.fom().isAfter(filterRequest.tom());
     }
 }
 
