@@ -78,8 +78,8 @@ public class ForespørselRest {
         LOG.info("Innkomende kall på søk etter forespørsler");
 
         // Det er spurt etter en spesifikk forespørsel, henter kun denne
-        if (filterRequest.forespørselId() != null) {
-            Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(filterRequest.forespørselId());
+        if (filterRequest.forespoerselId() != null) {
+            Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(filterRequest.forespoerselId());
             if (forespørsel == null) {
                 return Response.ok(List.of()).build();
             }

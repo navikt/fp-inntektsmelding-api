@@ -29,7 +29,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -121,7 +120,7 @@ public class InntektsmeldingRestTest {
         var filter = new InntektsmeldingFilter(orgnr, fnr, forespørselId, null, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31));
 
         var inntektsmelding = lagInntektsmelding(orgnr);
-        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(eq(orgnr), eq(fnr), eq(forespørselId), eq(YtelseType.FORELDREPENGER), eq(LocalDate.of(2025, 1, 1)), eq(LocalDate.of(2025, 12, 31))))
+        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, fnr, forespørselId, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31)))
             .thenReturn(List.of(inntektsmelding));
 
         var response = inntektsmeldingRest.hentInntektsmeldinger(filter);

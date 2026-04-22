@@ -135,7 +135,7 @@ public class InntektsmeldingRest {
 
         var inntektsmeldinger = fpinntektsmeldingTjeneste.hentInntektsmeldinger(inntektsmeldingFilter.orgnr(),
             inntektsmeldingFilter.fnr(),
-            inntektsmeldingFilter.forespørselId(),
+            inntektsmeldingFilter.forespoerselId(),
             inntektsmeldingFilter.ytelseType(),
             inntektsmeldingFilter.fom(),
             inntektsmeldingFilter.tom());
