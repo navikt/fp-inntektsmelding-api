@@ -71,7 +71,7 @@ class LokalRestExceptionMapperTest {
         })) {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
-            assertThat(feilDto.feilmelding()).isEqualTo("Noe feilet.: FPIMAPI-123456: en teknisk feilmelding");
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getTekst());
             assertThat(logSniffer.search("en teknisk feilmelding", Level.WARN)).hasSize(1);
         }
     }
@@ -88,7 +88,7 @@ class LokalRestExceptionMapperTest {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.feilmelding()).isEqualTo("Noe feilet.: KODE: TEKST");
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getTekst());
             assertThat(logSniffer.search("TEKST", Level.WARN)).hasSize(1);
         }
     }
@@ -105,7 +105,7 @@ class LokalRestExceptionMapperTest {
             assertThat(response.getEntity()).isInstanceOf(ErrorResponse.class);
             var feilDto = (ErrorResponse) response.getEntity();
 
-            assertThat(feilDto.feilmelding()).isEqualTo("Noe feilet.: en helt generell feil");
+            assertThat(feilDto.feilmelding()).isEqualTo(EksponertFeilmelding.STANDARD_FEIL.getTekst());
             assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
         }
     }
