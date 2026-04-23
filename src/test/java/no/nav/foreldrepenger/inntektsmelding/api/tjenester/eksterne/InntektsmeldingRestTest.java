@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne;
 import jakarta.ws.rs.core.Response;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
+import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.Inntektsmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingDto;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
@@ -10,6 +12,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +29,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -106,5 +110,53 @@ public class InntektsmeldingRestTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
         var errorResponse = (ErrorResponse) response.getEntity();
         assertThat(errorResponse.feilmelding()).isEqualTo(EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid);
+    }
+
+    @Test
+    void skal_hente_inntektsmeldinger_med_filter_uten_innsendingId() {
+        var orgnr = "999999999";
+        var fnr = "12345678901";
+        var forespørselId = UUID.randomUUID();
+        var filter = new InntektsmeldingFilter(orgnr, fnr, forespørselId, null, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31));
+
+        var inntektsmelding = lagInntektsmelding(orgnr);
+        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, fnr, forespørselId, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31)))
+            .thenReturn(List.of(inntektsmelding));
+
+        var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        @SuppressWarnings("unchecked")
+        var dtoList = (List<InntektsmeldingDto>) response.getEntity();
+        assertThat(dtoList).hasSize(1);
+        verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
+    }
+
+    @Test
+    void skal_returnere_bad_request_når_fom_er_etter_tom_med_innsendingId() {
+        var orgnr = "999999999";
+        var innsendingId = UUID.randomUUID();
+        var filter = new InntektsmeldingFilter(orgnr, null, null, innsendingId, null, LocalDate.of(2025, 12, 31), LocalDate.of(2025, 1, 1));
+
+        var inntektsmelding = lagInntektsmelding(orgnr);
+        when(fpinntektsmeldingTjeneste.hentInntektsmelding(innsendingId)).thenReturn(inntektsmelding);
+
+        var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        var errorResponse = (ErrorResponse) response.getEntity();
+        assertThat(errorResponse.feilmelding()).isEqualTo(EksponertFeilmelding.UGYLDIG_PERIODE.getTekst());
+    }
+
+    private Inntektsmelding lagInntektsmelding(String orgnr) {
+        return new Inntektsmelding(
+            UUID.randomUUID(), "12345678901", YtelseTypeDto.FORELDREPENGER,
+            new Organisasjonsnummer(orgnr),
+            new Inntektsmelding.Kontaktperson("Test", "12345678"),
+            LocalDate.now(),
+            BigDecimal.valueOf(50000), LocalDate.now(), LocalDateTime.now(),
+            new Inntektsmelding.AvsenderSystem("Test", "1.0"),
+            null, null, List.of(), List.of(), List.of()
+        );
     }
 }

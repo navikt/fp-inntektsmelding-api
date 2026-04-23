@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 
 public record ForespørselFilter(@NotNull @Pattern(regexp = "^\\d{9}$") String orgnr,
                                 @Pattern(regexp = "^\\d{11}$") String fnr,
-                                @Valid UUID forespørselId,
+                                @Valid UUID forespoerselId,
                                 @Valid StatusDto status,
                                 @Valid YtelseType ytelseType,
                                 LocalDate fom,
