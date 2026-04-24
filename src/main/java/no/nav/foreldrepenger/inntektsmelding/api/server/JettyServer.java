@@ -9,6 +9,7 @@ import org.eclipse.jetty.ee11.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee11.cdi.CdiServletContainerInitializer;
 import org.eclipse.jetty.ee11.servlet.ResourceServlet;
 import org.eclipse.jetty.ee11.servlet.ErrorHandler;
+import org.eclipse.jetty.ee11.servlet.ResourceServlet;
 import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.eclipse.jetty.ee11.servlet.security.ConstraintMapping;
@@ -104,6 +105,7 @@ public class JettyServer {
 
     private static void registerServlet(ServletContextHandler context, int prioritet, String path, Class<?> appClass) {
         var servlet = new ServletHolder(new ServletContainer());
+        servlet.setName(appClass.getName());
         servlet.setInitOrder(prioritet);
         servlet.setInitParameter(APPLICATION, appClass.getName());
         context.addServlet(servlet, path + "/*");
@@ -144,10 +146,13 @@ public class JettyServer {
 
             int code = response.getStatus();
             var message = HttpStatus.getMessage(code);
-            var errorResponse = new ErrorResponse("[%s] %s".formatted(code, message), MDCOperations.generateCallId());
+            var errorResponse = new ErrorResponse(HttpStatus.getCode(code) + "ERROR",  "[%s] %s".formatted(code, message), MDCOperations.generateCallId());
 
             // Write the JSON response
             response.write(true, ByteBuffer.wrap(toJson(errorResponse).getBytes(StandardCharsets.UTF_8)), callback);
+
+            // Logg error
+            LOG.warn("Jetty error handler triggered: {} {}", code, message);
 
             // Return true to indicate that the request has been handled
             return true;

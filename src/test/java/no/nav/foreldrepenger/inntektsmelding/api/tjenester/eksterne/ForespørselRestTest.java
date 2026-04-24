@@ -58,8 +58,8 @@ class ForespørselRestTest {
         assertThat(response.getStatus()).isEqualTo(200);
         var forespørsler = (List<ForespørselDto>) response.getEntity();
         assertThat(forespørsler).hasSize(1);
-        assertThat(forespørsler.getFirst().forespørselUuid()).isEqualTo(uuid);
-        assertThat(forespørsler.getFirst().orgnummer()).isEqualTo(orgnummer);
+        assertThat(forespørsler.getFirst().forespoerselId()).isEqualTo(uuid);
+        assertThat(forespørsler.getFirst().orgnr()).isEqualTo(orgnummer);
         assertThat(forespørsler.getFirst().status()).isEqualTo(StatusDto.AKTIV);
     }
 
@@ -69,7 +69,7 @@ class ForespørselRestTest {
         var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, StatusDto.FORKASTET, YtelseType.SVANGERSKAPSPENGER, LocalDate.now(), LocalDate.now().minusMonths(1)));
         assertThat(response.getStatus()).isEqualTo(400);
         var forespørsler = (ErrorResponse) response.getEntity();
-        assertThat(forespørsler.feilmelding()).isEqualTo(EksponertFeilmelding.UGYLDIG_PERIODE.getVerdi());
+        assertThat(forespørsler.feilmelding()).isEqualTo(EksponertFeilmelding.UGYLDIG_PERIODE.getTekst());
     }
 
     @Test

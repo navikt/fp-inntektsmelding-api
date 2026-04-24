@@ -7,9 +7,6 @@ import java.util.UUID;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.Inntektsmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRequest;
@@ -26,10 +23,10 @@ import no.nav.foreldrepenger.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.SøktRefusjonDto;
-import no.nav.foreldrepenger.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.InntektsmeldingFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 
@@ -71,6 +68,22 @@ public class FpinntektsmeldingTjeneste {
         return mapInntektsmeldingResponseTilDomeneobjekt(response);
     }
 
+    public List<Inntektsmelding> hentInntektsmeldinger(String orgnr,
+                                                       String fnr,
+                                                       UUID uuid,
+                                                       YtelseType ytelseType,
+                                                       LocalDate fom,
+                                                       LocalDate tom) {
+        var request = new InntektsmeldingFilterRequest(new OrganisasjonsnummerDto(orgnr),
+            fnr == null ? null : new FødselsnummerDto(fnr),
+            ytelseType == null ? null : mapYtelseType(ytelseType),
+            uuid,
+            fom,
+            tom);
+        var response = fpinntektsmeldingKlient.hentInntektsmeldinger(request);
+        return response.stream().map(this::mapInntektsmeldingResponseTilDomeneobjekt).toList();
+    }
+
     private Inntektsmelding mapInntektsmeldingResponseTilDomeneobjekt(HentInntektsmeldingResponse response) {
         return new Inntektsmelding(
             response.inntektsmeldingUuid(),
@@ -89,7 +102,10 @@ public class FpinntektsmeldingTjeneste {
                 .map(r -> new Inntektsmelding.Refusjon(r.fom(), r.beløp()))
                 .toList(),
             response.bortfaltNaturalytelsePerioder().stream()
-                .map(b -> new Inntektsmelding.BortfaltNaturalytelse(b.fom(), b.tom(), mapNaturalytelseTypeTilApiType(b.naturalytelsetype()), b.beløp()))
+                .map(b -> new Inntektsmelding.BortfaltNaturalytelse(b.fom(),
+                    b.tom(),
+                    mapNaturalytelseTypeTilApiType(b.naturalytelsetype()),
+                    b.beløp()))
                 .toList(),
             response.endringAvInntektÅrsaker().stream()
                 .map(e -> new Inntektsmelding.Endringsårsaker(mapEndringsårsakTilApiType(e.årsak()), e.fom(), e.tom(), e.bleKjentFom()))
@@ -100,7 +116,8 @@ public class FpinntektsmeldingTjeneste {
     private no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto mapNaturalytelseTypeTilApiType(NaturalytelsetypeDto naturalytelsetype) {
         return switch (naturalytelsetype) {
             case ELEKTRISK_KOMMUNIKASJON -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON;
-            case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
+            case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS ->
+                no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
             case LOSJI -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.LOSJI;
             case KOST_DOEGN -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.KOST_DOEGN;
             case BESØKSREISER_HJEMMET_ANNET -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.BESØKSREISER_HJEMMET_ANNET;
@@ -109,15 +126,19 @@ public class FpinntektsmeldingTjeneste {
             case BIL -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.BIL;
             case KOST_DAGER -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.KOST_DAGER;
             case BOLIG -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.BOLIG;
-            case SKATTEPLIKTIG_DEL_FORSIKRINGER -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.SKATTEPLIKTIG_DEL_FORSIKRINGER;
+            case SKATTEPLIKTIG_DEL_FORSIKRINGER ->
+                no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.SKATTEPLIKTIG_DEL_FORSIKRINGER;
             case FRI_TRANSPORT -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.FRI_TRANSPORT;
             case OPSJONER -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.OPSJONER;
             case TILSKUDD_BARNEHAGEPLASS -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.TILSKUDD_BARNEHAGEPLASS;
             case ANNET -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.ANNET;
             case BEDRIFTSBARNEHAGEPLASS -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.BEDRIFTSBARNEHAGEPLASS;
-            case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
-            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
-            case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
+            case YRKEBIL_TJENESTLIGBEHOV_KILOMETER ->
+                no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
+            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS ->
+                no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
+            case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING ->
+                no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
         };
     }
 
@@ -128,10 +149,13 @@ public class FpinntektsmeldingTjeneste {
             case NY_STILLINGSPROSENT -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.NY_STILLINGSPROSENT;
             case SYKEFRAVÆR -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.SYKEFRAVÆR;
             case BONUS -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.BONUS;
-            case FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
+            case FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER ->
+                no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
             case NYANSATT -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.NYANSATT;
-            case MANGELFULL_RAPPORTERING_AORDNING -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.MANGELFULL_RAPPORTERING_AORDNING;
-            case INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING;
+            case MANGELFULL_RAPPORTERING_AORDNING ->
+                no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.MANGELFULL_RAPPORTERING_AORDNING;
+            case INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING ->
+                no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING;
             case TARIFFENDRING -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.TARIFFENDRING;
             case FERIE -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.FERIE;
             case VARIG_LØNNSENDRING -> no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto.VARIG_LØNNSENDRING;
@@ -154,9 +178,9 @@ public class FpinntektsmeldingTjeneste {
             mapEndringsårsakerDto(inntektsmeldingRequest.endringAvInntektÅrsaker()),
             new AvsenderSystemDto(inntektsmeldingRequest.avsenderSystem().navn(),
                 inntektsmeldingRequest.avsenderSystem().versjon())
-            );
+        );
 
-       return fpinntektsmeldingKlient.sendInntektsmelding(inntektsmeldingRequestDto);
+        return fpinntektsmeldingKlient.sendInntektsmelding(inntektsmeldingRequestDto);
     }
 
     private List<EndringsårsakerDto> mapEndringsårsakerDto(List<InntektsmeldingRequest.Endringsårsaker> endringsårsaker) {
@@ -198,7 +222,7 @@ public class FpinntektsmeldingTjeneste {
             case BESØKSREISER_HJEMMET_ANNET -> NaturalytelsetypeDto.BESØKSREISER_HJEMMET_ANNET;
             case KOSTBESPARELSE_I_HJEMMET -> NaturalytelsetypeDto.KOSTBESPARELSE_I_HJEMMET;
             case RENTEFORDEL_LÅN -> NaturalytelsetypeDto.RENTEFORDEL_LÅN;
-            case BIL ->  NaturalytelsetypeDto.BIL;
+            case BIL -> NaturalytelsetypeDto.BIL;
             case KOST_DAGER -> NaturalytelsetypeDto.KOST_DAGER;
             case BOLIG -> NaturalytelsetypeDto.BOLIG;
             case SKATTEPLIKTIG_DEL_FORSIKRINGER -> NaturalytelsetypeDto.SKATTEPLIKTIG_DEL_FORSIKRINGER;
@@ -208,7 +232,7 @@ public class FpinntektsmeldingTjeneste {
             case ANNET -> NaturalytelsetypeDto.ANNET;
             case BEDRIFTSBARNEHAGEPLASS -> NaturalytelsetypeDto.BEDRIFTSBARNEHAGEPLASS;
             case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
-            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
+            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
             case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> NaturalytelsetypeDto.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
         };
     }
@@ -241,4 +265,6 @@ public class FpinntektsmeldingTjeneste {
             KodeverkMapper.mapYtelseType(response.ytelseType()),
             response.opprettetTid());
     }
+
+
 }

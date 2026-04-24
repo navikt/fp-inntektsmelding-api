@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ApplicationPath;
 
-import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
-
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -24,12 +22,10 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson.Jackson3ApiFeature;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AutentiseringFilter;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.GeneralRestExceptionMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonMappingExceptionMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.JsonParseExceptionMapper;
-import no.nav.foreldrepenger.inntektsmelding.api.server.jackson.JacksonJsonConfig;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.LokalRestExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -45,13 +41,13 @@ public class ApiConfig extends ResourceConfig {
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
+        register(Jackson3ApiFeature.class);
         register(AutentiseringFilter.class);
+        registerExceptionMappers();
+
         registerOpenApi();
         // REST
         registerClasses(getApplicationClasses());
-
-        registerExceptionMappers();
-        register(JacksonJsonConfig.class);
 
         setProperties(getApplicationProperties());
         LOG.info("Ferdig med initialisering av {}", API_URI);
@@ -82,10 +78,9 @@ public class ApiConfig extends ResourceConfig {
     }
 
     void registerExceptionMappers() {
-        register(GeneralRestExceptionMapper.class);
+        // TODO: Snakke gjennom disse og om de fra felles er bra nok.
+        register(LokalRestExceptionMapper.class);
         register(ConstraintViolationMapper.class);
-        register(JsonMappingExceptionMapper.class);
-        register(JsonParseExceptionMapper.class);
     }
 
     private Set<Class<?>> getApplicationClasses() {

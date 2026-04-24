@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.UriBuilder;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.InntektsmeldingFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
 
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
@@ -40,6 +41,7 @@ public class FpinntektsmeldingKlient {
     private final URI uriSendInntektsmelding;
     private final URI uriHentForespørsler;
     private final URI uriHentInntektsmelding;
+    private final URI uriHentInntektsmeldinger;
 
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
@@ -47,10 +49,11 @@ public class FpinntektsmeldingKlient {
         this.uriHentForespørsel = toUri(restConfig.fpContextPath(), "api/imapi/foresporsel/hent");
         this.uriHentForespørsler = toUri(restConfig.fpContextPath(), "api/imapi/foresporsel/foresporsler");
         this.uriSendInntektsmelding = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/send-inntektsmelding");
-        this.uriHentInntektsmelding = toUri(restConfig.fpContextPath(), "/imapi/inntektsmelding/hent");
+        this.uriHentInntektsmelding = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/hent");
+        this.uriHentInntektsmeldinger = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/hent/inntektsmeldinger");
     }
 
-    public ForespørselResponse hentForespørsel(UUID forespørselUuid) {
+    ForespørselResponse hentForespørsel(UUID forespørselUuid) {
         try {
             LOG.info("Sender request til fpinntektsmelding for forespørselUuid {} ", forespørselUuid);
             var request = RestRequest.newGET(toUri(uriHentForespørsel, "/" + forespørselUuid), restConfig);
@@ -63,10 +66,10 @@ public class FpinntektsmeldingKlient {
         }
     }
 
-    public List<no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse> hentForespørsler(ForespørselFilterRequest filter) {
+    List<ForespørselResponse> hentForespørsler(ForespørselFilterRequest filter) {
         try {
             var request = RestRequest.newPOSTJson(filter, uriHentForespørsler, restConfig);
-            var response = restClient.send(request, no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse[].class);
+            var response = restClient.send(request, ForespørselResponse[].class);
             return List.of(response);
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av forespørsler fra fpinntektsmelding for orgnr: {}. Feilmelding var {}",
@@ -88,6 +91,7 @@ public class FpinntektsmeldingKlient {
         }
     }
 
+
     HentInntektsmeldingResponse hentInntektsmelding(UUID innsendingId) {
         try {
             LOG.info("Sender inntektsmelding til fpinntektsmelding for forespørselUuid {} ", innsendingId);
@@ -99,6 +103,20 @@ public class FpinntektsmeldingKlient {
             throw feilVedKallTilFpinntektsmelding();
         }
     }
+
+     List<HentInntektsmeldingResponse> hentInntektsmeldinger(InntektsmeldingFilterRequest filter) {
+         try {
+             var request = RestRequest.newPOSTJson(filter, uriHentInntektsmeldinger, restConfig);
+             var response = restClient.send(request, HentInntektsmeldingResponse[].class);
+             return List.of(response);
+         } catch (Exception e) {
+             LOG.warn("FP-97215: Feil ved henting av inntektsmeldinger fra fpinntektsmelding for orgnr: {}. Feilmelding var {}",
+                 filter.orgnr(),
+                 e.getMessage());
+             throw feilVedKallTilFpinntektsmelding();
+         }
+    }
+
     private static TekniskException feilVedKallTilFpinntektsmelding() {
         throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
     }
@@ -111,5 +129,6 @@ public class FpinntektsmeldingKlient {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.STANDARD_FEIL, Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
+
 }
 

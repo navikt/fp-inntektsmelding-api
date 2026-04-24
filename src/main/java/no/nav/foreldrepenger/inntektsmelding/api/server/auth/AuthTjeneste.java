@@ -35,7 +35,7 @@ public class AuthTjeneste {
 
         if (!response.active()) {
             LOG.info("Token er inaktivt. Token introspect respons: {}", response.error());
-            throw new InntektsmeldingAPIException(EksponertFeilmelding.UTGÅTT_TOKEN, Response.Status.UNAUTHORIZED);
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.UTGAATT_TOKEN, Response.Status.UNAUTHORIZED);
         }
 
         List<String> scopes = List.of(response.scope().split(" "));
