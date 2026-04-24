@@ -31,7 +31,6 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
 
     private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
     private static final Environment ENV = Environment.current();
-    private static final Environment ENV = Environment.current();
     private final AuthTjeneste authTjeneste;
 
     @Context
