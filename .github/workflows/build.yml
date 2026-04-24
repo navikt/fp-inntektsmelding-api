@@ -1,7 +1,6 @@
 name: Bygg og deploy
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - '**'
@@ -25,8 +24,8 @@ jobs:
       pull-requests: read
     uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main
     with:
-      build-image: ${{ github.ref_name == 'master' || github.event_name == 'workflow_dispatch' }} # default: true
-      push-image: ${{ github.ref_name == 'master' || github.event_name == 'workflow_dispatch' }} # default: false
+      build-image: ${{ github.ref_name == 'master' }} # default: true
+      push-image: ${{ github.ref_name == 'master' }} # default: false
       namespace: teamforeldrepenger
     secrets: inherit
 
@@ -34,7 +33,7 @@ jobs:
     name: Deploy dev
     permissions:
       id-token: write
-    if: github.ref_name == 'master' || github.event_name == 'workflow_dispatch'
+    if: github.ref_name == 'master'
     needs: [build-app]
     uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
     with:
