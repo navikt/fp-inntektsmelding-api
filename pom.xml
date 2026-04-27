@@ -96,7 +96,7 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>swagger-ui</artifactId>
-            <version>5.32.2</version>
+            <version>5.32.4</version>
         </dependency>
 
         <dependency>
@@ -171,30 +171,6 @@
                         <configuration>
                             <outputDirectory>${project.basedir}/target/lib/</outputDirectory>
                             <includeScope>runtime</includeScope>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-swagger-ui</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.webjars</groupId>
-                                    <artifactId>swagger-ui</artifactId>
-                                    <version>5.31.2</version>
-                                    <outputDirectory>${project.build.outputDirectory}/web</outputDirectory>
-                                    <includes>META-INF/resources/webjars/**</includes>
-                                    <fileMappers>
-                                        <org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
-                                            <pattern>META-INF/resources/webjars/</pattern>
-                                            <replacement>./</replacement>
-                                        </org.codehaus.plexus.components.io.filemappers.RegExpFileMapper>
-                                    </fileMappers>
-                                </artifactItem>
-                            </artifactItems>
                         </configuration>
                     </execution>
                     <execution>
