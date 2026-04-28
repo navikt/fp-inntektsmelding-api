@@ -87,15 +87,15 @@ public class InntektsmeldingRest {
         @ApiResponse(responseCode = "409", description = "Duplikat – inntektsmelding er identisk med siste innsendte",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"DUPLIKAT","feilmelding":"Inntektsmelding avvises. Ingen endring på ny inntektsmelding sammenlignet med tidligere innsendt inntektsmelding","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
+                    {"feilkode":"DUPLIKAT","feilmelding":"Inntektsmelding avvises. Ingen endring på ny inntektsmelding sammenlignet med tidligere innsendt inntektsmelding","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}"""))),
         @ApiResponse(responseCode = "503", description = "A-inntekt er midlertidig utilgjengelig. Prøv igjen om litt.",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"NEDETID_AINNTEKT","feilmelding":"Inntektskomponenten har nedetid, og vi kan ikke verifisere inntekt i inntektsmeldingen mot A-inntekt. Prøv igjen om litt.","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
+                    {"feilkode":"NEDETID_AINNTEKT","feilmelding":"Inntektskomponenten har nedetid, og vi kan ikke verifisere inntekt i inntektsmeldingen mot A-inntekt. Prøv igjen om litt.","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}"""))),
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}""")))
     })
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         var forespørselUuid = inntektsmeldingRequest.foresporselUuid();
@@ -155,7 +155,7 @@ public class InntektsmeldingRest {
         @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"SERIALISERINGSFEIL","feilmelding":"Serialiseringsfeil: ...","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
+                    {"feilkode":"SERIALISERINGSFEIL","feilmelding":"Serialiseringsfeil: ...","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}"""))),
         @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
@@ -164,11 +164,11 @@ public class InntektsmeldingRest {
         @ApiResponse(responseCode = "404", description = "Inntektsmeldingen ble ikke funnet",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"TOM_INNTEKTSMELDING","feilmelding":"Finner ikke inntektsmelding: 3fa85f64-5717-4562-b3fc-2c963f66afa6","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
+                    {"feilkode":"TOM_INNTEKTSMELDING","feilmelding":"Finner ikke inntektsmelding: 3fa85f64-5717-4562-b3fc-2c963f66afa6","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}"""))),
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"null"}""")))
     })
     public Response hentInntektsmelding(@NotNull @Valid @PathParam("uuid")
                                         @Parameter(description = "UUID til inntektsmeldingen (innsendingId)")
@@ -213,7 +213,7 @@ public class InntektsmeldingRest {
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}""")))
     })
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
         LOG.info("Innkomende kall på søk etter inntektsmeldinger");

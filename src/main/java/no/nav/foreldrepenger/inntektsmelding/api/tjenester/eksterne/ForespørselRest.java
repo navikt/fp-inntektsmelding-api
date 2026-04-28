@@ -71,7 +71,7 @@ public class ForespørselRest {
         @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
             content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"SERIALISERINGSFEIL","feilmelding":"Serialiseringsfeil: ...","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
+                    {"feilkode":"SERIALISERINGSFEIL","feilmelding":"Serialiseringsfeil: ...","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}"""))),
         @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
             content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
                 examples = @ExampleObject(value = """
@@ -84,7 +84,7 @@ public class ForespørselRest {
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
             content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}""")))
     })
     public Response hentForespørsel(@NotNull @Valid @PathParam("uuid")
                                     @Parameter(description = "UUID til forespørselen")
@@ -125,7 +125,7 @@ public class ForespørselRest {
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
             content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}""")))
     })
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
         LOG.info("Innkomende kall på søk etter forespørsler");
