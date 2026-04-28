@@ -69,8 +69,6 @@ public class PdpKlient {
                     URI.create(baseUrl + "/authorization/api/v1/authorize"),
                     RestConfig.forClient(PdpKlient.class))
                 .header("Ocp-Apim-Subscription-Key", subscriptionKey)
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
                 .otherAuthorizationSupplier(altinnTokenExchangeKlient::hentAltinn3Token);
 
             var pdpResponse = restClient.send(request, PdpResponse.class);
