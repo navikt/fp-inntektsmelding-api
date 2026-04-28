@@ -17,8 +17,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,9 +25,9 @@ import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.ForespørselDto;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.KodeverkMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 @RequestScoped
 @Consumes(MediaType.APPLICATION_JSON)
@@ -63,7 +61,7 @@ public class ForespørselRest {
         if (forespørsel == null) {
             return Response.status(Response.Status.NOT_FOUND).
                 entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid,
-                    MDCOperations.getCallId())).build();
+                    null)).build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(forespørsel.orgnummer());
@@ -91,7 +89,7 @@ public class ForespørselRest {
 
         if (datoerErUgyldige(filterRequest)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                 .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst(), MDCOperations.getCallId()))
+                 .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst(), null))
                  .build();
         }
 

@@ -13,6 +13,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
+import no.nav.vedtak.log.mdc.MDCOperations;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -43,6 +45,12 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) {
         AuthenticationFilterDelegate.fjernKontekst();
+        if (res.getStatus() > 0  && res.getStatus() != Response.Status.OK.getStatusCode()) {
+            var callId = MDCOperations.getCallId();
+            if (callId != null) {
+                res.getHeaders().add("Feilreferanse", callId);
+            }
+        }
     }
 
     @Override
@@ -57,7 +65,13 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     void assertValidRequest(ContainerRequestContext req) {
         var method = getResourceinfo().getResourceMethod();
         Optional<TokenString> tokenFromHeader = AuthenticationFilterDelegate.getTokenFromHeader(req);
-        //TODO vi må finne ut hvordan vi skal håndrer feilreferanse - skal vi generere calllId her, eller skal vi kreve at det settes i header. Hva gjør sykepenger?
+
+        var feilreferanseFraHeader = req.getHeaderString("Feilreferanse");
+        if (feilreferanseFraHeader == null || feilreferanseFraHeader.isEmpty()) {
+            MDCOperations.putCallId(MDCOperations.generateCallId());
+        } else {
+            MDCOperations.putCallId(feilreferanseFraHeader);
+        }
 
         if (tokenFromHeader.isEmpty()) {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.MANGLER_TOKEN, Response.Status.UNAUTHORIZED);

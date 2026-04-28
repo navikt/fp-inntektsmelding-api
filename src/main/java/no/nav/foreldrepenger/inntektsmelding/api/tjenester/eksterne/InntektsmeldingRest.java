@@ -18,6 +18,8 @@ import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.Inntektsmelding
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 
+import no.nav.foreldrepenger.inntektsmelding.felles.FeilkodeDto;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +68,7 @@ public class InntektsmeldingRest {
             return Response.status(Response.Status.NOT_FOUND)
                 .entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(),
                     EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid,
-                    MDCOperations.getCallId()))
+                    null))
                 .build();
         }
 
@@ -77,7 +79,7 @@ public class InntektsmeldingRest {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Validering av inntektsmelding feilet. Feilmelding: {}",
                 inntektsmeldingRequest.foresporselUuid(), feilmelding.get().getTekst());
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(new ErrorResponse(feilmelding.get().name(), feilmelding.get().getTekst(), MDCOperations.getCallId()))
+                .entity(new ErrorResponse(feilmelding.get().name(), feilmelding.get().getTekst(), forespørselUuid.toString()))
                 .build();
         }
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
@@ -85,10 +87,23 @@ public class InntektsmeldingRest {
         if (response.success()) {
             return Response.ok(response.inntektsmeldingUuid()).build();
         } else {
+            var errorResponse = new ErrorResponse(response.feilinformasjon().feilkode().name(),
+                response.feilinformasjon().feilmelding(),
+                response.feilinformasjon().referanseId());
+
+            if (response.feilinformasjon().feilkode().equals(FeilkodeDto.DUPLIKAT)) {
+                return Response.status(Response.Status.CONFLICT)
+                    .entity(errorResponse)
+                    .build();
+            } else if (response.feilinformasjon().feilkode().equals(FeilkodeDto.NEDETID_AINNTEKT)) {
+                return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity(errorResponse)
+                    .build();
+            } else {
             return Response.status(Response.Status.BAD_REQUEST)
-                //todo skal opprette en feilDto i responsen fra fp-inntektsmelding som kan mappes til errorResponse her
-                .entity(new ErrorResponse(null, response.melding(), MDCOperations.getCallId()))
+                .entity(errorResponse)
                 .build();
+            }
         }
     }
 

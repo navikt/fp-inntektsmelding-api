@@ -121,7 +121,7 @@ class FpinntektsmeldingTjenesteTest {
             new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
-        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "Inntektsmelding mottatt"));
+        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
 
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
 
@@ -155,7 +155,7 @@ class FpinntektsmeldingTjenesteTest {
             new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
-        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "Inntektsmelding mottatt"));
+        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
 
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
 
@@ -189,7 +189,7 @@ class FpinntektsmeldingTjenesteTest {
             new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
-        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "Inntektsmelding mottatt"));
+        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
 
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
 
@@ -221,7 +221,7 @@ class FpinntektsmeldingTjenesteTest {
             new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
-        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "Inntektsmelding mottatt"));
+        when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
 
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
 

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  * Håndterer JsonMappingException ved deserializering av innkommende JSON.
@@ -26,12 +25,11 @@ public class JsonMappingExceptionMapper implements ExceptionMapper<JsonMappingEx
     public Response toResponse(JsonMappingException exception) {
         LOG.warn("{}: JSON-mapping feil - {}", ERROR_CODE, exception.getMessage());
 
-        var callId = MDCOperations.getCallId();
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(new ErrorResponse(
                 EksponertFeilmelding.SERIALISERINGSFEIL.name(),
                 EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + exception.getMessage(),
-                callId))
+                null))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
