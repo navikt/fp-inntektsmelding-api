@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintVio
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.LokalRestExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationPath(ApiConfig.API_URI)
@@ -36,7 +35,6 @@ public class ApiConfig extends ResourceConfig {
 
     public static final String API_URI = "/v1";
     private static final Logger LOG = LoggerFactory.getLogger(ApiConfig.class);
-    private static final Environment ENV = Environment.current();
 
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
