@@ -22,8 +22,10 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.extensions.Extension;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -67,14 +69,22 @@ public class ForespørselRest {
         @ApiResponse(responseCode = "200", description = "Forespørselen ble funnet",
             content = @Content(schema = @Schema(implementation = ForespørselDto.class))),
         @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
-            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"SERIALISERINGSFEIL","feilmelding":"Serialiseringsfeil: ...","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
         @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
-            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"MANGLER_TOKEN","feilmelding":"Mangler token i header","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon"),
         @ApiResponse(responseCode = "404", description = "Forespørselen ble ikke funnet",
-            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"TOM_FORESPOERSEL","feilmelding":"Finner ikke forespørsel: 3fa85f64-5717-4562-b3fc-2c963f66afa6","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
-            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
     })
     public Response hentForespørsel(@NotNull @Valid @PathParam("uuid")
                                     @Parameter(description = "UUID til forespørselen")
@@ -104,12 +114,18 @@ public class ForespørselRest {
         @ApiResponse(responseCode = "200", description = "Liste med forespørsler som matcher filteret",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = ForespørselDto.class)))),
         @ApiResponse(responseCode = "400", description = "Ugyldig periode (fom er etter tom)",
-            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"UGYLDIG_PERIODE","feilmelding":"Oppgitt periode er ugyldig, fom kan ikke være etter tom","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
-            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"MANGLER_TOKEN","feilmelding":"Mangler token i header","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon"),
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
-            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
     })
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
         LOG.info("Innkomende kall på søk etter forespørsler");

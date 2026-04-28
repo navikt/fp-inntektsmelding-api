@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -71,18 +72,30 @@ public class InntektsmeldingRest {
         @ApiResponse(responseCode = "200", description = "Inntektsmeldingen ble mottatt. Returnerer UUID til den innsendte inntektsmeldingen.",
             content = @Content(schema = @Schema(implementation = java.util.UUID.class))),
         @ApiResponse(responseCode = "400", description = "Valideringsfeil eller ugyldig inntektsmelding (f.eks. inntekt avviker fra A-inntekt uten endringsårsak)",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"MISMATCH_ORGNR","feilmelding":"Organisasjonsnummer fra token og organisasjonsnummer fra etterspurt forespørsel matcher ikke","feilreferanseId":"3fa85f64-5717-4562-b3fc-2c963f66afa6"}"""))),
         @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"MANGLER_TOKEN","feilmelding":"Mangler token i header","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon"),
         @ApiResponse(responseCode = "404", description = "Forespørselen ble ikke funnet",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"TOM_FORESPOERSEL","feilmelding":"Finner ikke forespørsel: 3fa85f64-5717-4562-b3fc-2c963f66afa6","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "409", description = "Duplikat – inntektsmelding er identisk med siste innsendte",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"DUPLIKAT","feilmelding":"Inntektsmelding avvises. Ingen endring på ny inntektsmelding sammenlignet med tidligere innsendt inntektsmelding","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
         @ApiResponse(responseCode = "503", description = "A-inntekt er midlertidig utilgjengelig. Prøv igjen om litt.",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"NEDETID_AINNTEKT","feilmelding":"Inntektskomponenten har nedetid, og vi kan ikke verifisere inntekt i inntektsmeldingen mot A-inntekt. Prøv igjen om litt.","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
     })
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         var forespørselUuid = inntektsmeldingRequest.foresporselUuid();
@@ -140,14 +153,22 @@ public class InntektsmeldingRest {
         @ApiResponse(responseCode = "200", description = "Inntektsmeldingen ble funnet",
             content = @Content(schema = @Schema(implementation = InntektsmeldingDto.class))),
         @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"SERIALISERINGSFEIL","feilmelding":"Serialiseringsfeil: ...","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
         @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"MANGLER_TOKEN","feilmelding":"Mangler token i header","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon"),
         @ApiResponse(responseCode = "404", description = "Inntektsmeldingen ble ikke funnet",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"TOM_INNTEKTSMELDING","feilmelding":"Finner ikke inntektsmelding: 3fa85f64-5717-4562-b3fc-2c963f66afa6","feilreferanseId":"H184i1D5UNPxL7Pn"}"""))),
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
     })
     public Response hentInntektsmelding(@NotNull @Valid @PathParam("uuid")
                                         @Parameter(description = "UUID til inntektsmeldingen (innsendingId)")
@@ -181,12 +202,18 @@ public class InntektsmeldingRest {
         @ApiResponse(responseCode = "200", description = "Liste med inntektsmeldinger som matcher filteret",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = InntektsmeldingDto.class)))),
         @ApiResponse(responseCode = "400", description = "Ugyldig periode (fom er etter tom)",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"UGYLDIG_PERIODE","feilmelding":"Oppgitt periode er ugyldig, fom kan ikke være etter tom","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"MANGLER_TOKEN","feilmelding":"Mangler token i header","feilreferanseId":null}"""))),
         @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon"),
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            content = @Content(schema = @Schema(implementation = ErrorResponse.class),
+                examples = @ExampleObject(value = """
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"H184i1D5UNPxL7Pn"}""")))
     })
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
         LOG.info("Innkomende kall på søk etter inntektsmeldinger");
