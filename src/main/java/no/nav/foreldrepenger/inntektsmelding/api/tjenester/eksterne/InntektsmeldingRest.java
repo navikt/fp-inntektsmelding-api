@@ -91,11 +91,11 @@ public class InntektsmeldingRest {
                 response.feilinformasjon().feilmelding(),
                 response.feilinformasjon().referanseId());
 
-            if (response.feilinformasjon().feilkode().equals(FeilkodeDto.DUPLIKAT)) {
+            if (FeilkodeDto.DUPLIKAT.equals(response.feilinformasjon().feilkode())) {
                 return Response.status(Response.Status.CONFLICT)
                     .entity(errorResponse)
                     .build();
-            } else if (response.feilinformasjon().feilkode().equals(FeilkodeDto.NEDETID_AINNTEKT)) {
+            } else if (FeilkodeDto.NEDETID_AINNTEKT.equals(response.feilinformasjon().feilkode())) {
                 return Response.status(Response.Status.SERVICE_UNAVAILABLE)
                     .entity(errorResponse)
                     .build();
