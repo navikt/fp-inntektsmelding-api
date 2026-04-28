@@ -84,7 +84,7 @@ public class ForespørselRest {
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
             content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}""")))
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"null"}""")))
     })
     public Response hentForespørsel(@NotNull @Valid @PathParam("uuid")
                                     @Parameter(description = "UUID til forespørselen")
@@ -125,7 +125,7 @@ public class ForespørselRest {
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
             content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}""")))
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"null}""")))
     })
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
         LOG.info("Innkomende kall på søk etter forespørsler");

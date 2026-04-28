@@ -95,7 +95,7 @@ public class InntektsmeldingRest {
         @ApiResponse(responseCode = "500", description = "Intern serverfeil",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class),
                 examples = @ExampleObject(value = """
-                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"a1b2c3d4-e5f6-7890-abcd-ef1234567890"}""")))
+                    {"feilkode":"STANDARD_FEIL","feilmelding":"Noe feilet.","feilreferanseId":"null"}""")))
     })
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         var forespørselUuid = inntektsmeldingRequest.foresporselUuid();
