@@ -47,7 +47,7 @@ public class FpinntektsmeldingKlient {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
         this.uriHentForespørsel = toUri(restConfig.fpContextPath(), "api/imapi/foresporsel/hent");
-        this.uriHentForespørsler = toUri(restConfig.fpContextPath(), "api/imapi/foresporsel/foresporsler");
+        this.uriHentForespørsler = toUri(restConfig.fpContextPath(), "api/imapi/foresporsel/hent/foresporsler");
         this.uriSendInntektsmelding = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/send-inntektsmelding");
         this.uriHentInntektsmelding = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/hent");
         this.uriHentInntektsmeldinger = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/hent/inntektsmeldinger");
