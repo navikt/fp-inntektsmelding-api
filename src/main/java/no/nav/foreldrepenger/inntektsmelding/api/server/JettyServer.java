@@ -4,7 +4,6 @@ import static no.nav.vedtak.mapper.json.DefaultJsonMapper.toJson;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import org.eclipse.jetty.ee11.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee11.cdi.CdiServletContainerInitializer;
