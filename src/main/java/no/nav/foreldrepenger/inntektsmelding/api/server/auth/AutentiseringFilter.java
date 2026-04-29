@@ -34,6 +34,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
     private static final Environment ENV = Environment.current();
     private final AuthTjeneste authTjeneste;
+    private static final String X_CORRELATION_ID = "X-Correlation-Id";
 
     @Context
     private ResourceInfo resourceinfo;
@@ -48,7 +49,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
         if (res.getStatus() > 0  && res.getStatus() != Response.Status.OK.getStatusCode()) {
             var callId = MDCOperations.getCallId();
             if (callId != null) {
-                res.getHeaders().add("Feilreferanse", callId);
+                res.getHeaders().add(X_CORRELATION_ID, callId);
             }
         }
     }
@@ -66,11 +67,11 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
         var method = getResourceinfo().getResourceMethod();
         Optional<TokenString> tokenFromHeader = AuthenticationFilterDelegate.getTokenFromHeader(req);
 
-        var feilreferanseFraHeader = req.getHeaderString("Feilreferanse");
-        if (feilreferanseFraHeader == null || feilreferanseFraHeader.isEmpty()) {
+        var correlationId = req.getHeaderString(X_CORRELATION_ID);
+        if (correlationId == null || correlationId.isEmpty()) {
             MDCOperations.putCallId(MDCOperations.generateCallId());
         } else {
-            MDCOperations.putCallId(feilreferanseFraHeader);
+            MDCOperations.putCallId(correlationId);
         }
 
         if (tokenFromHeader.isEmpty()) {
