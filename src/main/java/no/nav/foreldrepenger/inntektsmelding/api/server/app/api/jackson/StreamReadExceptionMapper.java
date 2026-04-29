@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.server.rest.FeilUtils;
 import tools.jackson.core.exc.StreamReadException;
 
 public class StreamReadExceptionMapper implements ExceptionMapper<StreamReadException> {
@@ -27,7 +27,7 @@ public class StreamReadExceptionMapper implements ExceptionMapper<StreamReadExce
             .entity(new ErrorResponse(
                 EksponertFeilmelding.SERIALISERINGSFEIL.name(),
                 EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + exception.getMessage(),
-                MDCOperations.getCallId()))
+                null))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

@@ -73,7 +73,7 @@ public class InntektsmeldingRestTest {
 
         when(fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(forespørsel);
         when(fpinntektsmeldingTjeneste.sendInntektsmelding(any(), any()))
-            .thenReturn(new SendInntektsmeldingResponse(true, responseUuid, "OK"));
+            .thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
 
         // Act
         var response = inntektsmeldingRest.sendInntektsmelding(inntektsmeldingRequest);

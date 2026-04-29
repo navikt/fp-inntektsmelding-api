@@ -1,4 +1,12 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.exceptions;
-//Todo vi må standardisere feltnavn med sykepenger, når har vi ulikt navn på feilreferanse - de har referanseId
-public record ErrorResponse(String feilkode, String feilmelding, String feilreferanse) {}
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record ErrorResponse(String feilkode, String feilmelding, String feilreferanseId) {
+
+    public ErrorResponse(String feilkode, String feilmelding) {
+        this(feilkode, feilmelding, null);
+    }
+}
 

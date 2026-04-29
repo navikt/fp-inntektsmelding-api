@@ -13,6 +13,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
+import no.nav.vedtak.log.mdc.MDCOperations;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -32,6 +34,7 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
     private static final Environment ENV = Environment.current();
     private final AuthTjeneste authTjeneste;
+    private static final String X_CORRELATION_ID = "X-Correlation-Id";
 
     @Context
     private ResourceInfo resourceinfo;
@@ -43,6 +46,12 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) {
         AuthenticationFilterDelegate.fjernKontekst();
+        if (res.getStatus() > 0  && res.getStatus() != Response.Status.OK.getStatusCode()) {
+            var callId = MDCOperations.getCallId();
+            if (callId != null) {
+                res.getHeaders().add(X_CORRELATION_ID, callId);
+            }
+        }
     }
 
     @Override
@@ -57,7 +66,13 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     void assertValidRequest(ContainerRequestContext req) {
         var method = getResourceinfo().getResourceMethod();
         Optional<TokenString> tokenFromHeader = AuthenticationFilterDelegate.getTokenFromHeader(req);
-        //TODO vi må finne ut hvordan vi skal håndrer feilreferanse - skal vi generere calllId her, eller skal vi kreve at det settes i header. Hva gjør sykepenger?
+
+        var correlationId = req.getHeaderString(X_CORRELATION_ID);
+        if (correlationId == null || correlationId.isEmpty()) {
+            MDCOperations.putCallId(MDCOperations.generateCallId());
+        } else {
+            MDCOperations.putCallId(correlationId);
+        }
 
         if (tokenFromHeader.isEmpty()) {
             throw new InntektsmeldingAPIException(EksponertFeilmelding.MANGLER_TOKEN, Response.Status.UNAUTHORIZED);

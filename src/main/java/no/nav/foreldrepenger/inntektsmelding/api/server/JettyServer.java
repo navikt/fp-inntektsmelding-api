@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.ApiConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.internal.InternalApiConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
@@ -147,7 +146,7 @@ public class JettyServer {
 
             int code = response.getStatus();
             var message = HttpStatus.getMessage(code);
-            var errorResponse = new ErrorResponse(HttpStatus.getCode(code) + "ERROR",  "[%s] %s".formatted(code, message), MDCOperations.generateCallId());
+            var errorResponse = new ErrorResponse(HttpStatus.getCode(code) + "ERROR",  "[%s] %s".formatted(code, message));
 
             // Write the JSON response
             response.write(true, ByteBuffer.wrap(toJson(errorResponse).getBytes(StandardCharsets.UTF_8)), callback);

@@ -4,14 +4,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
-import no.nav.vedtak.server.rest.FeilUtils;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.server.rest.FeilUtils;
 import tools.jackson.databind.DatabindException;
 
 public class DatabindExceptionMapper implements ExceptionMapper<DatabindException> {
@@ -27,7 +25,7 @@ public class DatabindExceptionMapper implements ExceptionMapper<DatabindExceptio
             .entity(new ErrorResponse(
                 EksponertFeilmelding.SERIALISERINGSFEIL.name(),
                 EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + exception.getMessage(),
-                MDCOperations.getCallId()))
+                null))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

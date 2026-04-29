@@ -7,8 +7,6 @@ import jakarta.ws.rs.ext.Provider;
 
 import no.nav.vedtak.server.rest.FeilUtils;
 
-import no.nav.vedtak.log.mdc.MDCOperations;
-
 /**
  * Vi ønsker ikke eksponere detaljerte feilmeldinger frontend. Vi spesialbehandler tilgangsmangel, ellers får alle en generell melding om serverfeil.
  * Legger alltid ved callId så frontend kan vise denne og vi kan finne den igjen i loggene hvis arbeidsgiver melder den inn.
@@ -21,12 +19,12 @@ public class LokalRestExceptionMapper implements ExceptionMapper<Throwable> {
         FeilUtils.loggFeil(feil);
         if (feil instanceof InntektsmeldingAPIException ex) {
             return Response.status(ex.getStatus())
-                .entity(new ErrorResponse(ex.getFeilmelding().name(), ex.getFeilmelding().getTekst(), ex.getCallId()))
+                .entity(new ErrorResponse(ex.getFeilmelding().name(), ex.getFeilmelding().getTekst()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.name(), EksponertFeilmelding.STANDARD_FEIL.getTekst(), MDCOperations.getCallId()))
+            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.name(), EksponertFeilmelding.STANDARD_FEIL.getTekst()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }
