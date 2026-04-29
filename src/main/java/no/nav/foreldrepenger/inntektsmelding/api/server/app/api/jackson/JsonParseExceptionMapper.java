@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
-import no.nav.vedtak.log.mdc.MDCOperations;
 
 /**
  * Håndterer JsonParsingException ved serialisering av innkommende JSON.
@@ -28,7 +27,7 @@ public class JsonParseExceptionMapper implements ExceptionMapper<JsonParseExcept
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(new ErrorResponse(EksponertFeilmelding.SERIALISERINGSFEIL.name(),
                 EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + exception.getMessage(),
-                MDCOperations.getCallId()))
+                null))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

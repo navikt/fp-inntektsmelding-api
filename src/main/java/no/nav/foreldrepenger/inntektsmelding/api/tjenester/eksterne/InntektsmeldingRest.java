@@ -27,8 +27,6 @@ import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.Fpinntektsmelding
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
-import no.nav.vedtak.log.mdc.MDCOperations;
-
 import java.util.UUID;
 
 @RequestScoped
@@ -68,7 +66,7 @@ public class InntektsmeldingRest {
             return Response.status(Response.Status.NOT_FOUND)
                 .entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(),
                     EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid,
-                    null))
+                    forespørselUuid.toString()))
                 .build();
         }
 
@@ -120,7 +118,7 @@ public class InntektsmeldingRest {
             return Response.status(Response.Status.NOT_FOUND)
                 .entity(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(),
                     EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst() + ": " + innsendingId,
-                    MDCOperations.getCallId()))
+                    innsendingId))
                 .build();
         }
 
@@ -142,11 +140,11 @@ public class InntektsmeldingRest {
             var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingFilter.innsendingId());
             if (inntektsmelding == null) {
                 LOG.info("Inntektsmelding med innsendingId {} ikke funnet.", inntektsmeldingFilter.innsendingId());
-                return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(), EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst(), MDCOperations.getCallId())).build();
+                return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(), EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst(), inntektsmeldingFilter.innsendingId().toString())).build();
             }
             if (datoerErUgyldige(inntektsmeldingFilter)) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst(), MDCOperations.getCallId()))
+                    .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst(), null))
                     .build();
             }
 
