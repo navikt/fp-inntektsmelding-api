@@ -61,7 +61,7 @@ public class ForespørselRest {
         if (forespørsel == null) {
             return Response.status(Response.Status.NOT_FOUND).
                 entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid,
-                    null)).build();
+                    forespørselUuid)).build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(forespørsel.orgnummer());
@@ -89,7 +89,7 @@ public class ForespørselRest {
 
         if (datoerErUgyldige(filterRequest)) {
             return Response.status(Response.Status.BAD_REQUEST)
-                 .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst(), null))
+                 .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst()))
                  .build();
         }
 

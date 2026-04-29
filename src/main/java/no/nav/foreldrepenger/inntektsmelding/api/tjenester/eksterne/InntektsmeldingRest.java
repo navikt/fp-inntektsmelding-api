@@ -144,7 +144,7 @@ public class InntektsmeldingRest {
             }
             if (datoerErUgyldige(inntektsmeldingFilter)) {
                 return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst(), null))
+                    .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst()))
                     .build();
             }
 

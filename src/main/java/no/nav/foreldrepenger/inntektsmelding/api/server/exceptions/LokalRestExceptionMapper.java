@@ -19,12 +19,12 @@ public class LokalRestExceptionMapper implements ExceptionMapper<Throwable> {
         FeilUtils.loggFeil(feil);
         if (feil instanceof InntektsmeldingAPIException ex) {
             return Response.status(ex.getStatus())
-                .entity(new ErrorResponse(ex.getFeilmelding().name(), ex.getFeilmelding().getTekst(), null))
+                .entity(new ErrorResponse(ex.getFeilmelding().name(), ex.getFeilmelding().getTekst()))
                 .type(MediaType.APPLICATION_JSON)
                 .build();
         }
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.name(), EksponertFeilmelding.STANDARD_FEIL.getTekst(), null))
+            .entity(new ErrorResponse(EksponertFeilmelding.STANDARD_FEIL.name(), EksponertFeilmelding.STANDARD_FEIL.getTekst()))
             .type(MediaType.APPLICATION_JSON)
             .build();
     }

@@ -40,7 +40,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         }
         var feltNavn = feilene.stream().map(FeltFeilDto::navn).toList();
         var feilmelding = String.format("Valideringsfeil på felt %s. " , feltNavn);
-        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(EksponertFeilmelding.VALIDERINGSFEIL.name(), feilmelding, null)).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(new ErrorResponse(EksponertFeilmelding.VALIDERINGSFEIL.name(), feilmelding)).type(MediaType.APPLICATION_JSON).build();
     }
 
     private static Set<String> getInputs(ConstraintViolationException exception) {
