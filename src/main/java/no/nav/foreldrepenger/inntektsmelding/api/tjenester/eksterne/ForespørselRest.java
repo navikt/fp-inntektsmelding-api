@@ -20,6 +20,14 @@ import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.ForespørselDto;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
@@ -32,6 +40,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 @RequestScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Path(ForespørselRest.BASE_PATH)
+@Tag(name = "Forespørsel om inntektsmelding")
 public class ForespørselRest {
     public static final String BASE_PATH = "/forespoersel";
     private static final String HENT_FORESPØRSEL = "/{uuid}";
@@ -53,7 +62,23 @@ public class ForespørselRest {
     @GET
     @Path(HENT_FORESPØRSEL)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response hentForespørsel(@NotNull @Valid @PathParam("uuid") @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespørselUuid) {
+    @Operation(summary = "Hent forespørsel", description = "Henter en spesifikk forespørsel om inntektsmelding basert på forespørselens UUID.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Forespørselen ble funnet",
+            content = @Content(schema = @Schema(implementation = ForespørselDto.class))),
+        @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon"),
+        @ApiResponse(responseCode = "404", description = "Forespørselen ble ikke funnet",
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+        @ApiResponse(responseCode = "500", description = "Intern serverfeil",
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
+    })
+    public Response hentForespørsel(@NotNull @Valid @PathParam("uuid")
+                                    @Parameter(description = "UUID til forespørselen")
+                                    @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespørselUuid) {
         LOG.info("Innkomende kall på hent forespørsel {}", forespørselUuid);
         var uuid = UUID.fromString(forespørselUuid);
 
@@ -74,6 +99,18 @@ public class ForespørselRest {
     @Path(HENT_FLERE)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Hent forespørsler", description = "Filtrer forespørsler om inntektsmelding på orgnr, fnr, forespørselId, status, ytelseType og/eller dato forespørselen ble opprettet av NAV.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Liste med forespørsler som matcher filteret",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = ForespørselDto.class)))),
+        @ApiResponse(responseCode = "400", description = "Ugyldig periode (fom er etter tom)",
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+        @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class))),
+        @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon"),
+        @ApiResponse(responseCode = "500", description = "Intern serverfeil",
+            content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
+    })
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
         LOG.info("Innkomende kall på søk etter forespørsler");
 
