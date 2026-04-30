@@ -19,6 +19,7 @@ import no.nav.vedtak.sikkerhet.oidc.token.texas.TexasTokenKlient;
 public class AuthTjeneste {
     private static final Environment ENV = Environment.current();
     private static final Logger LOG = LoggerFactory.getLogger(AuthTjeneste.class);
+
     private final TexasTokenKlient tokenKlient;
 
     public AuthTjeneste() {
@@ -56,8 +57,13 @@ public class AuthTjeneste {
             response.authorization_details().getFirst().systemuser_id().getFirst());
 
         if (!ENV.isProd()) {
+            var consumerId = response.consumer().id();
+            var systemuserOrg = response.authorization_details().getFirst().systemuser_org().id();
+            var systemuserId = response.authorization_details().getFirst().systemuser_id().getFirst();
             LOG.info("Token validering vellykket, consumerId: {}, systemuser_org: {}, systemuser_id: {}",
-                response.consumer().id(), response.authorization_details().getFirst().systemuser_org().id(), response.authorization_details().getFirst().systemuser_id().getFirst());
+                consumerId.substring(Math.max(0, consumerId.length() - 3)),
+                systemuserOrg.substring(Math.max(0, systemuserOrg.length() - 3)),
+                systemuserId.substring(Math.max(0, systemuserId.length() - 3)));
         }
 
         KontekstHolder.setKontekst(tokenKontekst);
