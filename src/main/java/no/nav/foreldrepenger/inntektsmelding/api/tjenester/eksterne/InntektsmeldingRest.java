@@ -14,8 +14,15 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingMapper;
-
+import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingDto;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 
 import no.nav.foreldrepenger.inntektsmelding.felles.FeilkodeDto;
@@ -33,6 +40,7 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path(InntektsmeldingRest.BASE_PATH)
+@Tag(name = "Inntektsmelding")
 public class InntektsmeldingRest {
     public static final String BASE_PATH = "/inntektsmelding";
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRest.class);
@@ -56,6 +64,23 @@ public class InntektsmeldingRest {
     @Path(SEND_INNTEKTSMELDING)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Send inn inntektsmelding",
+        description = "Sender inn en inntektsmelding for en gitt forespørsel. Inntekten valideres mot A-inntekt og duplikater avvises.")
+    @ApiResponse(responseCode = "200", description = "Inntektsmeldingen ble mottatt. Returnerer UUID til den innsendte inntektsmeldingen.",
+        content = @Content(schema = @Schema(implementation = java.util.UUID.class)))
+    @ApiResponse(responseCode = "400", description = "Valideringsfeil eller ugyldig inntektsmelding (f.eks. inntekt avviker fra A-inntekt uten endringsårsak)",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon")
+    @ApiResponse(responseCode = "404", description = "Forespørselen ble ikke funnet",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "409", description = "Duplikat – inntektsmelding er identisk med siste innsendte",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "503", description = "A-inntekt er midlertidig utilgjengelig. Prøv igjen om litt.",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "500", description = "Intern serverfeil",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         var forespørselUuid = inntektsmeldingRequest.foresporselUuid();
         LOG.info("Mottatt inntektsmelding for forespørselUuid {} ", forespørselUuid);
@@ -107,7 +132,20 @@ public class InntektsmeldingRest {
 
     @GET
     @Path(HENT_INNTEKTSMELDING)
+    @Operation(summary = "Hent inntektsmelding", description = "Henter en spesifikk inntektsmelding basert på innsendingsUUID.")
+    @ApiResponse(responseCode = "200", description = "Inntektsmeldingen ble funnet",
+        content = @Content(schema = @Schema(implementation = InntektsmeldingDto.class)))
+    @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon")
+    @ApiResponse(responseCode = "404", description = "Inntektsmeldingen ble ikke funnet",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "500", description = "Intern serverfeil",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response hentInntektsmelding(@NotNull @Valid @PathParam("uuid")
+                                        @Parameter(description = "UUID til inntektsmeldingen (innsendingId)")
                                         @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format")
                                         String innsendingId) {
         LOG.info("Hent inntektsmelding med innsendingId {} ", innsendingId);
@@ -133,6 +171,16 @@ public class InntektsmeldingRest {
 
     @POST
     @Path(HENT_INNTEKTSMELDINGER)
+    @Operation(summary = "Hent inntektsmeldinger", description = "Filtrer inntektsmeldinger på orgnr, fnr, forespørselId, innsendingId, ytelseType og/eller dato inntektsmeldingen ble mottatt av NAV.")
+    @ApiResponse(responseCode = "200", description = "Liste med inntektsmeldinger som matcher filteret",
+        content = @Content(array = @ArraySchema(schema = @Schema(implementation = InntektsmeldingDto.class))))
+    @ApiResponse(responseCode = "400", description = "Ugyldig periode (fom er etter tom)",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon")
+    @ApiResponse(responseCode = "500", description = "Intern serverfeil",
+        content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
         LOG.info("Innkomende kall på søk etter inntektsmeldinger");
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmeldingFilter.orgnr()));

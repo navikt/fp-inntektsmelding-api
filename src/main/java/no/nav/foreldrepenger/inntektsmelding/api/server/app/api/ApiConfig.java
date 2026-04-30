@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.inntektsmelding.api.server.app.api;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -22,13 +21,13 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.tags.Tag;
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson.Jackson3ApiFeature;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AutentiseringFilter;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintViolationMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.LokalRestExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationPath(ApiConfig.API_URI)
@@ -36,7 +35,6 @@ public class ApiConfig extends ResourceConfig {
 
     public static final String API_URI = "/v1";
     private static final Logger LOG = LoggerFactory.getLogger(ApiConfig.class);
-    private static final Environment ENV = Environment.current();
 
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
@@ -55,11 +53,13 @@ public class ApiConfig extends ResourceConfig {
 
     private void registerOpenApi() {
         var oas = new OpenAPI();
-        var info = new Info().title(ENV.getNaisAppName())
-            .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
+        var info = new Info().title("Foreldrepenger inntektsmelding API")
+            .version("1.0.0")
             .description("API for inntektsmelding for foreldrepenger og svangerskapspenger");
 
         oas.info(info).addServersItem(new Server())
+            .addTagsItem(new Tag().name("Forespørsel om inntektsmelding").description("Endepunkter for å hente forespørsler NAV har sendt til arbeidsgiver"))
+            .addTagsItem(new Tag().name("Inntektsmelding").description("Endepunkter for å sende inn og hente inntektsmeldinger"))
             .schemaRequirement("bearer", new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
