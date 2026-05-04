@@ -114,10 +114,10 @@ class FpinntektsmeldingTjenesteTest {
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
-            "Kontaktperson",
-            "12345678",
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
+            "Kontaktperson",
+            "12345678",
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
@@ -148,10 +148,10 @@ class FpinntektsmeldingTjenesteTest {
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
-            "Kontaktperson",
-            "12345678",
             null,
             List.of(bortfaltNaturalytelse),
+            "Kontaktperson",
+            "12345678",
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
@@ -182,10 +182,10 @@ class FpinntektsmeldingTjenesteTest {
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of(endringsårsak)),
-            "Kontaktperson",
-            "12345678",
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
+            "Kontaktperson",
+            "12345678",
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
@@ -215,10 +215,10 @@ class FpinntektsmeldingTjenesteTest {
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
-            "Kontaktperson",
-            "12345678",
             refusjoner,
             List.of(),
+            "Kontaktperson",
+            "12345678",
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();

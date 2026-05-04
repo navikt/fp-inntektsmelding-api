@@ -23,10 +23,10 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
                                      @NotNull LocalDate startdato,
                                      @NotNull YtelseType ytelse,
                                      @NotNull @Valid InntektInfo inntekt,
-                                     @NotNull String kontaktinformasjon,
-                                     @NotNull String arbeidsgiverTlf,
                                      @Valid Refusjon refusjon,
                                      @NotNull List<@Valid Naturalytelse> naturalytelser,
+                                     @NotNull String kontaktinformasjon,
+                                     @NotNull String arbeidsgiverTlf,
                                      @NotNull @Valid Avsender avsenderSystem) {
 
 

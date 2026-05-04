@@ -8,16 +8,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
-
-import no.nav.vedtak.konfig.Tid;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.KildesystemDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
+import no.nav.vedtak.konfig.Tid;
 
 class InntektsmeldingMapperTest {
 

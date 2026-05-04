@@ -83,10 +83,10 @@ class InntektsmeldingRequestSerializationTest {
             startdato,
             YtelseType.FORELDREPENGER,
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), endringsårsaker),
-            kontaktperson,
-            arbeidsgiverTlf,
             refusjon,
             bortfaltNaturalytelse,
+            kontaktperson,
+            arbeidsgiverTlf,
             avsenderSystem
         );
 
@@ -157,14 +157,14 @@ class InntektsmeldingRequestSerializationTest {
                 LocalDate.of(2024, 3, 15),
                 LocalDate.of(2024, 2, 15)
             ))),
-            "Test Kontaktperson",
-            "12345678",
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(new InntektsmeldingRequest.Naturalytelse(
                 LocalDate.of(2024, 2, 1),
                 LocalDate.of(2024, 2, 28),
                 InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
                 new BigDecimal("500.00"))),
+            "Test Kontaktperson",
+            "12345678",
             new InntektsmeldingRequest.Avsender("SAP", "1.0.0")
         );
     }
