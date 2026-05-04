@@ -113,12 +113,12 @@ class FpinntektsmeldingTjenesteTest {
             fødselsnummer,
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
-            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
-            new BigDecimal("25000.00"),
-            List.of(new InntektsmeldingRequest.Refusjon(LocalDate.now(), new BigDecimal("25000.00"))),
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
+            "Kontaktperson",
+            "12345678",
+            new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
-            List.of(),
-            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+            new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
         when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
@@ -136,10 +136,10 @@ class FpinntektsmeldingTjenesteTest {
         var uuid = UUID.randomUUID();
         var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
             LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
-        var bortfaltNaturalytelse = new InntektsmeldingRequest.BortfaltNaturalytelse(
+        var bortfaltNaturalytelse = new InntektsmeldingRequest.Naturalytelse(
             LocalDate.now(),
             LocalDate.now().plusDays(10),
-            InntektsmeldingRequest.BortfaltNaturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
+            InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
             new BigDecimal("500.00")
         );
         var inntektsmeldingRequest = new InntektsmeldingRequest(
@@ -147,12 +147,12 @@ class FpinntektsmeldingTjenesteTest {
             fødselsnummer,
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
-            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
-            new BigDecimal("25000.00"),
-            List.of(),
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
+            "Kontaktperson",
+            "12345678",
+            null,
             List.of(bortfaltNaturalytelse),
-            List.of(),
-            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+            new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
         when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
@@ -170,8 +170,8 @@ class FpinntektsmeldingTjenesteTest {
         var uuid = UUID.randomUUID();
         var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
             LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
-        var endringsårsak = new InntektsmeldingRequest.Endringsårsaker(
-            InntektsmeldingRequest.Endringsårsaker.Endringsårsak.PERMISJON,
+        var endringsårsak = new InntektsmeldingRequest.InntektInfo.Endringsårsak(
+            InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMISJON,
             LocalDate.now(),
             LocalDate.now().plusDays(5),
             LocalDate.now().minusDays(1)
@@ -181,12 +181,12 @@ class FpinntektsmeldingTjenesteTest {
             fødselsnummer,
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
-            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
-            new BigDecimal("25000.00"),
-            List.of(new InntektsmeldingRequest.Refusjon(LocalDate.now(), new BigDecimal("25000.00"))),
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of(endringsårsak)),
+            "Kontaktperson",
+            "12345678",
+            new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
-            List.of(endringsårsak),
-            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+            new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
         when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
@@ -204,21 +204,22 @@ class FpinntektsmeldingTjenesteTest {
         var uuid = UUID.randomUUID();
         var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
             LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
-        var refusjoner = List.of(
-            new InntektsmeldingRequest.Refusjon(LocalDate.now(), new BigDecimal("25000.00")),
-            new InntektsmeldingRequest.Refusjon(LocalDate.now().plusMonths(1), new BigDecimal("20000.00"))
-        );
+        var refusjoner =
+            new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of(
+                new InntektsmeldingRequest.Refusjon.RefusjonEndring(BigDecimal.valueOf(20000),LocalDate.now().plusDays(10)),
+                new InntektsmeldingRequest.Refusjon.RefusjonEndring(BigDecimal.valueOf(15000), LocalDate.now().plusDays(20)))
+            );
         var inntektsmeldingRequest = new InntektsmeldingRequest(
             uuid,
             fødselsnummer,
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
-            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
-            new BigDecimal("25000.00"),
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
+            "Kontaktperson",
+            "12345678",
             refusjoner,
             List.of(),
-            List.of(),
-            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+            new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
         when(fpinntektsmeldingKlient.sendInntektsmelding(any())).thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));

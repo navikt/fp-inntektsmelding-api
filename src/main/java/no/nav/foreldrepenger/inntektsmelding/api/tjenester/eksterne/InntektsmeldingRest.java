@@ -57,7 +57,7 @@ public class InntektsmeldingRest {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
-        var forespørselUuid = inntektsmeldingRequest.foresporselUuid();
+        var forespørselUuid = inntektsmeldingRequest.foresporselId();
         LOG.info("Mottatt inntektsmelding for forespørselUuid {} ", forespørselUuid);
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
 
@@ -70,12 +70,21 @@ public class InntektsmeldingRest {
                 .build();
         }
 
+        if (!forespørsel.fødselsnummer().equals(inntektsmeldingRequest.foedselsnummer())) {
+            LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel og inntektsmelding har samme fødselsnummer og organisasjonsnummer.", forespørselUuid);
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(new ErrorResponse(EksponertFeilmelding.MISMATCH_FOEDSELSNUMMER.name(),
+                    EksponertFeilmelding.MISMATCH_FOEDSELSNUMMER.getTekst(),
+                    forespørselUuid.toString()))
+                .build();
+        }
+
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer().orgnr()));
 
         var feilmelding = InntektsmeldingValidererUtil.validerInntektsmelding(inntektsmeldingRequest, forespørsel);
         if (feilmelding.isPresent()) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Validering av inntektsmelding feilet. Feilmelding: {}",
-                inntektsmeldingRequest.foresporselUuid(), feilmelding.get().getTekst());
+                inntektsmeldingRequest.foresporselId(), feilmelding.get().getTekst());
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(feilmelding.get().name(), feilmelding.get().getTekst(), forespørselUuid.toString()))
                 .build();

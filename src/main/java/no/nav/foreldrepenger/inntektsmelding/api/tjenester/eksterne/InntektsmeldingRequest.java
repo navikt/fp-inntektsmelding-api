@@ -15,30 +15,31 @@ import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 
-public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
+public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
                                      @Pattern(
                                          regexp = "^\\d{11}$",
                                          message = "Fødselsnummer må bestå av 11 siffer"
-                                     ) @NotNull String fødselsnummer,
+                                     ) @NotNull String foedselsnummer,
                                      @NotNull LocalDate startdato,
                                      @NotNull YtelseType ytelse,
-                                     @NotNull @Valid Kontaktperson kontaktperson,
-                                     @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal inntekt, //kan inntekt noen gang være 0?
-                                     @NotNull List<@Valid Refusjon> refusjon,
-                                     @NotNull List<@Valid BortfaltNaturalytelse> bortfaltNaturalytelsePerioder,
-                                     @NotNull List<@Valid Endringsårsaker> endringAvInntektÅrsaker,
-                                     @NotNull @Valid AvsenderSystem avsenderSystem) {
+                                     @NotNull @Valid InntektInfo inntekt,
+                                     @NotNull String kontaktinformasjon,
+                                     @NotNull String arbeidsgiverTlf,
+                                     @Valid Refusjon refusjon,
+                                     @NotNull List<@Valid Naturalytelse> naturalytelser,
+                                     @NotNull @Valid Avsender avsenderSystem) {
 
 
-    public record Refusjon(@NotNull LocalDate fom,
-                           @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
+    public record Refusjon(@NotNull BigDecimal beloepPerMaaned,
+                           @NotNull @Valid List<RefusjonEndring> endringer) {
+        public record RefusjonEndring(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep, @NotNull LocalDate stardato) {}
     }
 
 
-    public record BortfaltNaturalytelse(@NotNull LocalDate fom,
-                                        LocalDate tom,
-                                        @NotNull Naturalytelsetype naturalytelsetype,
-                                        @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {
+    public record Naturalytelse(@NotNull LocalDate fom,
+                                @NotNull LocalDate tom,
+                                @NotNull Naturalytelsetype naturalytelse,
+                                @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal verdiBelop) {
         public enum Naturalytelsetype {
             ELEKTRISK_KOMMUNIKASJON,
             AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
@@ -62,32 +63,31 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselUuid,
         }
     }
 
-    public record Endringsårsaker(@NotNull @Valid Endringsårsak årsak,
-                           LocalDate fom,
-                           LocalDate tom,
-                           LocalDate bleKjentFom) {
 
-        public enum Endringsårsak {
-            PERMITTERING,
-            NY_STILLING,
-            NY_STILLINGSPROSENT,
-            SYKEFRAVÆR,
-            BONUS,
-            FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER,
-            NYANSATT,
-            MANGELFULL_RAPPORTERING_AORDNING,
-            INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING,
-            TARIFFENDRING,
-            FERIE,
-            VARIG_LØNNSENDRING,
-            PERMISJON
+    public record Avsender(@NotNull @Size(max = 200) String systemNavn, @NotNull @Size(max = 100) String systemVersjon) {
+    }
+
+    public record InntektInfo(@Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull List<Endringsårsak> endringAarsaker) {
+        public record Endringsårsak(@Valid EndringsårsakType aarsak,
+                                    LocalDate fom,
+                                    LocalDate tom,
+                                    LocalDate gjelderFra) {
+            public enum EndringsårsakType {
+                PERMITTERING,
+                NY_STILLING,
+                NY_STILLINGSPROSENT,
+                SYKEFRAVÆR,
+                BONUS,
+                FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER,
+                NYANSATT,
+                MANGELFULL_RAPPORTERING_AORDNING,
+                INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING,
+                TARIFFENDRING,
+                FERIE,
+                VARIG_LØNNSENDRING,
+                PERMISJON
+            }
         }
-    }
-
-    public record Kontaktperson(@Size(max = 200) @NotNull String navn, @NotNull @Size(max = 50) String telefonnummer) {
-    }
-
-    public record AvsenderSystem(@NotNull @Size(max = 200) String navn, @NotNull @Size(max = 100) String versjon) {
     }
 
 }
