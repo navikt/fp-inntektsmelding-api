@@ -8,16 +8,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
-
-import no.nav.vedtak.konfig.Tid;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.KildesystemDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
+import no.nav.vedtak.konfig.Tid;
 
 class InntektsmeldingMapperTest {
 
@@ -92,7 +89,7 @@ class InntektsmeldingMapperTest {
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
-        // Opphørsdato skal legges til som en ekstra RefusjonEndring med beløp 0
+        // Opphørsdato skal legges til som en ekstra RefusjonEndring med verdiBelop 0
         assertThat(dto.refusjon().endringer()).hasSize(1);
         var opphørEndring = dto.refusjon().endringer().getFirst();
         assertThat(opphørEndring.beloepPrMnd()).isEqualByComparingTo(BigDecimal.ZERO);

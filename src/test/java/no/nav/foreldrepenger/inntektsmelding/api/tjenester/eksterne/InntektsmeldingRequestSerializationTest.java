@@ -17,7 +17,7 @@ class InntektsmeldingRequestSerializationTest {
 
 
     @Test
-    void skal_serialisere_til_json() throws Exception {
+    void skal_serialisere_til_json()  {
         // Arrange
         var request = lagTestRequest();
 
@@ -25,10 +25,10 @@ class InntektsmeldingRequestSerializationTest {
         var json = DefaultJsonMapper.toJson(request);
 
         // Assert
-        assertThat(json).contains("\"navn\":\"Test Kontaktperson\"");
-        assertThat(json).contains("\"telefonnummer\":\"12345678\"");
+        assertThat(json).contains("\"kontaktinformasjon\":\"Test Kontaktperson\"");
+        assertThat(json).contains("\"arbeidsgiverTlf\":\"12345678\"");
         assertThat(json).contains("\"ytelse\":\"FORELDREPENGER\"");
-        assertThat(json).contains("\"inntekt\":25000.00");
+        assertThat(json).contains("\"inntekt\":{\"beloepPerMaaned\":25000.0,\"endringAarsaker\":[{\"aarsak\":\"PERMISJON\",\"fom\":\"2024-03-01\",\"tom\":\"2024-03-15\",\"gjelderFra\":\"2024-02-15\"}]}");
     }
 
     @Test
@@ -41,13 +41,13 @@ class InntektsmeldingRequestSerializationTest {
         var deserializedRequest = DefaultJsonMapper.fromJson(json, InntektsmeldingRequest.class);
 
         // Assert
-        assertThat(deserializedRequest.foresporselUuid()).isEqualTo(request.foresporselUuid());
-        assertThat(deserializedRequest.fødselsnummer()).isEqualTo(request.fødselsnummer());
+        assertThat(deserializedRequest.foresporselId()).isEqualTo(request.foresporselId());
+        assertThat(deserializedRequest.foedselsnummer()).isEqualTo(request.foedselsnummer());
         assertThat(deserializedRequest.startdato()).isEqualTo(request.startdato());
         assertThat(deserializedRequest.ytelse()).isEqualTo(request.ytelse());
         assertThat(deserializedRequest.inntekt()).isEqualTo(request.inntekt());
-        assertThat(deserializedRequest.avsenderSystem().navn()).isEqualTo(request.avsenderSystem().navn());
-        assertThat(deserializedRequest.avsenderSystem().versjon()).isEqualTo(request.avsenderSystem().versjon());
+        assertThat(deserializedRequest.avsenderSystem().systemNavn()).isEqualTo(request.avsenderSystem().systemNavn());
+        assertThat(deserializedRequest.avsenderSystem().systemVersjon()).isEqualTo(request.avsenderSystem().systemVersjon());
     }
 
     @Test
@@ -56,22 +56,21 @@ class InntektsmeldingRequestSerializationTest {
         var uuid = UUID.randomUUID();
         var fødselsnummer = "12345678901";
         var startdato = LocalDate.of(2024, 1, 15);
-        var kontaktperson = new InntektsmeldingRequest.Kontaktperson("Ola Nordmann", "98765432");
-        var avsenderSystem = new InntektsmeldingRequest.AvsenderSystem("SAP", "1.0.0");
-        var refusjon = List.of(
-            new InntektsmeldingRequest.Refusjon(LocalDate.of(2024, 1, 1), new BigDecimal("25000.00"))
-        );
+        var kontaktperson = "Ola Nordmann";
+        var arbeidsgiverTlf = "98765432";
+        var avsenderSystem = new InntektsmeldingRequest.Avsender("SAP", "1.0.0");
+        var refusjon = new InntektsmeldingRequest.Refusjon( BigDecimal.valueOf(25000.00), List.of());
         var bortfaltNaturalytelse = List.of(
-            new InntektsmeldingRequest.BortfaltNaturalytelse(
+            new InntektsmeldingRequest.Naturalytelse(
                 LocalDate.of(2024, 2, 1),
                 LocalDate.of(2024, 2, 28),
-                InntektsmeldingRequest.BortfaltNaturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
+                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
                 new BigDecimal("500.00")
             )
         );
         var endringsårsaker = List.of(
-            new InntektsmeldingRequest.Endringsårsaker(
-                InntektsmeldingRequest.Endringsårsaker.Endringsårsak.PERMISJON,
+            new InntektsmeldingRequest.InntektInfo.Endringsårsak(
+                InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMISJON,
                 LocalDate.of(2024, 3, 1),
                 LocalDate.of(2024, 3, 15),
                 LocalDate.of(2024, 2, 15)
@@ -79,9 +78,16 @@ class InntektsmeldingRequestSerializationTest {
         );
 
         var originalRequest = new InntektsmeldingRequest(
-            uuid, fødselsnummer, startdato, YtelseType.FORELDREPENGER,
-            kontaktperson, new BigDecimal("25000.00"), refusjon, bortfaltNaturalytelse,
-            endringsårsaker, avsenderSystem
+            uuid,
+            fødselsnummer,
+            startdato,
+            YtelseType.FORELDREPENGER,
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), endringsårsaker),
+            refusjon,
+            bortfaltNaturalytelse,
+            kontaktperson,
+            arbeidsgiverTlf,
+            avsenderSystem
         );
 
         // Act
@@ -90,11 +96,11 @@ class InntektsmeldingRequestSerializationTest {
 
         // Assert
         assertThat(deserializedRequest).isEqualTo(originalRequest);
-        assertThat(deserializedRequest.foresporselUuid()).isEqualTo(uuid);
-        assertThat(deserializedRequest.kontaktperson().navn()).isEqualTo("Ola Nordmann");
-        assertThat(deserializedRequest.refusjon()).hasSize(1);
-        assertThat(deserializedRequest.bortfaltNaturalytelsePerioder()).hasSize(1);
-        assertThat(deserializedRequest.endringAvInntektÅrsaker()).hasSize(1);
+        assertThat(deserializedRequest.foresporselId()).isEqualTo(uuid);
+        assertThat(deserializedRequest.kontaktinformasjon()).isEqualTo("Ola Nordmann");
+        assertThat(deserializedRequest.arbeidsgiverTlf()).isEqualTo( "98765432");
+        assertThat(deserializedRequest.naturalytelser()).hasSize(1);
+        assertThat(deserializedRequest.inntekt().endringAarsaker()).hasSize(1);
     }
 
     @Test
@@ -106,7 +112,7 @@ class InntektsmeldingRequestSerializationTest {
         var json = DefaultJsonMapper.toJson(request);
 
         // Assert
-        assertThat(json).contains("\"naturalytelsetype\":\"ELEKTRISK_KOMMUNIKASJON\"");
+        assertThat(json).contains("\"naturalytelse\":\"ELEKTRISK_KOMMUNIKASJON\"");
     }
 
     @Test
@@ -118,7 +124,7 @@ class InntektsmeldingRequestSerializationTest {
         var json = DefaultJsonMapper.toJson(request);
 
         // Assert
-        assertThat(json).contains("\"årsak\":\"PERMISJON\"");
+        assertThat(json).contains("\"aarsak\":\"PERMISJON\"");
     }
 
     @Test
@@ -126,17 +132,17 @@ class InntektsmeldingRequestSerializationTest {
         // Arrange
         var json = """
             {
-              "navn": "TestSystem",
-              "versjon": "2.5.0"
+              "systemNavn": "TestSystem",
+              "systemVersjon": "2.5.0"
             }
             """;
 
         // Act
-        var avsenderSystem = DefaultJsonMapper.fromJson(json, InntektsmeldingRequest.AvsenderSystem.class);
+        var avsenderSystem = DefaultJsonMapper.fromJson(json, InntektsmeldingRequest.Avsender.class);
 
         // Assert
-        assertThat(avsenderSystem.navn()).isEqualTo("TestSystem");
-        assertThat(avsenderSystem.versjon()).isEqualTo("2.5.0");
+        assertThat(avsenderSystem.systemNavn()).isEqualTo("TestSystem");
+        assertThat(avsenderSystem.systemVersjon()).isEqualTo("2.5.0");
     }
 
     private InntektsmeldingRequest lagTestRequest() {
@@ -145,22 +151,21 @@ class InntektsmeldingRequestSerializationTest {
             "12345678901",
             LocalDate.of(2024, 1, 15),
             YtelseType.FORELDREPENGER,
-            new InntektsmeldingRequest.Kontaktperson("Test Kontaktperson", "12345678"),
-            new BigDecimal("25000.00"),
-            List.of(new InntektsmeldingRequest.Refusjon(LocalDate.of(2024, 1, 1), new BigDecimal("25000.00"))),
-            List.of(new InntektsmeldingRequest.BortfaltNaturalytelse(
-                LocalDate.of(2024, 2, 1),
-                LocalDate.of(2024, 2, 28),
-                InntektsmeldingRequest.BortfaltNaturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
-                new BigDecimal("500.00")
-            )),
-            List.of(new InntektsmeldingRequest.Endringsårsaker(
-                InntektsmeldingRequest.Endringsårsaker.Endringsårsak.PERMISJON,
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of(new InntektsmeldingRequest.InntektInfo.Endringsårsak(
+                InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMISJON,
                 LocalDate.of(2024, 3, 1),
                 LocalDate.of(2024, 3, 15),
                 LocalDate.of(2024, 2, 15)
-            )),
-            new InntektsmeldingRequest.AvsenderSystem("SAP", "1.0.0")
+            ))),
+            new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
+            List.of(new InntektsmeldingRequest.Naturalytelse(
+                LocalDate.of(2024, 2, 1),
+                LocalDate.of(2024, 2, 28),
+                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
+                new BigDecimal("500.00"))),
+            "Test Kontaktperson",
+            "12345678",
+            new InntektsmeldingRequest.Avsender("SAP", "1.0.0")
         );
     }
 }

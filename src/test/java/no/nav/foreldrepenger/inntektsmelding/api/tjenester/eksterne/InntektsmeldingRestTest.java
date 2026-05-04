@@ -63,12 +63,12 @@ public class InntektsmeldingRestTest {
             fødselsnummer,
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
-            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
-            new BigDecimal("25000.00"),
-            List.of(new InntektsmeldingRequest.Refusjon(LocalDate.now(), new BigDecimal("25000.00"))),
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
+            new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
-            List.of(),
-            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+            "Kontaktperson",
+            "12345678",
+            new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
 
         when(fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(forespørsel);
@@ -93,12 +93,12 @@ public class InntektsmeldingRestTest {
             "12345678901",
             LocalDate.now(),
             YtelseType.FORELDREPENGER,
-            new InntektsmeldingRequest.Kontaktperson("Kontaktperson", "12345678"),
-            new BigDecimal("25000.00"),
-            List.of(new InntektsmeldingRequest.Refusjon(LocalDate.now(), new BigDecimal("25000.00"))),
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
+            new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
-            List.of(),
-            new InntektsmeldingRequest.AvsenderSystem("TestSystem", "1.0.0")
+            "Kontaktperson",
+            "12345678",
+            new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
 
         when(fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(null);
