@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsm
 
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,19 @@ public class FpinntektsmeldingKlient {
         try {
             LOG.info("Sender request til fpinntektsmelding for forespørselUuid {} ", forespørselUuid);
             var request = RestRequest.newGET(toUri(uriHentForespørsel, "/" + forespørselUuid), restConfig);
-            return restClient.send(request, ForespørselResponse.class);
+            var response = restClient.sendReturnUnhandled(request);
+            if (response.statusCode() == 404) {
+                LOG.info("Forespørsel ikke funnet i fpinntektsmelding for uuid: {}", forespørselUuid);
+                return null;
+            }
+            if (response.statusCode() >= 400) {
+                LOG.warn("FP-97215: Uventet respons {} ved henting av forespørsel fra fpinntektsmelding for uuid: {}",
+                    response.statusCode(), forespørselUuid);
+                throw feilVedKallTilFpinntektsmelding();
+            }
+            return DefaultJsonMapper.fromJson(response.body(), ForespørselResponse.class);
+        } catch (InntektsmeldingAPIException e) {
+            throw e;
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}. Feilmelding var {}",
                 forespørselUuid,
@@ -94,10 +108,22 @@ public class FpinntektsmeldingKlient {
 
     HentInntektsmeldingResponse hentInntektsmelding(UUID innsendingId) {
         try {
-            LOG.info("Sender inntektsmelding til fpinntektsmelding for forespørselUuid {} ", innsendingId);
+            LOG.info("Henter inntektsmelding fra fpinntektsmelding for uuid {} ", innsendingId);
             var fullUri = uriHentInntektsmelding.toString() + "/" + innsendingId;
             var request = RestRequest.newGET(URI.create(fullUri), restConfig);
-            return restClient.send(request, HentInntektsmeldingResponse.class);
+            var response = restClient.sendReturnUnhandled(request);
+            if (response.statusCode() == 404) {
+                LOG.info("Inntektsmelding ikke funnet i fpinntektsmelding for uuid: {}", innsendingId);
+                return null;
+            }
+            if (response.statusCode() >= 400) {
+                LOG.warn("FP-97215: Uventet respons {} ved henting av inntektsmelding fra fpinntektsmelding for uuid: {}",
+                    response.statusCode(), innsendingId);
+                throw feilVedKallTilFpinntektsmelding();
+            }
+            return DefaultJsonMapper.fromJson(response.body(), HentInntektsmeldingResponse.class);
+        } catch (InntektsmeldingAPIException e) {
+            throw e;
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av inntektsmelding fra fpinntektsmelding for uuid: {}. Feilmelding var {}", innsendingId, e.getMessage());
             throw feilVedKallTilFpinntektsmelding();

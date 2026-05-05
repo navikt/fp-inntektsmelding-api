@@ -68,7 +68,7 @@ public class FpinntektsmeldingTjeneste {
 
     public Inntektsmelding hentInntektsmelding(UUID innsendingId) {
         var response = fpinntektsmeldingKlient.hentInntektsmelding(innsendingId);
-        return mapInntektsmeldingResponseTilDomeneobjekt(response);
+        return response == null ? null : mapInntektsmeldingResponseTilDomeneobjekt(response);
     }
 
     public List<Inntektsmelding> hentInntektsmeldinger(String orgnr,
