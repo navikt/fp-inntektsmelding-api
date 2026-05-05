@@ -137,10 +137,10 @@ class FpinntektsmeldingTjenesteTest {
         var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
             LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
         var bortfaltNaturalytelse = new InntektsmeldingRequest.Naturalytelse(
-            LocalDate.now(),
-            LocalDate.now().plusDays(10),
             InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
-            new BigDecimal("500.00")
+            BigDecimal.valueOf(500.00),
+            LocalDate.now(),
+            LocalDate.now().plusDays(10)
         );
         var inntektsmeldingRequest = new InntektsmeldingRequest(
             uuid,

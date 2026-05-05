@@ -46,8 +46,8 @@ class InntektsmeldingRequestSerializationTest {
         assertThat(deserializedRequest.startdato()).isEqualTo(request.startdato());
         assertThat(deserializedRequest.ytelse()).isEqualTo(request.ytelse());
         assertThat(deserializedRequest.inntekt()).isEqualTo(request.inntekt());
-        assertThat(deserializedRequest.avsenderSystem().systemNavn()).isEqualTo(request.avsenderSystem().systemNavn());
-        assertThat(deserializedRequest.avsenderSystem().systemVersjon()).isEqualTo(request.avsenderSystem().systemVersjon());
+        assertThat(deserializedRequest.avsender().systemNavn()).isEqualTo(request.avsender().systemNavn());
+        assertThat(deserializedRequest.avsender().systemVersjon()).isEqualTo(request.avsender().systemVersjon());
     }
 
     @Test
@@ -62,10 +62,10 @@ class InntektsmeldingRequestSerializationTest {
         var refusjon = new InntektsmeldingRequest.Refusjon( BigDecimal.valueOf(25000.00), List.of());
         var bortfaltNaturalytelse = List.of(
             new InntektsmeldingRequest.Naturalytelse(
-                LocalDate.of(2024, 2, 1),
-                LocalDate.of(2024, 2, 28),
                 InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
-                new BigDecimal("500.00")
+                BigDecimal.valueOf(500.00),
+                LocalDate.of(2024, 2, 1),
+                LocalDate.of(2024, 2, 28)
             )
         );
         var endringsårsaker = List.of(
@@ -159,10 +159,10 @@ class InntektsmeldingRequestSerializationTest {
             ))),
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(new InntektsmeldingRequest.Naturalytelse(
-                LocalDate.of(2024, 2, 1),
-                LocalDate.of(2024, 2, 28),
                 InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
-                new BigDecimal("500.00"))),
+                    BigDecimal.valueOf(500),
+                    LocalDate.of(2024, 2, 1),
+                    null)),
             "Test Kontaktperson",
             "12345678",
             new InntektsmeldingRequest.Avsender("SAP", "1.0.0")

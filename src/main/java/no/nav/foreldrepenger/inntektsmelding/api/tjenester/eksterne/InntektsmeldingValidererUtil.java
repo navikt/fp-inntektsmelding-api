@@ -90,29 +90,29 @@ public class InntektsmeldingValidererUtil {
         }
 
         var perioderMedFomOgTomDato = naturalytelsePerioder.stream()
-            .filter(periode -> periode.fom() != null && periode.tom() != null)
+            .filter(periode -> periode.bortfallerFra() != null && periode.bortfallerTil() != null)
             .toList();
         if (finnesOverlapp(perioderMedFomOgTomDato,
-            InntektsmeldingRequest.Naturalytelse::fom,
-            InntektsmeldingRequest.Naturalytelse::tom)) {
+            InntektsmeldingRequest.Naturalytelse::bortfallerFra,
+            InntektsmeldingRequest.Naturalytelse::bortfallerTil)) {
             LOG.info("Bortfalt naturalytelse har overlappende perioder");
             return Optional.of(EksponertFeilmelding.OVERLAPP_I_PERIODER);
         }
 
-        if (perioderMedFomOgTomDato.stream().anyMatch(periode -> fraDatoEtterTom(periode.fom(), periode.tom()))) {
+        if (perioderMedFomOgTomDato.stream().anyMatch(periode -> fraDatoEtterTom(periode.bortfallerFra(), periode.bortfallerTil()))) {
             LOG.info("Bortfalt naturalytelse har ugyldig periode. Fra dato er etter til dato for en eller flere perioder");
             return Optional.of(EksponertFeilmelding.FRA_DATO_ETTER_TOM);
         }
 
         var perioderMedKunFomDato = naturalytelsePerioder.stream()
-            .filter(periode -> periode.fom() != null && periode.tom() == null)
+            .filter(periode -> periode.bortfallerFra() != null && periode.bortfallerTil() == null)
             .toList();
 
         boolean harDuplikater = perioderMedKunFomDato.size() != new HashSet<>(perioderMedKunFomDato).size();
 
         if (harDuplikater) {
             LOG.info("Bortfalt naturalytelse har duplikate fom-datoer for perioder uten tom-dato: {}",
-                perioderMedKunFomDato.stream().map(InntektsmeldingRequest.Naturalytelse::fom).toList());
+                perioderMedKunFomDato.stream().map(InntektsmeldingRequest.Naturalytelse::bortfallerFra).toList());
             return Optional.of(EksponertFeilmelding.LIK_FOM_NATURALYTELSER);
         }
         return Optional.empty();

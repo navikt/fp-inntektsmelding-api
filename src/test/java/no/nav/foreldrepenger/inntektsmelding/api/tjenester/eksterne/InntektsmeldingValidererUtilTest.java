@@ -210,8 +210,8 @@ class InntektsmeldingValidererUtilTest {
     }
 
     private InntektsmeldingRequest.Naturalytelse lagNaturalytelse(LocalDate fom, LocalDate tom) {
-        return new InntektsmeldingRequest.Naturalytelse(fom, tom,
-            InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON, DEFAULT_BELØP);
+        return new InntektsmeldingRequest.Naturalytelse(InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON, DEFAULT_BELØP,
+            fom, tom);
     }
 
     // =====================================================================
@@ -560,8 +560,8 @@ class InntektsmeldingValidererUtilTest {
     void skal_returnere_feil_fra_naturalytelse_validering() {
         var request = lagRequest(YtelseType.FORELDREPENGER,
             new InntektsmeldingRequest.Refusjon(DEFAULT_BELØP, List.of()),
-            List.of(new InntektsmeldingRequest.Naturalytelse(STARTDATO.plusDays(10), STARTDATO,
-                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.BIL, DEFAULT_BELØP)),
+            List.of(new InntektsmeldingRequest.Naturalytelse(InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.BIL, DEFAULT_BELØP,
+                STARTDATO.plusDays(10), STARTDATO)),
             new InntektsmeldingRequest.InntektInfo(DEFAULT_BELØP, List.of()));
 
         var result = InntektsmeldingValidererUtil.validerInntektsmelding(request, lagDefaultForespørsel());
