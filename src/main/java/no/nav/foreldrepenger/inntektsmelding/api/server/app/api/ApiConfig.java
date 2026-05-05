@@ -52,7 +52,7 @@ public class ApiConfig extends ResourceConfig {
     }
 
     private void registerOpenApi() {
-        var oas = new OpenAPI();
+        var oas = new OpenAPI().openapi("3.2.0");
         var info = new Info().title("Foreldrepenger inntektsmelding API")
             .version("1.0.0")
             .description("API for inntektsmelding for foreldrepenger og svangerskapspenger");

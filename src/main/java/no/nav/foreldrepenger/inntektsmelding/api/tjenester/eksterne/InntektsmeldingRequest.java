@@ -30,7 +30,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
                                      @NotNull @Valid Avsender avsender) {
 
 
-    public record Refusjon(@NotNull BigDecimal beloepPerMaaned,
+    public record Refusjon(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned,
                            @NotNull @Valid List<RefusjonEndring> endringer) {
         public record RefusjonEndring(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep, @NotNull LocalDate stardato) {}
     }
