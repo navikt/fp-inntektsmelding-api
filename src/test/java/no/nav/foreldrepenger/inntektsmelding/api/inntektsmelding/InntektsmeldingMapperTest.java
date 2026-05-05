@@ -89,7 +89,7 @@ class InntektsmeldingMapperTest {
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
-        // Opphørsdato skal legges til som en ekstra RefusjonEndring med verdiBelop 0
+        // Opphørsdato skal legges til som en ekstra RefusjonEndring med verdiBeloep 0
         assertThat(dto.refusjon().endringer()).hasSize(1);
         var opphørEndring = dto.refusjon().endringer().getFirst();
         assertThat(opphørEndring.beloepPrMnd()).isEqualByComparingTo(BigDecimal.ZERO);
