@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.inntektsmelding.api.integrasjoner;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.HentInntektsm
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.InntektsmeldingFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
+import no.nav.vedtak.konfig.Tid;
 
 @Dependent
 public class FpinntektsmeldingTjeneste {
@@ -178,8 +180,8 @@ public class FpinntektsmeldingTjeneste {
             mapRefusjonDto(inntektsmeldingRequest.refusjon(), inntektsmeldingRequest.startdato()),
             mapNaturalYtelseDto(inntektsmeldingRequest.naturalytelser()),
             mapEndringsårsakerDto(inntektsmeldingRequest.inntekt().endringAarsaker()),
-            new AvsenderSystemDto(inntektsmeldingRequest.avsenderSystem().systemNavn(),
-                inntektsmeldingRequest.avsenderSystem().systemVersjon())
+            new AvsenderSystemDto(inntektsmeldingRequest.avsender().systemNavn(),
+                inntektsmeldingRequest.avsender().systemVersjon())
         );
 
         return fpinntektsmeldingKlient.sendInntektsmelding(inntektsmeldingRequestDto);
@@ -209,9 +211,10 @@ public class FpinntektsmeldingTjeneste {
         };
     }
 
-    private List<BortfaltNaturalytelseDto> mapNaturalYtelseDto(List<InntektsmeldingRequest.Naturalytelse> bortfalteNaturalYtelser) {
-        return bortfalteNaturalYtelser.stream()
-            .map(b -> new BortfaltNaturalytelseDto(b.fom(), b.tom(), mapNaturalYtelseType(b.naturalytelse()), b.verdiBelop()))
+    private List<BortfaltNaturalytelseDto> mapNaturalYtelseDto(List<InntektsmeldingRequest.Naturalytelse> naturalYtelser) {
+
+        return naturalYtelser.stream()
+            .map(b -> new BortfaltNaturalytelseDto(b.bortfallerFra(), b.bortfallerTil() != null ? b.bortfallerTil() : Tid.TIDENES_ENDE, mapNaturalYtelseType(b.naturalytelse()), b.verdiBelop()))
             .toList();
     }
 

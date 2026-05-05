@@ -27,7 +27,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
                                      @NotNull List<@Valid Naturalytelse> naturalytelser,
                                      @NotNull String kontaktinformasjon,
                                      @NotNull String arbeidsgiverTlf,
-                                     @NotNull @Valid Avsender avsenderSystem) {
+                                     @NotNull @Valid Avsender avsender) {
 
 
     public record Refusjon(@NotNull BigDecimal beloepPerMaaned,
@@ -36,10 +36,10 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
     }
 
 
-    public record Naturalytelse(@NotNull LocalDate fom,
-                                @NotNull LocalDate tom,
-                                @NotNull Naturalytelsetype naturalytelse,
-                                @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal verdiBelop) {
+    public record Naturalytelse(@NotNull Naturalytelsetype naturalytelse,
+                                @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal verdiBelop,
+                                @NotNull LocalDate bortfallerFra,
+                                LocalDate bortfallerTil) {
         public enum Naturalytelsetype {
             ELEKTRISK_KOMMUNIKASJON,
             AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
