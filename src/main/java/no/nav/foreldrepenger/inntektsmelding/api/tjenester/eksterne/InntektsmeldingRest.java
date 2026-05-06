@@ -95,7 +95,7 @@ public class InntektsmeldingRest {
                 .build();
         }
 
-        if (!forespørsel.fødselsnummer().equals(inntektsmeldingRequest.foedselsnummer())) {
+        if (!forespørsel.fødselsnummer().equals(inntektsmeldingRequest.fnr())) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel og inntektsmelding har samme fødselsnummer og organisasjonsnummer.", forespørselUuid);
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(EksponertFeilmelding.MISMATCH_FOEDSELSNUMMER.name(),

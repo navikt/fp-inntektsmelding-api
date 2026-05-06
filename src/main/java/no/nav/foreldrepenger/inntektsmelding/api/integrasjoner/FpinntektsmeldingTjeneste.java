@@ -213,7 +213,7 @@ public class FpinntektsmeldingTjeneste {
     private List<BortfaltNaturalytelseDto> mapNaturalYtelseDto(List<InntektsmeldingRequest.Naturalytelse> naturalYtelser) {
 
         return naturalYtelser.stream()
-            .map(b -> new BortfaltNaturalytelseDto(b.bortfallerFra(), b.bortfallerTil() != null ? b.bortfallerTil() : Tid.TIDENES_ENDE, mapNaturalYtelseType(b.naturalytelse()), b.verdiBeloep()))
+            .map(b -> new BortfaltNaturalytelseDto(b.bortfallerFra(), b.bortfallerTil() != null ? b.bortfallerTil() : Tid.TIDENES_ENDE, mapNaturalYtelseType(b.naturalytelse()), b.beloepPerMaaned()))
             .toList();
     }
 
@@ -247,7 +247,7 @@ public class FpinntektsmeldingTjeneste {
         }
         List<SøktRefusjonDto> søktRefusjonDtoListe = new ArrayList<>();
         søktRefusjonDtoListe.add(new SøktRefusjonDto(startdato, refusjon.beloepPerMaaned()));
-        refusjon.endringer().forEach(r -> søktRefusjonDtoListe.add(new SøktRefusjonDto(r.stardato(), r.beloep())));
+        refusjon.endringer().forEach(r -> søktRefusjonDtoListe.add(new SøktRefusjonDto(r.stardato(), r.beloepPerMaaned())));
         return søktRefusjonDtoListe;
     }
 

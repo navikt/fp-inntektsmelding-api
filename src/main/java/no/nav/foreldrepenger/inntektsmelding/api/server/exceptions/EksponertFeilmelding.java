@@ -20,7 +20,7 @@ public enum EksponertFeilmelding {
     MISMATCH_FOERSTE_UTTAKSDATO("Første uttaksdato fra inntektsmelding og første uttaksdato fra etterspurt forespørsel matcher ikke"),
     MISMATCH_SKJAERINGSTIDSPUNKT("Skjæringstidspunkt fra inntektsmelding og skjæringstidspunkt fra etterspurt forespørsel matcher ikke"),
     MISMATCH_YTELSE("Ytelse fra inntektsmelding og ytelse fra etterspurt forespørsel matcher ikke"),
-    MISMATCH_FOEDSELSNUMMER("Fødselsnummer fra request og forespørsel matcher ikke"),
+    MISMATCH_FOEDSELSNUMMER("Fødselsnummer fra inntektsmelding og forespørsel matcher ikke"),
     UGYLDIG_FORESPOERSEL("Det er ikke tillatt å sende inn en inntektsmelding på en forkastet forespørsel."),
     LIK_START_DATO_REFUSJONSENDRINGER("Endringer i refusjon kan ikke starte på samme dato"),
     LIK_FOM_NATURALYTELSER("Flere naturalytelsesperioder kan ikke starte på samme dato"),
