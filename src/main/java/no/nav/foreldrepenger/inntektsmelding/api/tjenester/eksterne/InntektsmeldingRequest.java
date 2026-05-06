@@ -19,7 +19,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
                                      @Pattern(
                                          regexp = "^\\d{11}$",
                                          message = "Fødselsnummer må bestå av 11 siffer"
-                                     ) @NotNull String foedselsnummer,
+                                     ) @NotNull String fnr,
                                      @NotNull LocalDate startdato,
                                      @NotNull YtelseType ytelse,
                                      @NotNull @Valid InntektInfo inntekt,
@@ -32,12 +32,12 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
 
     public record Refusjon(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned,
                            @NotNull @Valid List<RefusjonEndring> endringer) {
-        public record RefusjonEndring(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloep, @NotNull LocalDate stardato) {}
+        public record RefusjonEndring(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull LocalDate stardato) {}
     }
 
 
     public record Naturalytelse(@NotNull Naturalytelsetype naturalytelse,
-                                @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal verdiBeloep,
+                                @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned,
                                 @NotNull LocalDate bortfallerFra,
                                 LocalDate bortfallerTil) {
         public enum Naturalytelsetype {
@@ -67,7 +67,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
     public record Avsender(@NotNull @Size(max = 200) String systemNavn, @NotNull @Size(max = 100) String systemVersjon) {
     }
 
-    public record InntektInfo(@Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull List<Endringsårsak> endringAarsaker) {
+    public record InntektInfo(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull List<Endringsårsak> endringAarsaker) {
         public record Endringsårsak(@Valid EndringsårsakType aarsak,
                                     LocalDate fom,
                                     LocalDate tom,

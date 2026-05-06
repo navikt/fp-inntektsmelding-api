@@ -42,7 +42,7 @@ class InntektsmeldingRequestSerializationTest {
 
         // Assert
         assertThat(deserializedRequest.foresporselId()).isEqualTo(request.foresporselId());
-        assertThat(deserializedRequest.foedselsnummer()).isEqualTo(request.foedselsnummer());
+        assertThat(deserializedRequest.fnr()).isEqualTo(request.fnr());
         assertThat(deserializedRequest.startdato()).isEqualTo(request.startdato());
         assertThat(deserializedRequest.ytelse()).isEqualTo(request.ytelse());
         assertThat(deserializedRequest.inntekt()).isEqualTo(request.inntekt());
