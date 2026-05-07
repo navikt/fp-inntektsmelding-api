@@ -25,8 +25,7 @@ class InntektsmeldingRequestSerializationTest {
         var json = DefaultJsonMapper.toJson(request);
 
         // Assert
-        assertThat(json).contains("\"kontaktinformasjon\":\"Test Kontaktperson\"");
-        assertThat(json).contains("\"arbeidsgiverTlf\":\"12345678\"");
+        assertThat(json).contains("\"kontaktinformasjon\":{\"arbeidsgiverNavn\":\"Test Kontaktperson\",\"arbeidsgiverTlf\":\"12345678\"}");
         assertThat(json).contains("\"ytelse\":\"FORELDREPENGER\"");
         assertThat(json).contains("\"inntekt\":{\"beloepPerMaaned\":25000.0,\"endringAarsaker\":[{\"aarsak\":\"PERMISJON\",\"fom\":\"2024-03-01\",\"tom\":\"2024-03-15\",\"gjelderFra\":\"2024-02-15\"}]}");
     }
@@ -41,8 +40,8 @@ class InntektsmeldingRequestSerializationTest {
         var deserializedRequest = DefaultJsonMapper.fromJson(json, InntektsmeldingRequest.class);
 
         // Assert
-        assertThat(deserializedRequest.foresporselId()).isEqualTo(request.foresporselId());
-        assertThat(deserializedRequest.fnr()).isEqualTo(request.fnr());
+        assertThat(deserializedRequest.forespoerselId()).isEqualTo(request.forespoerselId());
+        assertThat(deserializedRequest.soekerFnr()).isEqualTo(request.soekerFnr());
         assertThat(deserializedRequest.startdato()).isEqualTo(request.startdato());
         assertThat(deserializedRequest.ytelse()).isEqualTo(request.ytelse());
         assertThat(deserializedRequest.inntekt()).isEqualTo(request.inntekt());
@@ -85,8 +84,7 @@ class InntektsmeldingRequestSerializationTest {
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), endringsårsaker),
             refusjon,
             bortfaltNaturalytelse,
-            kontaktperson,
-            arbeidsgiverTlf,
+            new InntektsmeldingRequest.Kontaktinformasjon(kontaktperson, arbeidsgiverTlf),
             avsenderSystem
         );
 
@@ -96,9 +94,9 @@ class InntektsmeldingRequestSerializationTest {
 
         // Assert
         assertThat(deserializedRequest).isEqualTo(originalRequest);
-        assertThat(deserializedRequest.foresporselId()).isEqualTo(uuid);
-        assertThat(deserializedRequest.kontaktinformasjon()).isEqualTo("Ola Nordmann");
-        assertThat(deserializedRequest.arbeidsgiverTlf()).isEqualTo( "98765432");
+        assertThat(deserializedRequest.forespoerselId()).isEqualTo(uuid);
+        assertThat(deserializedRequest.kontaktinformasjon().arbeidsgiverNavn()).isEqualTo("Ola Nordmann");
+        assertThat(deserializedRequest.kontaktinformasjon().arbeidsgiverTlf()).isEqualTo( "98765432");
         assertThat(deserializedRequest.naturalytelser()).hasSize(1);
         assertThat(deserializedRequest.inntekt().endringAarsaker()).hasSize(1);
     }
@@ -163,8 +161,7 @@ class InntektsmeldingRequestSerializationTest {
                     BigDecimal.valueOf(500),
                     LocalDate.of(2024, 2, 1),
                     null)),
-            "Test Kontaktperson",
-            "12345678",
+            new InntektsmeldingRequest.Kontaktinformasjon("Test Kontaktperson","12345678"),
             new InntektsmeldingRequest.Avsender("SAP", "1.0.0")
         );
     }

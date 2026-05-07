@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
-public record InntektsmeldingDto(UUID id,
+public record InntektsmeldingDto(UUID inntektsmeldingId,
                                  String soekerFnr,
                                  YtelseTypeDto ytelse,
                                  InntektsmeldingArbeidsgiver arbeidsgiver,
@@ -27,16 +27,16 @@ public record InntektsmeldingDto(UUID id,
     public record InntektsmeldingArbeidsgiver(String orgnr, Kontaktperson kontaktperson) {
     }
 
-    public record Refusjon(BigDecimal beloepPrMnd, List<RefusjonEndring> endringer) {
+    public record Refusjon(BigDecimal beloepPerMaaned, List<RefusjonEndring> endringer) {
     }
 
     public record InntektEndringsårsaker(EndringsårsakDto aarsak, LocalDate fom, LocalDate tom, LocalDate bleKjentFom) {
     }
 
-    public record RefusjonEndring(BigDecimal beloepPrMnd, LocalDate fom) {
+    public record RefusjonEndring(BigDecimal beloepPerMaaned, LocalDate fom) {
     }
 
-    public record AvsenderSystem(String systemnavn, String versjon) {
+    public record AvsenderSystem(String systemNavn, String systemVersjon) {
     }
 
     public record Kontaktperson(String navn, String telefonnummer) {
