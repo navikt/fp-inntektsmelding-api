@@ -154,7 +154,7 @@ public class InntektsmeldingValidererUtil {
             .findFirst()
             .map(InntektsmeldingRequest.InntektInfo.Endringsårsak::fom);
 
-        if (varigLønnsendringFraDato.isPresent() && varigLønnsendringFraDato.get().isAfter(startdato)) {
+        if (varigLønnsendringFraDato.isPresent() && !varigLønnsendringFraDato.get().isBefore(startdato)) {
             LOG.info("Endringsårsak varig lønnsendring har ugyldig dato. Fra dato {} må være før fraværsdato {}",
                 varigLønnsendringFraDato.get(),
                 startdato);
