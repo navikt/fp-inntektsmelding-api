@@ -31,7 +31,7 @@ class InntektsmeldingRequestSerializationTest {
     }
 
     @Test
-    void skal_deserialisere_fra_json() throws Exception {
+    void skal_deserialisere_fra_json() {
         // Arrange
         var request = lagTestRequest();
         var json = DefaultJsonMapper.toJson(request);
@@ -50,7 +50,7 @@ class InntektsmeldingRequestSerializationTest {
     }
 
     @Test
-    void skal_serialisere_og_deserialisere_med_alle_felt() throws Exception {
+    void skal_serialisere_og_deserialisere_med_alle_felt() {
         // Arrange
         var uuid = UUID.randomUUID();
         var fødselsnummer = "12345678901";
@@ -102,7 +102,7 @@ class InntektsmeldingRequestSerializationTest {
     }
 
     @Test
-    void skal_serialisere_naturaltelse_typer() throws Exception {
+    void skal_serialisere_naturaltelse_typer() {
         // Arrange
         var request = lagTestRequest();
 
@@ -114,7 +114,7 @@ class InntektsmeldingRequestSerializationTest {
     }
 
     @Test
-    void skal_serialisere_endringsårsak_typer() throws Exception {
+    void skal_serialisere_endringsårsak_typer() {
         // Arrange
         var request = lagTestRequest();
 
@@ -126,7 +126,7 @@ class InntektsmeldingRequestSerializationTest {
     }
 
     @Test
-    void skal_deserialisere_avsender_system() throws Exception {
+    void skal_deserialisere_avsender_system() {
         // Arrange
         var json = """
             {
