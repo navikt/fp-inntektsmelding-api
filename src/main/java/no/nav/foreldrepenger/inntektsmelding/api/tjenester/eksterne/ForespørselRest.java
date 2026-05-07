@@ -127,7 +127,7 @@ public class ForespørselRest {
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(filterRequest.orgnr()));
         var forespørsler = fpinntektsmeldingTjeneste.hentForespørsler(filterRequest.orgnr(),
-            filterRequest.fnr(),
+            filterRequest.soekerFnr(),
             filterRequest.status(),
             filterRequest.ytelseType(),
             filterRequest.fom(),
