@@ -116,8 +116,7 @@ class FpinntektsmeldingTjenesteTest {
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
-            "Kontaktperson",
-            "12345678",
+            new InntektsmeldingRequest.Kontaktinformasjon("Kontaktperson", "12345678"),
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
@@ -150,8 +149,7 @@ class FpinntektsmeldingTjenesteTest {
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
             null,
             List.of(bortfaltNaturalytelse),
-            "Kontaktperson",
-            "12345678",
+            new InntektsmeldingRequest.Kontaktinformasjon("Kontaktperson","12345678"),
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
@@ -184,8 +182,7 @@ class FpinntektsmeldingTjenesteTest {
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of(endringsårsak)),
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
-            "Kontaktperson",
-            "12345678",
+            new InntektsmeldingRequest.Kontaktinformasjon("Kontaktperson", "12345678"),
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
@@ -217,8 +214,7 @@ class FpinntektsmeldingTjenesteTest {
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
             refusjoner,
             List.of(),
-            "Kontaktperson",
-            "12345678",
+            new InntektsmeldingRequest.Kontaktinformasjon("Kontaktperson", "12345678"),
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
         var responseUuid = UUID.randomUUID();
