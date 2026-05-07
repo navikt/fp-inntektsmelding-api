@@ -66,8 +66,7 @@ public class InntektsmeldingRestTest {
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
-            "Kontaktperson",
-            "12345678",
+            new InntektsmeldingRequest.Kontaktinformasjon("Kontaktperson","12345678"),
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
 
@@ -96,8 +95,7 @@ public class InntektsmeldingRestTest {
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of()),
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(),
-            "Kontaktperson",
-            "12345678",
+            new InntektsmeldingRequest.Kontaktinformasjon("Kontaktperson", "12345678"),
             new InntektsmeldingRequest.Avsender("TestSystem", "1.0.0")
         );
 

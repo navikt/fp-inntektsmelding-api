@@ -46,11 +46,9 @@ public class AutentiseringFilter implements ContainerRequestFilter, ContainerRes
     @Override
     public void filter(ContainerRequestContext req, ContainerResponseContext res) {
         AuthenticationFilterDelegate.fjernKontekst();
-        if (res.getStatus() > 0  && res.getStatus() != Response.Status.OK.getStatusCode()) {
-            var callId = MDCOperations.getCallId();
-            if (callId != null) {
-                res.getHeaders().add(X_CORRELATION_ID, callId);
-            }
+        var callId = MDCOperations.getCallId();
+        if (callId != null) {
+            res.getHeaders().add(X_CORRELATION_ID, callId);
         }
     }
 

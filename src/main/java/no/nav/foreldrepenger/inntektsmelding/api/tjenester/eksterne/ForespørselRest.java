@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 @Tag(name = "Forespørsel om inntektsmelding")
 public class ForespørselRest {
     public static final String BASE_PATH = "/forespoersel";
-    private static final String HENT_FORESPØRSEL = "/{uuid}";
+    private static final String HENT_FORESPØRSEL = "/{forespoerselId}";
     private static final String HENT_FLERE = "/forespoersler";
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
@@ -61,7 +61,7 @@ public class ForespørselRest {
     @GET
     @Path(HENT_FORESPØRSEL)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(summary = "Hent forespørsel", description = "Henter en spesifikk forespørsel om inntektsmelding basert på forespørselens UUID.")
+    @Operation(summary = "Hent forespørsel", description = "Henter en spesifikk forespørsel om inntektsmelding basert på forespørselId.")
     @ApiResponse(responseCode = "200", description = "Forespørselen ble funnet",
         content = @Content(schema = @Schema(implementation = ForespørselDto.class)))
     @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
@@ -73,17 +73,17 @@ public class ForespørselRest {
         content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
-    public Response hentForespørsel(@NotNull @Valid @PathParam("uuid")
+    public Response hentForespørsel(@NotNull @Valid @PathParam("forespoerselId")
                                     @Parameter(description = "UUID til forespørselen")
-                                    @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespørselUuid) {
-        LOG.info("Innkomende kall på hent forespørsel {}", forespørselUuid);
-        var uuid = UUID.fromString(forespørselUuid);
+                                    @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespoerselId) {
+        LOG.info("Innkomende kall på hent forespørsel {}", forespoerselId);
+        var uuid = UUID.fromString(forespoerselId);
 
         Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(uuid);
         if (forespørsel == null) {
             return Response.status(Response.Status.NOT_FOUND).
-                entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespørselUuid,
-                    forespørselUuid)).build();
+                entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespoerselId,
+                    forespoerselId)).build();
         }
 
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(forespørsel.orgnummer());
@@ -96,7 +96,7 @@ public class ForespørselRest {
     @Path(HENT_FLERE)
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Hent forespørsler", description = "Filtrer forespørsler om inntektsmelding på orgnr, fnr, forespørselId, status, ytelseType og/eller dato forespørselen ble opprettet av NAV.")
+    @Operation(summary = "Hent forespørsler", description = "Filtrer forespørsler om inntektsmelding på orgnr, soekerFnr, forespørselId, status, ytelseType og/eller dato forespørselen ble opprettet av NAV.")
     @ApiResponse(responseCode = "200", description = "Liste med forespørsler som matcher filteret",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = ForespørselDto.class))))
     @ApiResponse(responseCode = "400", description = "Ugyldig periode (fom er etter tom)",

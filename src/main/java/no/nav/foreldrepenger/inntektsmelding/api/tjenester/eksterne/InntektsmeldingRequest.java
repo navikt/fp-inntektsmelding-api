@@ -15,26 +15,49 @@ import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 
-public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
+public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
                                      @Pattern(
                                          regexp = "^\\d{11}$",
                                          message = "Fødselsnummer må bestå av 11 siffer"
-                                     ) @NotNull String fnr,
+                                     ) @NotNull String soekerFnr,
                                      @NotNull LocalDate startdato,
                                      @NotNull YtelseType ytelse,
                                      @NotNull @Valid InntektInfo inntekt,
                                      @Valid Refusjon refusjon,
                                      @NotNull List<@Valid Naturalytelse> naturalytelser,
-                                     @NotNull String kontaktinformasjon,
-                                     @NotNull String arbeidsgiverTlf,
+                                     @NotNull Kontaktinformasjon kontaktinformasjon,
                                      @NotNull @Valid Avsender avsender) {
 
 
+    public record InntektInfo(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull List<Endringsårsak> endringAarsaker) {
+        public record Endringsårsak(@Valid EndringsårsakType aarsak,
+                                    LocalDate fom,
+                                    LocalDate tom,
+                                    LocalDate gjelderFra) {
+            public enum EndringsårsakType {
+                PERMITTERING,
+                NY_STILLING,
+                NY_STILLINGSPROSENT,
+                SYKEFRAVÆR,
+                BONUS,
+                FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER,
+                NYANSATT,
+                MANGELFULL_RAPPORTERING_AORDNING,
+                INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING,
+                TARIFFENDRING,
+                FERIE,
+                VARIG_LØNNSENDRING,
+                PERMISJON
+            }
+        }
+    }
     public record Refusjon(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned,
                            @NotNull @Valid List<RefusjonEndring> endringer) {
         public record RefusjonEndring(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull LocalDate stardato) {}
+
     }
 
+    public record Kontaktinformasjon(@NotNull String arbeidsgiverNavn,  @NotNull String arbeidsgiverTlf) {}
 
     public record Naturalytelse(@NotNull Naturalytelsetype naturalytelse,
                                 @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned,
@@ -60,34 +83,11 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID foresporselId,
             YRKEBIL_TJENESTLIGBEHOV_KILOMETER,
             YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS,
             INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING
-        }
-    }
+            }
 
+    }
 
     public record Avsender(@NotNull @Size(max = 200) String systemNavn, @NotNull @Size(max = 100) String systemVersjon) {
-    }
 
-    public record InntektInfo(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull List<Endringsårsak> endringAarsaker) {
-        public record Endringsårsak(@Valid EndringsårsakType aarsak,
-                                    LocalDate fom,
-                                    LocalDate tom,
-                                    LocalDate gjelderFra) {
-            public enum EndringsårsakType {
-                PERMITTERING,
-                NY_STILLING,
-                NY_STILLINGSPROSENT,
-                SYKEFRAVÆR,
-                BONUS,
-                FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER,
-                NYANSATT,
-                MANGELFULL_RAPPORTERING_AORDNING,
-                INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING,
-                TARIFFENDRING,
-                FERIE,
-                VARIG_LØNNSENDRING,
-                PERMISJON
-            }
-        }
     }
-
 }

@@ -45,7 +45,7 @@ public class InntektsmeldingRest {
     public static final String BASE_PATH = "/inntektsmelding";
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRest.class);
     private static final String SEND_INNTEKTSMELDING = "/send-inn";
-    private static final String HENT_INNTEKTSMELDING = "/hent/{uuid}";
+    private static final String HENT_INNTEKTSMELDING = "/hent/{inntektsmeldingId}";
     private static final String HENT_INNTEKTSMELDINGER = "/hent/inntektsmeldinger";
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
     private Tilgang tilgang;
@@ -82,7 +82,7 @@ public class InntektsmeldingRest {
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
-        var forespørselUuid = inntektsmeldingRequest.foresporselId();
+        var forespørselUuid = inntektsmeldingRequest.forespoerselId();
         LOG.info("Mottatt inntektsmelding for forespørselUuid {} ", forespørselUuid);
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
 
@@ -95,7 +95,7 @@ public class InntektsmeldingRest {
                 .build();
         }
 
-        if (!forespørsel.fødselsnummer().equals(inntektsmeldingRequest.fnr())) {
+        if (!forespørsel.fødselsnummer().equals(inntektsmeldingRequest.soekerFnr())) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel og inntektsmelding har samme fødselsnummer og organisasjonsnummer.", forespørselUuid);
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(EksponertFeilmelding.MISMATCH_FOEDSELSNUMMER.name(),
@@ -109,7 +109,7 @@ public class InntektsmeldingRest {
         var feilmelding = InntektsmeldingValidererUtil.validerInntektsmelding(inntektsmeldingRequest, forespørsel);
         if (feilmelding.isPresent()) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Validering av inntektsmelding feilet. Feilmelding: {}",
-                inntektsmeldingRequest.foresporselId(), feilmelding.get().getTekst());
+                inntektsmeldingRequest.forespoerselId(), feilmelding.get().getTekst());
             return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse(feilmelding.get().name(), feilmelding.get().getTekst(), forespørselUuid.toString()))
                 .build();
@@ -141,7 +141,7 @@ public class InntektsmeldingRest {
 
     @GET
     @Path(HENT_INNTEKTSMELDING)
-    @Operation(summary = "Hent inntektsmelding", description = "Henter en spesifikk inntektsmelding basert på innsendingsUUID.")
+    @Operation(summary = "Hent inntektsmelding", description = "Henter en spesifikk inntektsmelding basert på inntektsmeldingId.")
     @ApiResponse(responseCode = "200", description = "Inntektsmeldingen ble funnet",
         content = @Content(schema = @Schema(implementation = InntektsmeldingDto.class)))
     @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
@@ -153,19 +153,19 @@ public class InntektsmeldingRest {
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    public Response hentInntektsmelding(@NotNull @Valid @PathParam("uuid")
-                                        @Parameter(description = "UUID til inntektsmeldingen (innsendingId)")
+    public Response hentInntektsmelding(@NotNull @Valid @PathParam("inntektsmeldingId")
+                                        @Parameter(description = "UUID til inntektsmeldingen (inntektsmeldingId)")
                                         @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format")
-                                        String innsendingId) {
-        LOG.info("Hent inntektsmelding med innsendingId {} ", innsendingId);
-        var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(UUID.fromString(innsendingId));
+                                        String inntektsmeldingId) {
+        LOG.info("Hent inntektsmelding med inntektsmeldingId {} ", inntektsmeldingId);
+        var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(UUID.fromString(inntektsmeldingId));
 
         if (inntektsmelding == null) {
-            LOG.info("Avvist inntektsmelding for innsendingId {}. Inntektsmelding ikke funnet.", innsendingId);
+            LOG.info("Avvist inntektsmelding for inntektsmeldingId {}. Inntektsmelding ikke funnet.", inntektsmeldingId);
             return Response.status(Response.Status.NOT_FOUND)
                 .entity(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(),
-                    EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst() + ": " + innsendingId,
-                    innsendingId))
+                    EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst() + ": " + inntektsmeldingId,
+                    inntektsmeldingId))
                 .build();
         }
 
@@ -180,7 +180,7 @@ public class InntektsmeldingRest {
 
     @POST
     @Path(HENT_INNTEKTSMELDINGER)
-    @Operation(summary = "Hent inntektsmeldinger", description = "Filtrer inntektsmeldinger på orgnr, fnr, forespørselId, innsendingId, ytelseType og/eller dato inntektsmeldingen ble mottatt av NAV.")
+    @Operation(summary = "Hent inntektsmeldinger", description = "Filtrer inntektsmeldinger på orgnr, soekerFnr, forespørselId, inntektsmeldingId, ytelseType og/eller dato inntektsmeldingen ble mottatt av NAV.")
     @ApiResponse(responseCode = "200", description = "Liste med inntektsmeldinger som matcher filteret",
         content = @Content(array = @ArraySchema(schema = @Schema(implementation = InntektsmeldingDto.class))))
     @ApiResponse(responseCode = "400", description = "Ugyldig periode (fom er etter tom)",
@@ -193,11 +193,11 @@ public class InntektsmeldingRest {
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
         LOG.info("Innkomende kall på søk etter inntektsmeldinger");
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmeldingFilter.orgnr()));
-        if (inntektsmeldingFilter.innsendingId() != null) {
-            var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingFilter.innsendingId());
+        if (inntektsmeldingFilter.inntektsmeldingId() != null) {
+            var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingFilter.inntektsmeldingId());
             if (inntektsmelding == null) {
-                LOG.info("Inntektsmelding med innsendingId {} ikke funnet.", inntektsmeldingFilter.innsendingId());
-                return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(), EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst(), inntektsmeldingFilter.innsendingId().toString())).build();
+                LOG.info("Inntektsmelding med inntektsmeldingId {} ikke funnet.", inntektsmeldingFilter.inntektsmeldingId());
+                return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(), EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst(), inntektsmeldingFilter.inntektsmeldingId().toString())).build();
             }
             if (datoerErUgyldige(inntektsmeldingFilter)) {
                 return Response.status(Response.Status.BAD_REQUEST)
@@ -213,7 +213,7 @@ public class InntektsmeldingRest {
         }
 
         var inntektsmeldinger = fpinntektsmeldingTjeneste.hentInntektsmeldinger(inntektsmeldingFilter.orgnr(),
-            inntektsmeldingFilter.fnr(),
+            inntektsmeldingFilter.soekerFnr(),
             inntektsmeldingFilter.forespoerselId(),
             inntektsmeldingFilter.ytelseType(),
             inntektsmeldingFilter.fom(),

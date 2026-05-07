@@ -10,9 +10,9 @@ import jakarta.validation.constraints.Pattern;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 
 public record InntektsmeldingFilter(@NotNull @Pattern(regexp = "^\\d{9}$") String orgnr,
-                                    @Pattern(regexp = "^\\d{11}$") String fnr,
+                                    @Pattern(regexp = "^\\d{11}$") String soekerFnr,
                                     @Valid UUID forespoerselId,
-                                    @Valid UUID innsendingId,
+                                    @Valid UUID inntektsmeldingId,
                                     @Valid YtelseType ytelseType,
                                     LocalDate fom,
                                     LocalDate tom) {}

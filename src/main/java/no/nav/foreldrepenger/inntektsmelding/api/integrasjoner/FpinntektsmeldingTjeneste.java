@@ -174,7 +174,7 @@ public class FpinntektsmeldingTjeneste {
             new OrganisasjonsnummerDto(forespørsel.orgnummer().orgnr()),
             inntektsmeldingRequest.startdato(),
             mapYtelseType(inntektsmeldingRequest.ytelse()),
-            mapKontaktPersonDto(inntektsmeldingRequest.kontaktinformasjon(), inntektsmeldingRequest.arbeidsgiverTlf()),
+            mapKontaktPersonDto(inntektsmeldingRequest.kontaktinformasjon()),
             inntektsmeldingRequest.inntekt().beloepPerMaaned(),
             mapRefusjonDto(inntektsmeldingRequest.refusjon(), inntektsmeldingRequest.startdato()),
             mapNaturalYtelseDto(inntektsmeldingRequest.naturalytelser()),
@@ -259,8 +259,8 @@ public class FpinntektsmeldingTjeneste {
         };
     }
 
-    private KontaktpersonDto mapKontaktPersonDto(String kontaktperson, String telefonnummer) {
-        return new KontaktpersonDto(kontaktperson, telefonnummer);
+    private KontaktpersonDto mapKontaktPersonDto(InntektsmeldingRequest.Kontaktinformasjon kontaktinformasjon) {
+        return new KontaktpersonDto(kontaktinformasjon.arbeidsgiverNavn(), kontaktinformasjon.arbeidsgiverTlf());
     }
 
     private Forespørsel mapResponseTilDomeneobjekt(ForespørselResponse response) {

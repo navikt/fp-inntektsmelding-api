@@ -33,7 +33,7 @@ class InntektsmeldingMapperTest {
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
-        assertThat(dto.id()).isEqualTo(TEST_UUID);
+        assertThat(dto.inntektsmeldingId()).isEqualTo(TEST_UUID);
         assertThat(dto.soekerFnr()).isEqualTo(FNR);
         assertThat(dto.ytelse()).isEqualTo(YtelseTypeDto.FORELDREPENGER);
         assertThat(dto.arbeidsgiver().orgnr()).isEqualTo(ORGNR);
@@ -41,8 +41,8 @@ class InntektsmeldingMapperTest {
         assertThat(dto.innsendtTid()).isEqualTo(INNSENDT_TIDSPUNKT);
         assertThat(dto.arbeidsgiver().kontaktperson().navn()).isEqualTo("Ola Nordmann");
         assertThat(dto.arbeidsgiver().kontaktperson().telefonnummer()).isEqualTo("12345678");
-        assertThat(dto.avsender().systemnavn()).isEqualTo("TestSystem");
-        assertThat(dto.avsender().versjon()).isEqualTo("1.0");
+        assertThat(dto.avsender().systemNavn()).isEqualTo("TestSystem");
+        assertThat(dto.avsender().systemVersjon()).isEqualTo("1.0");
         assertThat(dto.inntekt().beloep()).isEqualByComparingTo(MÅNEDS_INNTEKT);
         assertThat(dto.inntekt().inntektsdato()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(dto.inntekt().endringAarsaker()).isEmpty();
@@ -76,9 +76,9 @@ class InntektsmeldingMapperTest {
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
-        assertThat(dto.refusjon().beloepPrMnd()).isEqualByComparingTo(MÅNEDS_REFUSJON);
+        assertThat(dto.refusjon().beloepPerMaaned()).isEqualByComparingTo(MÅNEDS_REFUSJON);
         assertThat(dto.refusjon().endringer()).hasSize(1);
-        assertThat(dto.refusjon().endringer().getFirst().beloepPrMnd()).isEqualByComparingTo(new BigDecimal("20000.00"));
+        assertThat(dto.refusjon().endringer().getFirst().beloepPerMaaned()).isEqualByComparingTo(new BigDecimal("20000.00"));
         assertThat(dto.refusjon().endringer().getFirst().fom()).isEqualTo(LocalDate.of(2024, 3, 1));
     }
 
@@ -92,7 +92,7 @@ class InntektsmeldingMapperTest {
         // Opphørsdato skal legges til som en ekstra RefusjonEndring med beloepPerMaaned 0
         assertThat(dto.refusjon().endringer()).hasSize(1);
         var opphørEndring = dto.refusjon().endringer().getFirst();
-        assertThat(opphørEndring.beloepPrMnd()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(opphørEndring.beloepPerMaaned()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(opphørEndring.fom()).isEqualTo(opphørsdato);
     }
 
@@ -106,8 +106,8 @@ class InntektsmeldingMapperTest {
 
         // Skal ha den originale endringen pluss opphøret
         assertThat(dto.refusjon().endringer()).hasSize(2);
-        assertThat(dto.refusjon().endringer().get(0).beloepPrMnd()).isEqualByComparingTo(new BigDecimal("20000.00"));
-        assertThat(dto.refusjon().endringer().get(1).beloepPrMnd()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(dto.refusjon().endringer().get(0).beloepPerMaaned()).isEqualByComparingTo(new BigDecimal("20000.00"));
+        assertThat(dto.refusjon().endringer().get(1).beloepPerMaaned()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(dto.refusjon().endringer().get(1).fom()).isEqualTo(opphørsdato);
     }
 
