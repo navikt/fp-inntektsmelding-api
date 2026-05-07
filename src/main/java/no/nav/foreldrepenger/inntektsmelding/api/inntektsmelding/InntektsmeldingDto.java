@@ -8,12 +8,14 @@ import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
 
+import jakarta.validation.constraints.Pattern;
+
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
 public record InntektsmeldingDto(@NotNull UUID inntektsmeldingId,
-                                 @NotNull String soekerFnr,
+                                 @NotNull @Pattern(regexp = "^\\d{11}$") String soekerFnr,
                                  @NotNull YtelseTypeDto ytelse,
                                  @NotNull InntektsmeldingArbeidsgiver arbeidsgiver,
                                  @NotNull LocalDate startdato,
@@ -26,7 +28,7 @@ public record InntektsmeldingDto(@NotNull UUID inntektsmeldingId,
     public record Inntekt(@NotNull BigDecimal beloep, @NotNull LocalDate inntektsdato, @NotNull List<InntektEndringsårsaker> endringAarsaker) {
     }
 
-    public record InntektsmeldingArbeidsgiver(@NotNull String orgnr, @NotNull Kontaktperson kontaktperson) {
+    public record InntektsmeldingArbeidsgiver(@NotNull @Pattern(regexp = "^\\d{9}$") String orgnr, @NotNull Kontaktperson kontaktperson) {
     }
 
     public record Refusjon(@NotNull BigDecimal beloepPerMaaned, @NotNull List<RefusjonEndring> endringer) {
