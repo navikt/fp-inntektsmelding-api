@@ -363,12 +363,12 @@ class InntektsmeldingValidererUtilTest {
     }
 
     @Test
-    void skal_godkjenne_varig_lønnsendring_fom_lik_startdato() {
+    void skal_avvise_varig_lønnsendring_fom_lik_startdato() {
         var årsaker = List.of(
             lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.VARIG_LØNNSENDRING, STARTDATO, null, null)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).isEmpty();
+        assertThat(result).hasValue(EksponertFeilmelding.FRA_DATO_FOER_STARTDATO);
     }
 
     @Test
