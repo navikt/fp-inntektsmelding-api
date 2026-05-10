@@ -22,24 +22,29 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
-import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson.Jackson3ApiFeature;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AutentiseringFilter;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintViolationMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.LokalRestExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.server.rest.FeilUtils;
+import no.nav.vedtak.server.rest.jackson.Jackson3ContextResolver;
+import no.nav.vedtak.server.rest.jackson.Jackson3ProviderFeature;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends ResourceConfig {
 
     public static final String API_URI = "/v1";
     private static final Logger LOG = LoggerFactory.getLogger(ApiConfig.class);
+    private static final Logger SECURE_LOG = LoggerFactory.getLogger("secureLogger");
 
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Sikkerhet
-        register(Jackson3ApiFeature.class);
+        register(Jackson3ProviderFeature.class);
+        register(Jackson3ContextResolver.class);
+        register(Jackson3ExceptionMapper.class);
         register(AutentiseringFilter.class);
         registerExceptionMappers();
 
@@ -78,7 +83,9 @@ public class ApiConfig extends ResourceConfig {
     }
 
     void registerExceptionMappers() {
-        // TODO: Snakke gjennom disse og om de fra felles er bra nok.
+        // Behold lokale pga annet respons-body-objekt enn interne apps
+        // Skal forbedre oppsett av sikkerlogging her
+        FeilUtils.setSikkerlogg(SECURE_LOG);
         register(LokalRestExceptionMapper.class);
         register(ConstraintViolationMapper.class);
     }

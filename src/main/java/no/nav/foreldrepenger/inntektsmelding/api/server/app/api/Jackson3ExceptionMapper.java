@@ -1,30 +1,27 @@
-package no.nav.foreldrepenger.inntektsmelding.api.server.app.api.jackson;
+package no.nav.foreldrepenger.inntektsmelding.api.server.app.api;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.server.rest.FeilUtils;
-import tools.jackson.databind.DatabindException;
+import tools.jackson.core.JacksonException;
 
-public class DatabindExceptionMapper implements ExceptionMapper<DatabindException> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DatabindExceptionMapper.class);
+public class Jackson3ExceptionMapper implements ExceptionMapper<JacksonException> {
 
     @Override
-    public Response toResponse(DatabindException exception) {
+    public Response toResponse(JacksonException exception) {
         FeilUtils.ensureCallId();
-        LOG.warn("FIM-252294: JSON-mapping feil: {}", exception.getMessage());
+        var feilmelding = LoggerUtils.removeLineBreaks(exception.getMessage());
+        FeilUtils.loggWarning("FIM-252294: JSON-feil: " + feilmelding);
 
         return Response.status(Response.Status.BAD_REQUEST)
             .entity(new ErrorResponse(
                 EksponertFeilmelding.SERIALISERINGSFEIL.name(),
-                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + exception.getMessage(),
+                EksponertFeilmelding.SERIALISERINGSFEIL.getTekst() + ": " + feilmelding,
                 null))
             .type(MediaType.APPLICATION_JSON)
             .build();
