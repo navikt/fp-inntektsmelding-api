@@ -41,22 +41,6 @@
                 <artifactId>inntektsmelding-kontrakt</artifactId>
                 <version>0.1.6</version>
             </dependency>
-            <!-- Swagger starter-->
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-jaxrs2-jakarta</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-annotations-jakarta</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-core-jakarta</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
