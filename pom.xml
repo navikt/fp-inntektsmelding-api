@@ -18,7 +18,6 @@
         <sonar.projectName>fp-inntektsmelding-api</sonar.projectName>
         <sonar.projectKey>navikt_fp-inntektsmelding-api</sonar.projectKey>
         <felles.version>7.8.1</felles.version>
-        <swagger.version>2.2.49</swagger.version>
     </properties>
 
     <dependencyManagement>
