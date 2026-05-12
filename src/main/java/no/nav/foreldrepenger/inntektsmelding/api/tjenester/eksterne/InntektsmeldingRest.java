@@ -27,6 +27,8 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse
 
 import no.nav.foreldrepenger.inntektsmelding.felles.FeilkodeDto;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +51,7 @@ public class InntektsmeldingRest {
     private static final String HENT_INNTEKTSMELDINGER = "/hent/inntektsmeldinger";
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
     private Tilgang tilgang;
+    private boolean erProd;
 
     InntektsmeldingRest() {
         // for CDI proxy
@@ -58,6 +61,7 @@ public class InntektsmeldingRest {
     public InntektsmeldingRest(FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste, Tilgang tilgang) {
         this.fpinntektsmeldingTjeneste = fpinntektsmeldingTjeneste;
         this.tilgang = tilgang;
+        erProd = Environment.current().isProd();
     }
 
     @POST
@@ -82,6 +86,10 @@ public class InntektsmeldingRest {
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
+        if (erProd) {
+            LOG.warn("Mottok forespørsel i prod, avviser med 503.");
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         var forespørselUuid = inntektsmeldingRequest.forespoerselId();
         LOG.info("Mottatt inntektsmelding for forespørselUuid {} ", forespørselUuid);
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
@@ -157,6 +165,10 @@ public class InntektsmeldingRest {
                                         @Parameter(description = "UUID til inntektsmeldingen (inntektsmeldingId)")
                                         @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format")
                                         String inntektsmeldingId) {
+        if (erProd) {
+            LOG.warn("Mottok forespørsel i prod, avviser med 503.");
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         LOG.info("Hent inntektsmelding med inntektsmeldingId {} ", inntektsmeldingId);
         var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(UUID.fromString(inntektsmeldingId));
 
@@ -191,6 +203,11 @@ public class InntektsmeldingRest {
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
+        if (erProd) {
+            LOG.warn("Mottok forespørsel i prod, avviser med 503.");
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+
+        }
         LOG.info("Innkomende kall på søk etter inntektsmeldinger");
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmeldingFilter.orgnr()));
         if (inntektsmeldingFilter.inntektsmeldingId() != null) {
