@@ -91,7 +91,7 @@ public class InntektsmeldingRest {
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         var forespørselUuid = inntektsmeldingRequest.forespoerselId();
-        LOG.info("Mottatt inntektsmelding for forespørselUuid {} ", forespørselUuid);
+        LOG.info("Mottatt inntektsmeldling for forespørselUuid {} ", forespørselUuid);
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
 
         if (forespørsel == null) {
@@ -166,7 +166,7 @@ public class InntektsmeldingRest {
                                         @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format")
                                         String inntektsmeldingId) {
         if (erProd) {
-            LOG.warn("Mottok forespørsel i prod, avviser med 503.");
+            LOG.warn("Mottok inntektsmeldling i prod, avviser med 503.");
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         LOG.info("Hent inntektsmelding med inntektsmeldingId {} ", inntektsmeldingId);
@@ -204,7 +204,7 @@ public class InntektsmeldingRest {
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
         if (erProd) {
-            LOG.warn("Mottok forespørsel i prod, avviser med 503.");
+            LOG.warn("Mottok inntektsmeldling i prod, avviser med 503.");
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
 
         }
@@ -247,6 +247,3 @@ public class InntektsmeldingRest {
         return filterRequest.fom() != null && filterRequest.tom() != null && filterRequest.fom().isAfter(filterRequest.tom());
     }
 }
-
-
-

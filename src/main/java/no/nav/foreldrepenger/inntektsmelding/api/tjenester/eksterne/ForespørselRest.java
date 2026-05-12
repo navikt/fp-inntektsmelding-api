@@ -82,7 +82,7 @@ public class ForespørselRest {
                                     @Parameter(description = "UUID til forespørselen")
                                     @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespoerselId) {
         if (erProd) {
-            LOG.warn("Mottok forespørsel i prod, avviser med 503.");
+            LOG.warn("Mottok inntektsmeldling i prod, avviser med 503.");
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         LOG.info("Innkomende kall på hent forespørsel {}", forespoerselId);
@@ -117,7 +117,7 @@ public class ForespørselRest {
         content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
         if (erProd) {
-            LOG.warn("Mottok forespørsel i prod, avviser med 503.");
+            LOG.warn("Mottok inntektsmeldling i prod, avviser med 503.");
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         LOG.info("Innkomende kall på søk etter forespørsler");
