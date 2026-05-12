@@ -16,12 +16,16 @@ on:
 
 jobs:
   deploy:
-    name: Deploy dev
+    name: Deploy
     permissions:
+      contents: write
       id-token: write
-    uses: navikt/fp-gha-workflows/.github/workflows/deploy.yml@main
+    uses: navikt/sif-gha-workflows/.github/workflows/maven-deploy.yml@main
     with:
       gar: true
       image: ${{ inputs.image }}
       cluster: ${{ inputs.environment }}-gcp
+      naiserator_file: .deploy/naiserator.yaml
+      input_vars_file: .deploy/${{ inputs.environment }}-gcp.json
+      namespace: k9saksbehandling
     secrets: inherit

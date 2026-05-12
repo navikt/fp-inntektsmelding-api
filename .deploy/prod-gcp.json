@@ -1,0 +1,15 @@
+{
+  "environment": "prod",
+  "minReplicas": "2",
+  "maxReplicas": "6",
+  "limits": {
+    "mem": "1000Mi"
+  },
+  "requests": {
+    "cpu": "100m",
+    "mem": "800Mi"
+  },
+  "ingresses": [
+    "https://k9-inntektsmelding-api.nav.no"
+  ]
+}

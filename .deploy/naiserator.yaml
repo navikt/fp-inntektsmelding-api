@@ -1,10 +1,10 @@
 kind: Application
 apiVersion: nais.io/v1alpha1
 metadata:
-  name: fpinntektsmelding-api
-  namespace: teamforeldrepenger
+  name: k9-inntektsmelding-api
+  namespace: k9saksbehandling
   labels:
-    team: teamforeldrepenger
+    team: k9saksbehandling
 spec:
   image: {{image}}
   port: 8080
@@ -60,20 +60,20 @@ spec:
           enabled: true
           product: inntektsmelding
           separator: "/"
-          name: foreldrepenger
+          name: k9
       consumes:
         - name: "altinn:authorization/authorize"
   azure:
     application:
       enabled: true
   envFrom:
-    - secret: fpinntektsmelding-api
+    - secret: k9-inntektsmelding-api
   accessPolicy:
     outbound:
       rules:
         - application: logging
           namespace: nais-system
-        - application: fpinntektsmelding
+        - application: k9-inntektsmelding
       external:
       {{#if devOnly}}
         - host: platform.tt02.altinn.no
