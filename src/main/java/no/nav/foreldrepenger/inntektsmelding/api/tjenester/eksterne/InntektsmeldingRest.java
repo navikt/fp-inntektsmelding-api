@@ -87,7 +87,7 @@ public class InntektsmeldingRest {
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         if (erProd) {
-            LOG.warn("Mottok forespørsel i prod, avviser med 503.");
+            LOG.warn("Mottok inntektsmeldling i prod, avviser med 503.");
             return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         var forespørselUuid = inntektsmeldingRequest.forespoerselId();
