@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.KildesystemDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;

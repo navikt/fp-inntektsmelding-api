@@ -42,7 +42,7 @@ public class PdpKlient {
         return inst;
     }
 
-    public boolean systemHarRettighetForOrganisasjon(String systembrukerId, String orgnummer, String ressurs) throws Exception {
+    public boolean systemHarRettighetForOrganisasjon(String systembrukerId, String orgnummer, String ressurs) throws PdpClientException {
         return pdpKall(new System(systembrukerId, "urn:altinn:systemuser:uuid"), orgnummer, ressurs).harTilgang();
     }
 
