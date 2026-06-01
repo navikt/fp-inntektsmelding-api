@@ -111,7 +111,7 @@ class InntektsmeldingRequestSerializationTest {
         var json = DefaultJsonMapper.toJson(request);
 
         // Assert
-        assertThat(json).contains("\"naturalytelse\":\"ELEKTRISK_KOMMUNIKASJON\"");
+        assertThat(json).contains("\"naturalytelse\":\"ELEKTRONISK_KOMMUNIKASJON\"");
     }
 
     @Test
