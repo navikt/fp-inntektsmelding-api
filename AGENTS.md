@@ -7,25 +7,28 @@ and the **TeamForeldrepenger** Copilot Space.
 
 Lives in [fp-autotest](https://github.com/navikt/fp-autotest).
 
-**Suites covering fp-sak:** `fpsak`, `verdikjede`
+fp-inntektsmelding-api is part of the deployed stack used by the `verdikjede`
+and `fpsak` suites. Inntektsmeldinger are submitted through this API as part
+of end-to-end tests for foreldrepenger and svangerskapspenger flows.
 
 ```bash
 cd ~/git/fp-autotest
-mvn test -P fpsak                    # full suite
-mvn test -P fpsak -Dtest=Fodsel      # single class
-mvn test -P verdikjede               # end-to-end
+mvn test -P verdikjede               # end-to-end (uses fp-inntektsmelding-api)
+mvn test -P fpsak -Dtest=Fodsel      # single fpsak class (submits IM via API)
 ```
-
-Test catalog and aksjonspunkt mapping are maintained in fp-autotest
-(`TEST_CATALOG.md`, `AKSJONSPUNKT_MAPPING.md`) — do not duplicate here.
 
 ## Local build for autotest
 
-| Item | Value                        |
-|---|------------------------------|
-| Docker tag | `fpinntektsmelding-api`      |
-| .env var | `FPINTEKTSMELDING_API_IMAGE` |
-| Compose service | `fpinntektsmelding`          |
+| Item | Value |
+|---|---|
+| Docker image env var | `FPINNTEKTSMELDINGAPI_IMAGE` |
+| Compose service | `fpinntektsmeldingapi` |
+| Container name | `fpinntektsmelding-api` |
 
-Use the `run-integration-tests` skill in fp-autotest for the full
-build → deploy → test loop.
+Build and deploy locally:
+
+```bash
+mvn package -DskipTests
+docker build -t fp-inntektsmelding-api .
+# Update FPINNTEKTSMELDINGAPI_IMAGE in fp-autotest pipeline/.env to local tag
+```
