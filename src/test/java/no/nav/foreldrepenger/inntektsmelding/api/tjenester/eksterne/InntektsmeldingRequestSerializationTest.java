@@ -62,15 +62,15 @@ class InntektsmeldingRequestSerializationTest {
         var refusjon = new InntektsmeldingRequest.Refusjon( BigDecimal.valueOf(25000.00), List.of());
         var bortfaltNaturalytelse = List.of(
             new InntektsmeldingRequest.Naturalytelse(
-                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
+                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRONISK_KOMMUNIKASJON,
                 BigDecimal.valueOf(500.00),
                 LocalDate.of(2024, 2, 1),
                 LocalDate.of(2024, 2, 28)
             )
         );
         var endringsårsaker = List.of(
-            new InntektsmeldingRequest.InntektInfo.Endringsårsak(
-                InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMISJON,
+            new InntektsmeldingRequest.InntektInfo.Endringsaarsak(
+                InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON,
                 LocalDate.of(2024, 3, 1),
                 LocalDate.of(2024, 3, 15),
                 LocalDate.of(2024, 2, 15)
@@ -150,15 +150,15 @@ class InntektsmeldingRequestSerializationTest {
             "12345678901",
             LocalDate.of(2024, 1, 15),
             YtelseType.FORELDREPENGER,
-            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of(new InntektsmeldingRequest.InntektInfo.Endringsårsak(
-                InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMISJON,
+            new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of(new InntektsmeldingRequest.InntektInfo.Endringsaarsak(
+                InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON,
                 LocalDate.of(2024, 3, 1),
                 LocalDate.of(2024, 3, 15),
                 LocalDate.of(2024, 2, 15)
             ))),
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(new InntektsmeldingRequest.Naturalytelse(
-                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON,
+                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRONISK_KOMMUNIKASJON,
                     BigDecimal.valueOf(500),
                     LocalDate.of(2024, 2, 1),
                     null)),

@@ -119,14 +119,14 @@ public class InntektsmeldingValidererUtil {
     }
 
 
-    public static Optional<EksponertFeilmelding> validerEndringsårsaker(List<InntektsmeldingRequest.InntektInfo.Endringsårsak> endringsårsaker,
+    public static Optional<EksponertFeilmelding> validerEndringsårsaker(List<InntektsmeldingRequest.InntektInfo.Endringsaarsak> endringsårsaker,
                                                                         LocalDate startdato) {
         // Todo Tariffendring skal kun være tilgjengelig dersom man endrer en IM, ikke for førstegangs-innsendelse
         if (endringsårsaker == null) {
             return Optional.empty();
         }
 
-        var unikeÅrsakerListe = endringsårsaker.stream().map(InntektsmeldingRequest.InntektInfo.Endringsårsak::aarsak)
+        var unikeÅrsakerListe = endringsårsaker.stream().map(InntektsmeldingRequest.InntektInfo.Endringsaarsak::aarsak)
             .filter(InntektsmeldingValidererUtil::skalÅrsakVæreUnik)
             .toList();
 
@@ -137,7 +137,7 @@ public class InntektsmeldingValidererUtil {
         }
 
         var feilmeldingTariffendring = endringsårsaker.stream()
-            .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.TARIFFENDRING)
+            .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.TARIFFENDRING)
             .findFirst()
             .flatMap(InntektsmeldingValidererUtil::valideringTariffendring);
         if (feilmeldingTariffendring.isPresent()) {
@@ -150,9 +150,9 @@ public class InntektsmeldingValidererUtil {
         }
 
         var varigLønnsendringFraDato = endringsårsaker.stream()
-            .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.VARIG_LØNNSENDRING)
+            .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.VARIG_LOENNSENDRING)
             .findFirst()
-            .map(InntektsmeldingRequest.InntektInfo.Endringsårsak::fom);
+            .map(InntektsmeldingRequest.InntektInfo.Endringsaarsak::fom);
 
         if (varigLønnsendringFraDato.isPresent() && !varigLønnsendringFraDato.get().isBefore(startdato)) {
             LOG.info("Endringsårsak varig lønnsendring har ugyldig dato. Fra dato {} må være før fraværsdato {}",
@@ -177,8 +177,8 @@ public class InntektsmeldingValidererUtil {
             }
 
             if (finnesOverlapp(årsakerSomKreverFomOgTomDato,
-                InntektsmeldingRequest.InntektInfo.Endringsårsak::fom,
-                InntektsmeldingRequest.InntektInfo.Endringsårsak::tom)) {
+                InntektsmeldingRequest.InntektInfo.Endringsaarsak::fom,
+                InntektsmeldingRequest.InntektInfo.Endringsaarsak::tom)) {
                 LOG.info("Endringsårsak har overlappende perioder");
                 return Optional.of(EksponertFeilmelding.OVERLAPP_I_PERIODER);
             }
@@ -186,16 +186,16 @@ public class InntektsmeldingValidererUtil {
         return Optional.empty();
     }
 
-    private static Optional<EksponertFeilmelding> valideringTariffendring(InntektsmeldingRequest.InntektInfo.Endringsårsak endringsårsak) {
-        if (endringsårsak != null) {
-            if (endringsårsak.fom() == null || endringsårsak.gjelderFra() == null) {
+    private static Optional<EksponertFeilmelding> valideringTariffendring(InntektsmeldingRequest.InntektInfo.Endringsaarsak endringsaarsak) {
+        if (endringsaarsak != null) {
+            if (endringsaarsak.fom() == null || endringsaarsak.gjelderFra() == null) {
                 LOG.info("Endringsårsak tariffendring mangler fra dato eller ble gjelder fra dato");
                 return Optional.of(EksponertFeilmelding.KREVER_FRA_OG_BLE_KJENT_DATO);
             }
-            if (endringsårsak.gjelderFra().isBefore(endringsårsak.fom())) {
+            if (endringsaarsak.gjelderFra().isBefore(endringsaarsak.fom())) {
                 LOG.info("Endringsårsak tariffendring har ugyldig dato. Gjelder fra dato {} er før fra dato {}",
-                    endringsårsak.gjelderFra(),
-                    endringsårsak.fom());
+                    endringsaarsak.gjelderFra(),
+                    endringsaarsak.fom());
                 return Optional.of(EksponertFeilmelding.KREVER_FRA_OG_BLE_KJENT_DATO);
             }
         }
@@ -243,23 +243,23 @@ public class InntektsmeldingValidererUtil {
         return false;
     }
 
-    private static boolean kreverFomDato(InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType årsakType) {
-        return InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.NY_STILLING == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.NY_STILLINGSPROSENT == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.VARIG_LØNNSENDRING == årsakType;
+    private static boolean kreverFomDato(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType årsakType) {
+        return InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.NY_STILLING == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.NY_STILLINGSPROSENT == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.VARIG_LOENNSENDRING == årsakType;
     }
 
-    private static boolean kreverFomOgTomDato(InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType årsakType) {
-        return InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.FERIE == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMISJON == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMITTERING == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.SYKEFRAVÆR == årsakType;
+    private static boolean kreverFomOgTomDato(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType årsakType) {
+        return InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.FERIE == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMITTERING == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.SYKEFRAVAER == årsakType;
     }
 
-    private static boolean skalÅrsakVæreUnik(InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType årsakType) {
-        return !(InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.FERIE == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMISJON == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.PERMITTERING == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType.SYKEFRAVÆR == årsakType);
+    private static boolean skalÅrsakVæreUnik(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType årsakType) {
+        return !(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.FERIE == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMITTERING == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.SYKEFRAVAER == årsakType);
     }
 }
