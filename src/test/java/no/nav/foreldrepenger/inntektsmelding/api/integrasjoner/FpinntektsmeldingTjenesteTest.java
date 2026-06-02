@@ -136,7 +136,7 @@ class FpinntektsmeldingTjenesteTest {
         var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
             LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
         var bortfaltNaturalytelse = new InntektsmeldingRequest.Naturalytelse(
-            InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRONISKKOMMUNIKASJON,
+            InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ElektroniskKommunikasjon,
             BigDecimal.valueOf(500.00),
             LocalDate.now(),
             LocalDate.now().plusDays(10)

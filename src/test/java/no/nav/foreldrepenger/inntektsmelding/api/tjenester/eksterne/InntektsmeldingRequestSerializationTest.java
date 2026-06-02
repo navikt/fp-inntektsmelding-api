@@ -62,7 +62,7 @@ class InntektsmeldingRequestSerializationTest {
         var refusjon = new InntektsmeldingRequest.Refusjon( BigDecimal.valueOf(25000.00), List.of());
         var bortfaltNaturalytelse = List.of(
             new InntektsmeldingRequest.Naturalytelse(
-                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRONISKKOMMUNIKASJON,
+                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ElektroniskKommunikasjon,
                 BigDecimal.valueOf(500.00),
                 LocalDate.of(2024, 2, 1),
                 LocalDate.of(2024, 2, 28)
@@ -111,7 +111,7 @@ class InntektsmeldingRequestSerializationTest {
         var json = DefaultJsonMapper.toJson(request);
 
         // Assert
-        assertThat(json).contains("\"naturalytelse\":\"ELEKTRONISKKOMMUNIKASJON\"");
+        assertThat(json).contains("\"naturalytelse\":\"ElektroniskKommunikasjon\"");
     }
 
     @Test
@@ -158,7 +158,7 @@ class InntektsmeldingRequestSerializationTest {
             ))),
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(new InntektsmeldingRequest.Naturalytelse(
-                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRONISKKOMMUNIKASJON,
+                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ElektroniskKommunikasjon,
                     BigDecimal.valueOf(500),
                     LocalDate.of(2024, 2, 1),
                     null)),
