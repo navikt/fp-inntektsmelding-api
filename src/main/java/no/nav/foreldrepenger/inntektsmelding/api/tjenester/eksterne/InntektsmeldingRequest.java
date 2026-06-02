@@ -35,19 +35,19 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
                                      LocalDate tom,
                                      LocalDate gjelderFra) {
             public enum EndringsaarsakType {
-                PERMITTERING,
-                NY_STILLING,
-                NY_STILLINGSPROSENT,
-                SYKEFRAVAER,
-                BONUS,
-                FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER,
-                NYANSATT,
-                MANGELFULL_RAPPORTERING_AORDNING,
-                INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING,
-                TARIFFENDRING,
-                FERIE,
-                VARIG_LOENNSENDRING,
-                PERMISJON
+                Permittering,
+                NyStilling,
+                NyStillingsprosent,
+                Sykefravaer,
+                Bonus,
+                Ferietrekk,
+                Nyansatt,
+                MangelfullRapporteringAordning,
+                InntektIkkeRapportertEndaAordning,
+                Tariffendring,
+                Ferie,
+                VarigLoennsendring,
+                Permisjon
             }
         }
     }
@@ -64,25 +64,25 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
                                 @NotNull LocalDate bortfallerFra,
                                 LocalDate bortfallerTil) {
         public enum Naturalytelsetype {
-            ELEKTRONISK_KOMMUNIKASJON,
-            AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
+            ELEKTRONISKKOMMUNIKASJON,
+            AKSJERGRUNNFONDSBEVISTILUNDERKURS,
             LOSJI,
-            KOST_DOEGN,
-            BESOEKSREISER_HJEMMET_ANNET,
-            KOSTBESPARELSE_I_HJEMMET,
-            RENTEFORDEL_LAAN,
+            KOSTDOEGN,
+            BESOEKSREISERHJEMMETANNET,
+            KOSTBESPARELSEIHJEMMET,
+            RENTEFORDELLAAN,
             BIL,
-            KOST_DAGER,
+            KOSTDAGER,
             BOLIG,
-            SKATTEPLIKTIG_DEL_FORSIKRINGER,
-            FRI_TRANSPORT,
+            SKATTEPLIKTIGDELFORSIKRINGER,
+            FRITRANSPORT,
             OPSJONER,
-            TILSKUDD_BARNEHAGEPLASS,
+            TILSKUDDBARNEHAGEPLASS,
             ANNET,
             BEDRIFTSBARNEHAGEPLASS,
-            YRKEBIL_TJENESTLIGBEHOV_KILOMETER,
-            YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS,
-            INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING
+            YRKEBILTJENESTLIGBEHOVKILOMETER,
+            YRKEBILTJENESTLIGBEHOVLISTEPRIS,
+            INNBETALINGTILUTENLANDSKPENSJONSORDNING
             }
 
     }
