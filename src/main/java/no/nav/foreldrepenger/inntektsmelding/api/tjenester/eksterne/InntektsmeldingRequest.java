@@ -29,16 +29,16 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
                                      @NotNull @Valid Avsender avsender) {
 
 
-    public record InntektInfo(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull List<Endringsårsak> endringAarsaker) {
-        public record Endringsårsak(@Valid EndringsårsakType aarsak,
-                                    LocalDate fom,
-                                    LocalDate tom,
-                                    LocalDate gjelderFra) {
-            public enum EndringsårsakType {
+    public record InntektInfo(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull List<Endringsaarsak> endringAarsaker) {
+        public record Endringsaarsak(@Valid InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType aarsak,
+                                     LocalDate fom,
+                                     LocalDate tom,
+                                     LocalDate gjelderFra) {
+            public enum EndringsaarsakType {
                 PERMITTERING,
                 NY_STILLING,
                 NY_STILLINGSPROSENT,
-                SYKEFRAVÆR,
+                SYKEFRAVAER,
                 BONUS,
                 FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER,
                 NYANSATT,
@@ -46,7 +46,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
                 INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING,
                 TARIFFENDRING,
                 FERIE,
-                VARIG_LØNNSENDRING,
+                VARIG_LOENNSENDRING,
                 PERMISJON
             }
         }
@@ -64,13 +64,13 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
                                 @NotNull LocalDate bortfallerFra,
                                 LocalDate bortfallerTil) {
         public enum Naturalytelsetype {
-            ELEKTRISK_KOMMUNIKASJON,
+            ELEKTRONISK_KOMMUNIKASJON,
             AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
             LOSJI,
             KOST_DOEGN,
-            BESØKSREISER_HJEMMET_ANNET,
+            BESOEKSREISER_HJEMMET_ANNET,
             KOSTBESPARELSE_I_HJEMMET,
-            RENTEFORDEL_LÅN,
+            RENTEFORDEL_LAAN,
             BIL,
             KOST_DAGER,
             BOLIG,

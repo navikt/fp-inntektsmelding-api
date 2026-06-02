@@ -186,18 +186,18 @@ public class FpinntektsmeldingTjeneste {
         return fpinntektsmeldingKlient.sendInntektsmelding(inntektsmeldingRequestDto);
     }
 
-    private List<EndringsårsakerDto> mapEndringsårsakerDto(List<InntektsmeldingRequest.InntektInfo.Endringsårsak> endringsårsak) {
-        return endringsårsak.stream()
+    private List<EndringsårsakerDto> mapEndringsårsakerDto(List<InntektsmeldingRequest.InntektInfo.Endringsaarsak> endringsaarsak) {
+        return endringsaarsak.stream()
             .map(e -> new EndringsårsakerDto(mapÅrsakType(e.aarsak()), e.fom(), e.tom(), e.gjelderFra()))
             .toList();
     }
 
-    private EndringsårsakDto mapÅrsakType(InntektsmeldingRequest.InntektInfo.Endringsårsak.EndringsårsakType årsakType) {
+    private EndringsårsakDto mapÅrsakType(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType årsakType) {
         return switch (årsakType) {
             case PERMITTERING -> EndringsårsakDto.PERMITTERING;
             case NY_STILLING -> EndringsårsakDto.NY_STILLING;
             case NY_STILLINGSPROSENT -> EndringsårsakDto.NY_STILLINGSPROSENT;
-            case SYKEFRAVÆR -> EndringsårsakDto.SYKEFRAVÆR;
+            case SYKEFRAVAER -> EndringsårsakDto.SYKEFRAVÆR;
             case BONUS -> EndringsårsakDto.BONUS;
             case FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER -> EndringsårsakDto.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
             case NYANSATT -> EndringsårsakDto.NYANSATT;
@@ -205,7 +205,7 @@ public class FpinntektsmeldingTjeneste {
             case INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING -> EndringsårsakDto.INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING;
             case TARIFFENDRING -> EndringsårsakDto.TARIFFENDRING;
             case FERIE -> EndringsårsakDto.FERIE;
-            case VARIG_LØNNSENDRING -> EndringsårsakDto.VARIG_LØNNSENDRING;
+            case VARIG_LOENNSENDRING -> EndringsårsakDto.VARIG_LØNNSENDRING;
             case PERMISJON -> EndringsårsakDto.PERMISJON;
         };
     }
@@ -219,13 +219,13 @@ public class FpinntektsmeldingTjeneste {
 
     private NaturalytelsetypeDto mapNaturalYtelseType(InntektsmeldingRequest.Naturalytelse.Naturalytelsetype naturalytelsetype) {
         return switch (naturalytelsetype) {
-            case ELEKTRISK_KOMMUNIKASJON -> NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON;
+            case ELEKTRONISK_KOMMUNIKASJON -> NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON;
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> NaturalytelsetypeDto.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
             case LOSJI -> NaturalytelsetypeDto.LOSJI;
             case KOST_DOEGN -> NaturalytelsetypeDto.KOST_DOEGN;
-            case BESØKSREISER_HJEMMET_ANNET -> NaturalytelsetypeDto.BESØKSREISER_HJEMMET_ANNET;
+            case BESOEKSREISER_HJEMMET_ANNET -> NaturalytelsetypeDto.BESØKSREISER_HJEMMET_ANNET;
             case KOSTBESPARELSE_I_HJEMMET -> NaturalytelsetypeDto.KOSTBESPARELSE_I_HJEMMET;
-            case RENTEFORDEL_LÅN -> NaturalytelsetypeDto.RENTEFORDEL_LÅN;
+            case RENTEFORDEL_LAAN -> NaturalytelsetypeDto.RENTEFORDEL_LÅN;
             case BIL -> NaturalytelsetypeDto.BIL;
             case KOST_DAGER -> NaturalytelsetypeDto.KOST_DAGER;
             case BOLIG -> NaturalytelsetypeDto.BOLIG;
