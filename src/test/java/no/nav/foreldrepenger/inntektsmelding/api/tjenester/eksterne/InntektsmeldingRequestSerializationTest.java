@@ -103,7 +103,7 @@ class InntektsmeldingRequestSerializationTest {
     }
 
     @Test
-    void skal_serialisere_naturaltelse_typer() {
+    void skal_serialisere_naturalytelse_typer() {
         // Arrange
         var request = lagTestRequest();
 
