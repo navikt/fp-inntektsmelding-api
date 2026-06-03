@@ -35,19 +35,19 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
                                      LocalDate tom,
                                      LocalDate gjelderFra) {
             public enum EndringsaarsakType {
-                Permittering,
+                Bonus,
+                Ferie,
+                Ferietrekk,
+                InntektIkkeRapportertEndaAordning,
+                MangelfullRapporteringAordning,
+                Nyansatt,
                 NyStilling,
                 NyStillingsprosent,
+                Permisjon,
+                Permittering,
                 Sykefravaer,
-                Bonus,
-                Ferietrekk,
-                Nyansatt,
-                MangelfullRapporteringAordning,
-                InntektIkkeRapportertEndaAordning,
                 Tariffendring,
-                Ferie,
-                VarigLoennsendring,
-                Permisjon
+                VarigLoennsendring
             }
         }
     }
@@ -64,25 +64,25 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
                                 @NotNull LocalDate bortfallerFra,
                                 LocalDate bortfallerTil) {
         public enum Naturalytelsetype {
-            ElektroniskKommunikasjon,
             AksjerGrunnfondsbevisTilUnderkurs,
-            Losji,
-            KostDoegn,
-            BesoeksreiserHjemmetAnnet,
-            KostbesparelseIHjemmet,
-            RentefordelLaan,
-            Bil,
-            KostDager,
-            Bolig,
-            SkattepliktigDelForsikringer,
-            FriTransport,
-            Opsjoner,
-            TilskuddBarnehageplass,
             Annet,
             Bedriftsbarnehageplass,
+            BesoeksreiserHjemmetAnnet,
+            Bil,
+            Bolig,
+            ElektroniskKommunikasjon,
+            FriTransport,
+            InnbetalingTilUtenlandskPensjonsordning,
+            KostDager,
+            KostDoegn,
+            KostbesparelseIHjemmet,
+            Losji,
+            Opsjoner,
+            RentefordelLaan,
+            SkattepliktigDelForsikringer,
+            TilskuddBarnehageplass,
             YrkebilTjenestligbehovKilometer,
-            YrkebilTjenestligbehovListepris,
-            InnbetalingTilUtenlandskPensjonsordning
+            YrkebilTjenestligbehovListepris
             }
 
     }
