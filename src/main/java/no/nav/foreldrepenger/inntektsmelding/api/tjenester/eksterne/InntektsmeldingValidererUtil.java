@@ -137,7 +137,7 @@ public class InntektsmeldingValidererUtil {
         }
 
         var feilmeldingTariffendring = endringsårsaker.stream()
-            .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.TARIFFENDRING)
+            .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring)
             .findFirst()
             .flatMap(InntektsmeldingValidererUtil::valideringTariffendring);
         if (feilmeldingTariffendring.isPresent()) {
@@ -150,7 +150,7 @@ public class InntektsmeldingValidererUtil {
         }
 
         var varigLønnsendringFraDato = endringsårsaker.stream()
-            .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.VARIG_LOENNSENDRING)
+            .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.VarigLoennsendring)
             .findFirst()
             .map(InntektsmeldingRequest.InntektInfo.Endringsaarsak::fom);
 
@@ -244,22 +244,22 @@ public class InntektsmeldingValidererUtil {
     }
 
     private static boolean kreverFomDato(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType årsakType) {
-        return InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.NY_STILLING == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.NY_STILLINGSPROSENT == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.VARIG_LOENNSENDRING == årsakType;
+        return InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.NyStilling == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.NyStillingsprosent == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.VarigLoennsendring == årsakType;
     }
 
     private static boolean kreverFomOgTomDato(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType årsakType) {
-        return InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.FERIE == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMITTERING == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.SYKEFRAVAER == årsakType;
+        return InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Ferie == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Permisjon == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Permittering == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Sykefravaer == årsakType;
     }
 
     private static boolean skalÅrsakVæreUnik(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType årsakType) {
-        return !(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.FERIE == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMITTERING == årsakType
-            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.SYKEFRAVAER == årsakType);
+        return !(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Ferie == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Permisjon == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Permittering == årsakType
+            || InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Sykefravaer == årsakType);
     }
 }

@@ -136,7 +136,7 @@ class FpinntektsmeldingTjenesteTest {
         var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
             LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
         var bortfaltNaturalytelse = new InntektsmeldingRequest.Naturalytelse(
-            InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRONISK_KOMMUNIKASJON,
+            InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ElektroniskKommunikasjon,
             BigDecimal.valueOf(500.00),
             LocalDate.now(),
             LocalDate.now().plusDays(10)
@@ -169,7 +169,7 @@ class FpinntektsmeldingTjenesteTest {
         var forespørsel = new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
             LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
         var endringsårsak = new InntektsmeldingRequest.InntektInfo.Endringsaarsak(
-            InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON,
+            InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Permisjon,
             LocalDate.now(),
             LocalDate.now().plusDays(5),
             LocalDate.now().minusDays(1)

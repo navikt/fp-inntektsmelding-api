@@ -28,7 +28,7 @@ class InntektsmeldingRequestSerializationTest {
         assertThat(json)
             .contains("\"kontaktinformasjon\":{\"arbeidsgiverNavn\":\"Test Kontaktperson\",\"arbeidsgiverTlf\":\"12345678\"}")
             .contains("\"ytelse\":\"FORELDREPENGER\"")
-            .contains("\"inntekt\":{\"beloepPerMaaned\":25000.0,\"endringAarsaker\":[{\"aarsak\":\"PERMISJON\",\"fom\":\"2024-03-01\",\"tom\":\"2024-03-15\",\"gjelderFra\":\"2024-02-15\"}]}");
+            .contains("\"inntekt\":{\"beloepPerMaaned\":25000.0,\"endringAarsaker\":[{\"aarsak\":\"Permisjon\",\"fom\":\"2024-03-01\",\"tom\":\"2024-03-15\",\"gjelderFra\":\"2024-02-15\"}]}");
     }
 
     @Test
@@ -62,7 +62,7 @@ class InntektsmeldingRequestSerializationTest {
         var refusjon = new InntektsmeldingRequest.Refusjon( BigDecimal.valueOf(25000.00), List.of());
         var bortfaltNaturalytelse = List.of(
             new InntektsmeldingRequest.Naturalytelse(
-                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRONISK_KOMMUNIKASJON,
+                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ElektroniskKommunikasjon,
                 BigDecimal.valueOf(500.00),
                 LocalDate.of(2024, 2, 1),
                 LocalDate.of(2024, 2, 28)
@@ -70,7 +70,7 @@ class InntektsmeldingRequestSerializationTest {
         );
         var endringsårsaker = List.of(
             new InntektsmeldingRequest.InntektInfo.Endringsaarsak(
-                InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON,
+                InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Permisjon,
                 LocalDate.of(2024, 3, 1),
                 LocalDate.of(2024, 3, 15),
                 LocalDate.of(2024, 2, 15)
@@ -103,7 +103,7 @@ class InntektsmeldingRequestSerializationTest {
     }
 
     @Test
-    void skal_serialisere_naturaltelse_typer() {
+    void skal_serialisere_naturalytelse_typer() {
         // Arrange
         var request = lagTestRequest();
 
@@ -111,7 +111,7 @@ class InntektsmeldingRequestSerializationTest {
         var json = DefaultJsonMapper.toJson(request);
 
         // Assert
-        assertThat(json).contains("\"naturalytelse\":\"ELEKTRONISK_KOMMUNIKASJON\"");
+        assertThat(json).contains("\"naturalytelse\":\"ElektroniskKommunikasjon\"");
     }
 
     @Test
@@ -123,7 +123,7 @@ class InntektsmeldingRequestSerializationTest {
         var json = DefaultJsonMapper.toJson(request);
 
         // Assert
-        assertThat(json).contains("\"aarsak\":\"PERMISJON\"");
+        assertThat(json).contains("\"aarsak\":\"Permisjon\"");
     }
 
     @Test
@@ -151,14 +151,14 @@ class InntektsmeldingRequestSerializationTest {
             LocalDate.of(2024, 1, 15),
             YtelseType.FORELDREPENGER,
             new InntektsmeldingRequest.InntektInfo(BigDecimal.valueOf(25000.00), List.of(new InntektsmeldingRequest.InntektInfo.Endringsaarsak(
-                InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.PERMISJON,
+                InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Permisjon,
                 LocalDate.of(2024, 3, 1),
                 LocalDate.of(2024, 3, 15),
                 LocalDate.of(2024, 2, 15)
             ))),
             new InntektsmeldingRequest.Refusjon(BigDecimal.valueOf(25000.00), List.of()),
             List.of(new InntektsmeldingRequest.Naturalytelse(
-                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ELEKTRONISK_KOMMUNIKASJON,
+                InntektsmeldingRequest.Naturalytelse.Naturalytelsetype.ElektroniskKommunikasjon,
                     BigDecimal.valueOf(500),
                     LocalDate.of(2024, 2, 1),
                     null)),

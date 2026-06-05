@@ -194,19 +194,19 @@ public class FpinntektsmeldingTjeneste {
 
     private EndringsårsakDto mapÅrsakType(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType årsakType) {
         return switch (årsakType) {
-            case PERMITTERING -> EndringsårsakDto.PERMITTERING;
-            case NY_STILLING -> EndringsårsakDto.NY_STILLING;
-            case NY_STILLINGSPROSENT -> EndringsårsakDto.NY_STILLINGSPROSENT;
-            case SYKEFRAVAER -> EndringsårsakDto.SYKEFRAVÆR;
-            case BONUS -> EndringsårsakDto.BONUS;
-            case FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER -> EndringsårsakDto.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
-            case NYANSATT -> EndringsårsakDto.NYANSATT;
-            case MANGELFULL_RAPPORTERING_AORDNING -> EndringsårsakDto.MANGELFULL_RAPPORTERING_AORDNING;
-            case INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING -> EndringsårsakDto.INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING;
-            case TARIFFENDRING -> EndringsårsakDto.TARIFFENDRING;
-            case FERIE -> EndringsårsakDto.FERIE;
-            case VARIG_LOENNSENDRING -> EndringsårsakDto.VARIG_LØNNSENDRING;
-            case PERMISJON -> EndringsårsakDto.PERMISJON;
+            case Permittering -> EndringsårsakDto.PERMITTERING;
+            case NyStilling -> EndringsårsakDto.NY_STILLING;
+            case NyStillingsprosent -> EndringsårsakDto.NY_STILLINGSPROSENT;
+            case Sykefravaer -> EndringsårsakDto.SYKEFRAVÆR;
+            case Bonus -> EndringsårsakDto.BONUS;
+            case Ferietrekk -> EndringsårsakDto.FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER;
+            case Nyansatt -> EndringsårsakDto.NYANSATT;
+            case MangelfullRapporteringAordning -> EndringsårsakDto.MANGELFULL_RAPPORTERING_AORDNING;
+            case InntektIkkeRapportertEndaAordning -> EndringsårsakDto.INNTEKT_IKKE_RAPPORTERT_ENDA_AORDNING;
+            case Tariffendring -> EndringsårsakDto.TARIFFENDRING;
+            case Ferie -> EndringsårsakDto.FERIE;
+            case VarigLoennsendring -> EndringsårsakDto.VARIG_LØNNSENDRING;
+            case Permisjon -> EndringsårsakDto.PERMISJON;
         };
     }
 
@@ -219,25 +219,25 @@ public class FpinntektsmeldingTjeneste {
 
     private NaturalytelsetypeDto mapNaturalYtelseType(InntektsmeldingRequest.Naturalytelse.Naturalytelsetype naturalytelsetype) {
         return switch (naturalytelsetype) {
-            case ELEKTRONISK_KOMMUNIKASJON -> NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON;
-            case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> NaturalytelsetypeDto.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
-            case LOSJI -> NaturalytelsetypeDto.LOSJI;
-            case KOST_DOEGN -> NaturalytelsetypeDto.KOST_DOEGN;
-            case BESOEKSREISER_HJEMMET_ANNET -> NaturalytelsetypeDto.BESØKSREISER_HJEMMET_ANNET;
-            case KOSTBESPARELSE_I_HJEMMET -> NaturalytelsetypeDto.KOSTBESPARELSE_I_HJEMMET;
-            case RENTEFORDEL_LAAN -> NaturalytelsetypeDto.RENTEFORDEL_LÅN;
-            case BIL -> NaturalytelsetypeDto.BIL;
-            case KOST_DAGER -> NaturalytelsetypeDto.KOST_DAGER;
-            case BOLIG -> NaturalytelsetypeDto.BOLIG;
-            case SKATTEPLIKTIG_DEL_FORSIKRINGER -> NaturalytelsetypeDto.SKATTEPLIKTIG_DEL_FORSIKRINGER;
-            case FRI_TRANSPORT -> NaturalytelsetypeDto.FRI_TRANSPORT;
-            case OPSJONER -> NaturalytelsetypeDto.OPSJONER;
-            case TILSKUDD_BARNEHAGEPLASS -> NaturalytelsetypeDto.TILSKUDD_BARNEHAGEPLASS;
-            case ANNET -> NaturalytelsetypeDto.ANNET;
-            case BEDRIFTSBARNEHAGEPLASS -> NaturalytelsetypeDto.BEDRIFTSBARNEHAGEPLASS;
-            case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
-            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
-            case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> NaturalytelsetypeDto.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
+            case ElektroniskKommunikasjon -> NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON;
+            case AksjerGrunnfondsbevisTilUnderkurs -> NaturalytelsetypeDto.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
+            case Losji -> NaturalytelsetypeDto.LOSJI;
+            case KostDoegn -> NaturalytelsetypeDto.KOST_DOEGN;
+            case BesoeksreiserHjemmetAnnet -> NaturalytelsetypeDto.BESØKSREISER_HJEMMET_ANNET;
+            case KostbesparelseIHjemmet -> NaturalytelsetypeDto.KOSTBESPARELSE_I_HJEMMET;
+            case RentefordelLaan -> NaturalytelsetypeDto.RENTEFORDEL_LÅN;
+            case Bil -> NaturalytelsetypeDto.BIL;
+            case KostDager -> NaturalytelsetypeDto.KOST_DAGER;
+            case Bolig -> NaturalytelsetypeDto.BOLIG;
+            case SkattepliktigDelForsikringer -> NaturalytelsetypeDto.SKATTEPLIKTIG_DEL_FORSIKRINGER;
+            case FriTransport -> NaturalytelsetypeDto.FRI_TRANSPORT;
+            case Opsjoner -> NaturalytelsetypeDto.OPSJONER;
+            case TilskuddBarnehageplass -> NaturalytelsetypeDto.TILSKUDD_BARNEHAGEPLASS;
+            case Annet -> NaturalytelsetypeDto.ANNET;
+            case Bedriftsbarnehageplass -> NaturalytelsetypeDto.BEDRIFTSBARNEHAGEPLASS;
+            case YrkebilTjenestligbehovKilometer -> NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
+            case YrkebilTjenestligbehovListepris -> NaturalytelsetypeDto.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
+            case InnbetalingTilUtenlandskPensjonsordning -> NaturalytelsetypeDto.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
         };
     }
 
