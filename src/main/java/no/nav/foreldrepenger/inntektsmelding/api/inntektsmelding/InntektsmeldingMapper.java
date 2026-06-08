@@ -30,7 +30,8 @@ public class InntektsmeldingMapper {
             inntektsmelding.innsendtTidspunkt(),
             avsendersystemDto,
             refusjon,
-            naturalytelser);
+            naturalytelser,
+            inntektsmelding.status());
     }
 
     private static List<InntektsmeldingDto.Naturalytelse> mapNaturalytelser(Inntektsmelding inntektsmelding) {

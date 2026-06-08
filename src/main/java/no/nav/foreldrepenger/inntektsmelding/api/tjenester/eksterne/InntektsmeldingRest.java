@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingDto;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.KodeverkMapper;
 
 import no.nav.foreldrepenger.inntektsmelding.felles.FeilkodeDto;
 

@@ -43,4 +43,13 @@ public class KodeverkMapper {
             case UTGÅTT -> ForespørselStatus.UTGÅTT;
         };
     }
+
+    public static InntektsmeldingStatusDto mapInntektsmeldingStatus(no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto status) {
+        return switch (status) {
+            case AVVIST -> InntektsmeldingStatusDto.AVVIST;
+            case VENTER_VURDERING -> InntektsmeldingStatusDto.VENTER_VURDERING;
+            case GODKJENT -> InntektsmeldingStatusDto.GODKJENT;
+            case UTDATERT -> InntektsmeldingStatusDto.UTDATERT;
+        };
+    }
 }

@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 
@@ -23,7 +24,8 @@ public record InntektsmeldingDto(@NotNull UUID inntektsmeldingId,
                                  @NotNull LocalDateTime innsendtTid,
                                  @NotNull AvsenderSystem avsender,
                                  Refusjon refusjon,
-                                 List<Naturalytelse> naturalytelser) {
+                                 List<Naturalytelse> naturalytelser,
+                                 InntektsmeldingStatusDto status) {
 
     public record Inntekt(@NotNull BigDecimal beloep, @NotNull LocalDate inntektsdato, @NotNull List<InntektEndringsårsaker> endringAarsaker) {
     }

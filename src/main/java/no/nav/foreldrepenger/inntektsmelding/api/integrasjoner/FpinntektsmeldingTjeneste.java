@@ -112,7 +112,8 @@ public class FpinntektsmeldingTjeneste {
                 .toList(),
             response.endringAvInntektÅrsaker().stream()
                 .map(e -> new Inntektsmelding.Endringsårsaker(mapEndringsårsakTilApiType(e.årsak()), e.fom(), e.tom(), e.bleKjentFom()))
-                .toList()
+                .toList(),
+            null
         );
     }
 
