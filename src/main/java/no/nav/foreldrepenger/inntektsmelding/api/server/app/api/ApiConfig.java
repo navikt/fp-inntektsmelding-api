@@ -40,12 +40,14 @@ public class ApiConfig extends ResourceConfig {
 
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
-        // Sikkerhet
+        // Felles rest-oppsett
         register(Jackson3ProviderFeature.class);
         register(Jackson3ContextResolver.class);
+        // Lokal rest-variant
         register(Jackson3ExceptionMapper.class);
-        register(AutentiseringFilter.class);
         registerExceptionMappers();
+        // Sikkerhet
+        register(AutentiseringFilter.class);
 
         registerOpenApi();
         // REST
