@@ -113,7 +113,7 @@ public class FpinntektsmeldingTjeneste {
             response.endringAvInntektÅrsaker().stream()
                 .map(e -> new Inntektsmelding.Endringsårsaker(mapEndringsårsakTilApiType(e.årsak()), e.fom(), e.tom(), e.bleKjentFom()))
                 .toList(),
-            null
+            null // TODO: map fra response.status() når HentInntektsmeldingResponse eksponerer feltet i kontrakten
         );
     }
 
