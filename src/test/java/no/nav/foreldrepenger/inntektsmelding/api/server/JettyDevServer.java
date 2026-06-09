@@ -1,13 +1,14 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server;
 
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.server.localdev.LocalDevProperties;
 
 public class JettyDevServer extends JettyServer {
 
     private static final Environment ENV = Environment.current();
 
     public static void main(String[] args) throws Exception {
-        initTrustStoreAndKeyStore();
+        LocalDevProperties.setPropertiesForLocalDev();
         jettyServer(args).bootStrap();
     }
 
@@ -20,10 +21,5 @@ public class JettyDevServer extends JettyServer {
 
     private JettyDevServer(int serverPort) {
         super(serverPort);
-    }
-
-    private static void initTrustStoreAndKeyStore() {
-        var keystoreTruststorePassword = ENV.getProperty("vtp.ssl.passord");
-        System.setProperty("javax.net.ssl.password", keystoreTruststorePassword);
     }
 }
