@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
@@ -154,6 +155,36 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
+    void skal_mappe_status_venter_vurdering() {
+        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatusDto.VENTER_VURDERING);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatusDto.VENTER_VURDERING);
+    }
+
+    @Test
+    void skal_mappe_status_godkjent() {
+        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatusDto.GODKJENT);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatusDto.GODKJENT);
+    }
+
+    @Test
+    void skal_mappe_status_avvist() {
+        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatusDto.AVVIST);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatusDto.AVVIST);
+    }
+
+    @Test
+    void skal_mappe_status_utdatert() {
+        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatusDto.UTDATERT);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatusDto.UTDATERT);
+    }
+
+    @Test
+    void skal_mappe_null_status() {
+        var inntektsmelding = lagInntektsmeldingMedStatus(null);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isNull();
+    }
+
+    @Test
     void skal_returnere_tomme_lister_når_ingen_data() {
         var inntektsmelding = lagInntektsmeldingMedTommeLister();
 
@@ -162,6 +193,16 @@ class InntektsmeldingMapperTest {
         assertThat(dto.inntekt().endringAarsaker()).isEmpty();
         assertThat(dto.refusjon().endringer()).isEmpty();
         assertThat(dto.naturalytelser()).isEmpty();
+    }
+
+    private Inntektsmelding lagInntektsmeldingMedStatus(InntektsmeldingStatusDto status) {
+        return new Inntektsmelding(
+            TEST_UUID, FNR, YtelseTypeDto.FORELDREPENGER, new Organisasjonsnummer(ORGNR),
+            new Inntektsmelding.Kontaktperson("Ola Nordmann", "12345678"),
+            STARTDATO, MÅNEDS_INNTEKT, SKJÆRINGSTIDSPUNKT, INNSENDT_TIDSPUNKT,
+            new Inntektsmelding.AvsenderSystem("TestSystem", "1.0"),
+            MÅNEDS_REFUSJON, null, List.of(), List.of(), List.of(),
+            status);
     }
 
     private Inntektsmelding lagInntektsmeldingMedTommeLister() {
@@ -197,7 +238,7 @@ class InntektsmeldingMapperTest {
             refusjonsendringer,
             naturalytelser,
             endringsårsaker,
-            null
+            InntektsmeldingStatusDto.VENTER_VURDERING
         );
     }
 }
