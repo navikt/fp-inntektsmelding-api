@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding;
 
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 import no.nav.vedtak.konfig.Tid;
 
 import java.math.BigDecimal;
@@ -30,7 +32,20 @@ public class InntektsmeldingMapper {
             inntektsmelding.innsendtTidspunkt(),
             avsendersystemDto,
             refusjon,
-            naturalytelser);
+            naturalytelser,
+            mapStatus(inntektsmelding.status()));
+    }
+
+    private static InntektsmeldingStatus mapStatus(InntektsmeldingStatusDto status) {
+        if (status == null) {
+            return null;
+        }
+        return switch (status) {
+            case GODKJENT -> InntektsmeldingStatus.GODKJENT;
+            case AVVIST -> InntektsmeldingStatus.AVVIST;
+            case VENTER_VURDERING -> InntektsmeldingStatus.MOTTATT;
+            case UTDATERT -> InntektsmeldingStatus.MOTTATT;
+        };
     }
 
     private static List<InntektsmeldingDto.Naturalytelse> mapNaturalytelser(Inntektsmelding inntektsmelding) {

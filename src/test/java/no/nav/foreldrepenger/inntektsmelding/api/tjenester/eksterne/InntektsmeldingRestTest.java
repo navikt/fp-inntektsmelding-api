@@ -154,7 +154,7 @@ class InntektsmeldingRestTest {
             LocalDate.now(),
             BigDecimal.valueOf(50000), LocalDate.now(), LocalDateTime.now(),
             new Inntektsmelding.AvsenderSystem("Test", "1.0"),
-            null, null, List.of(), List.of(), List.of()
+            null, null, List.of(), List.of(), List.of(), null
         );
     }
 }

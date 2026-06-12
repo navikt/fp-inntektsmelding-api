@@ -20,14 +20,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRequest;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
+import no.nav.foreldrepenger.inntektsmelding.felles.AvsenderSystemDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.ForespørselStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.FødselsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingResponse;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 
 @ExtendWith(MockitoExtension.class)
@@ -99,6 +103,49 @@ class FpinntektsmeldingTjenesteTest {
         assertThat(forespørsel2.status()).isEqualTo(ForespørselStatus.UTGÅTT);
         assertThat(forespørsel2.fødselsnummer()).isEqualTo(fødselsnummer);
 
+    }
+
+    @Test
+    void skal_mappe_status_fra_hentInntektsmelding_respons() {
+        var uuid = UUID.randomUUID();
+        var response = lagHentInntektsmeldingResponse(uuid, no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto.VENTER_VURDERING);
+        when(fpinntektsmeldingKlient.hentInntektsmelding(uuid)).thenReturn(response);
+
+        var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(uuid);
+
+        assertThat(inntektsmelding.status()).isEqualTo(InntektsmeldingStatusDto.VENTER_VURDERING);
+    }
+
+    @Test
+    void skal_mappe_null_status_fra_hentInntektsmelding_respons() {
+        var uuid = UUID.randomUUID();
+        var response = lagHentInntektsmeldingResponse(uuid, null);
+        when(fpinntektsmeldingKlient.hentInntektsmelding(uuid)).thenReturn(response);
+
+        var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(uuid);
+
+        assertThat(inntektsmelding.status()).isNull();
+    }
+
+    private HentInntektsmeldingResponse lagHentInntektsmeldingResponse(UUID uuid,
+                                                                        no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto status) {
+        return new HentInntektsmeldingResponse(
+            uuid,
+            UUID.randomUUID(),
+            new FødselsnummerDto("12345678901"),
+            YtelseTypeDto.FORELDREPENGER,
+            new OrganisasjonsnummerDto("999999999"),
+            new KontaktpersonDto("Ola Nordmann", "12345678"),
+            LocalDate.now(),
+            BigDecimal.valueOf(50000),
+            LocalDateTime.now(),
+            BigDecimal.valueOf(30000),
+            null,
+            new AvsenderSystemDto("TestSystem", "1.0"),
+            List.of(),
+            List.of(),
+            List.of(),
+            status);
     }
 
     @Test

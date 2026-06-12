@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
@@ -26,7 +27,8 @@ public record Inntektsmelding(
     LocalDate opphørsdatoRefusjon,
     List<Refusjon> refusjon,
     List<BortfaltNaturalytelse> bortfaltNaturalytelsePerioder,
-    List<Endringsårsaker> endringAvInntektÅrsaker) {
+    List<Endringsårsaker> endringAvInntektÅrsaker,
+    InntektsmeldingStatusDto status) {
 
     public record Refusjon(LocalDate fom,
                            BigDecimal beløp) {
