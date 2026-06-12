@@ -15,6 +15,8 @@ import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 
+
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -79,7 +81,7 @@ class InntektsmeldingRestTest {
 
         // Assert
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.getEntity()).isEqualTo(responseUuid);
+        assertThat(response.getEntity()).isEqualTo(new SendInntektsmeldingResponsDto(responseUuid, null));
     }
 
     @Test

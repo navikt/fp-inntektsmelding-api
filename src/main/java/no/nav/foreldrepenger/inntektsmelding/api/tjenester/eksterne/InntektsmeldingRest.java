@@ -70,8 +70,8 @@ public class InntektsmeldingRest {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Send inn inntektsmelding",
         description = "Sender inn en inntektsmelding for en gitt forespørsel. Inntekten valideres mot A-inntekt og duplikater avvises.")
-    @ApiResponse(responseCode = "200", description = "Inntektsmeldingen ble mottatt. Returnerer UUID til den innsendte inntektsmeldingen.",
-        content = @Content(schema = @Schema(implementation = java.util.UUID.class)))
+    @ApiResponse(responseCode = "200", description = "Inntektsmeldingen ble mottatt. Returnerer UUID og status for den innsendte inntektsmeldingen.",
+        content = @Content(schema = @Schema(implementation = SendInntektsmeldingResponsDto.class)))
     @ApiResponse(responseCode = "400", description = "Valideringsfeil eller ugyldig inntektsmelding (f.eks. inntekt avviker fra A-inntekt uten endringsårsak)",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
@@ -125,7 +125,7 @@ public class InntektsmeldingRest {
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
 
         if (response.success()) {
-            return Response.ok(response.inntektsmeldingUuid()).build();
+            return Response.ok(new SendInntektsmeldingResponsDto(response.inntektsmeldingUuid(), null)).build();
         } else {
             var errorResponse = new ErrorResponse(response.feilinformasjon().feilkode().name(),
                 response.feilinformasjon().feilmelding(),
