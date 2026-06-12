@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.typer;
 
-public enum InntektsmeldingStatusDto {
+/** Intern status for inntektsmeldinger. Eksponeres ikke ut til LPS-ene. */
+public enum InntektsmeldingStatus {
     /** Inntektsmeldingen avviker fra a-inntekt og ble avvist. */
     AVVIST,
     /** Inntektsmeldingen venter på at a-inntekt skal være tilgjengelig for kontroll. */
