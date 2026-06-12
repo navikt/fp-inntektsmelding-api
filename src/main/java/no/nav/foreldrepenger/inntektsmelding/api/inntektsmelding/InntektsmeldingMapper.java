@@ -43,8 +43,7 @@ public class InntektsmeldingMapper {
         return switch (status) {
             case GODKJENT -> InntektsmeldingStatus.GODKJENT;
             case AVVIST -> InntektsmeldingStatus.AVVIST;
-            case VENTER_VURDERING -> InntektsmeldingStatus.MOTTATT;
-            case UTDATERT -> InntektsmeldingStatus.MOTTATT;
+            case VENTER_VURDERING, UTDATERT -> InntektsmeldingStatus.MOTTATT;
         };
     }
 
