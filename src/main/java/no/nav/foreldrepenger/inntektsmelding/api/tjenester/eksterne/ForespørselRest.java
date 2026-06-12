@@ -17,8 +17,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.konfig.Environment;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,8 +48,6 @@ public class ForespørselRest {
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
     private Tilgang tilgang;
 
-    private boolean erProd;
-
     ForespørselRest() {
         // for CDI
     }
@@ -60,7 +56,6 @@ public class ForespørselRest {
     public ForespørselRest(FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste, Tilgang tilgang) {
         this.fpinntektsmeldingTjeneste = fpinntektsmeldingTjeneste;
         this.tilgang = tilgang;
-        erProd = Environment.current().isProd();
     }
 
     @GET
@@ -81,11 +76,7 @@ public class ForespørselRest {
     public Response hentForespørsel(@NotNull @Valid @PathParam("forespoerselId")
                                     @Parameter(description = "UUID til forespørselen")
                                     @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespoerselId) {
-        if (erProd) {
-            LOG.warn("Mottok inntektsmeldling i prod, avviser med 503.");
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
-        }
-        LOG.info("Innkomende kall på hent forespørsel {}", forespoerselId);
+        LOG.warn("Innkomende kall på hent forespørsel {}", forespoerselId);
         var uuid = UUID.fromString(forespoerselId);
 
         Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(uuid);
@@ -116,11 +107,7 @@ public class ForespørselRest {
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
-        if (erProd) {
-            LOG.warn("Mottok inntektsmeldling i prod, avviser med 503.");
-            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
-        }
-        LOG.info("Innkomende kall på søk etter forespørsler");
+        LOG.warn("Innkomende kall på søk etter forespørsler");
 
         // Det er spurt etter en spesifikk forespørsel, henter kun denne
         if (filterRequest.forespoerselId() != null) {
