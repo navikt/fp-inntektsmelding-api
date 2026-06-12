@@ -20,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRequest;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 import no.nav.foreldrepenger.inntektsmelding.felles.AvsenderSystemDto;
@@ -113,7 +113,7 @@ class FpinntektsmeldingTjenesteTest {
 
         var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(uuid);
 
-        assertThat(inntektsmelding.status()).isEqualTo(InntektsmeldingStatus.VENTER_VURDERING);
+        assertThat(inntektsmelding.status()).isEqualTo(InntektsmeldingStatusDto.VENTER_VURDERING);
     }
 
     @Test

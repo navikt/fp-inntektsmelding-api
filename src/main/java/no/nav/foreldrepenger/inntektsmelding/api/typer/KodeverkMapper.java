@@ -44,12 +44,12 @@ public class KodeverkMapper {
         };
     }
 
-    public static InntektsmeldingStatus mapInntektsmeldingStatus(no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto status) {
+    public static InntektsmeldingStatusDto mapInntektsmeldingStatus(no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto status) {
         return switch (status) {
-            case AVVIST -> InntektsmeldingStatus.AVVIST;
-            case VENTER_VURDERING -> InntektsmeldingStatus.VENTER_VURDERING;
-            case GODKJENT -> InntektsmeldingStatus.GODKJENT;
-            case UTDATERT -> InntektsmeldingStatus.UTDATERT;
+            case AVVIST -> InntektsmeldingStatusDto.AVVIST;
+            case VENTER_VURDERING -> InntektsmeldingStatusDto.VENTER_VURDERING;
+            case GODKJENT -> InntektsmeldingStatusDto.GODKJENT;
+            case UTDATERT -> InntektsmeldingStatusDto.UTDATERT;
         };
     }
 }

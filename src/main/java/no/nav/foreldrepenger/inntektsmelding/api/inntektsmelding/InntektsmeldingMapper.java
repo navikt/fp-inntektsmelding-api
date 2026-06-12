@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 import no.nav.vedtak.konfig.Tid;
 
 import java.math.BigDecimal;
@@ -36,15 +36,15 @@ public class InntektsmeldingMapper {
             mapStatus(inntektsmelding.status()));
     }
 
-    private static InntektsmeldingStatusDto mapStatus(InntektsmeldingStatus status) {
+    private static InntektsmeldingStatus mapStatus(InntektsmeldingStatusDto status) {
         if (status == null) {
             return null;
         }
         return switch (status) {
-            case GODKJENT -> InntektsmeldingStatusDto.GODKJENT;
-            case AVVIST -> InntektsmeldingStatusDto.AVVIST;
-            case VENTER_VURDERING -> InntektsmeldingStatusDto.MOTTATT;
-            case UTDATERT -> InntektsmeldingStatusDto.MOTTATT;
+            case GODKJENT -> InntektsmeldingStatus.GODKJENT;
+            case AVVIST -> InntektsmeldingStatus.AVVIST;
+            case VENTER_VURDERING -> InntektsmeldingStatus.MOTTATT;
+            case UTDATERT -> InntektsmeldingStatus.MOTTATT;
         };
     }
 
