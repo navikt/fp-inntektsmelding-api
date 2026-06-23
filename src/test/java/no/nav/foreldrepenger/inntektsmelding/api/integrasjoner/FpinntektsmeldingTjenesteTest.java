@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
+
+import no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -214,7 +215,7 @@ class FpinntektsmeldingTjenesteTest {
 
         assertThat(response).isNotNull();
         assertThat(responseUuid).isNotNull();
-        assertThat(response.status()).isNotEqualTo(InntektsmeldingStatusDto.GODKJENT);
+        assertThat(response.status()).isEqualTo(InntektsmeldingStatusDto.GODKJENT);
         verify(fpinntektsmeldingKlient).sendInntektsmelding(any());
     }
 
