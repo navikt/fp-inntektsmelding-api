@@ -182,12 +182,6 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
-    void skal_mappe_null_status() {
-        var inntektsmelding = lagInntektsmeldingMedStatus(null);
-        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isNull();
-    }
-
-    @Test
     void skal_returnere_tomme_lister_når_ingen_data() {
         var inntektsmelding = lagInntektsmeldingMedTommeLister();
 

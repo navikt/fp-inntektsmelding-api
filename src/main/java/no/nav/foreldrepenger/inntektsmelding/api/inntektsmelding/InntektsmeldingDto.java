@@ -26,7 +26,7 @@ public record InntektsmeldingDto(@NotNull Long loepenr,
                                  @NotNull AvsenderSystem avsender,
                                  Refusjon refusjon,
                                  List<Naturalytelse> naturalytelser,
-                                 InntektsmeldingStatusDto status) {
+                                 @NotNull InntektsmeldingStatusDto status) {
 
     public record Inntekt(@NotNull BigDecimal beloep, @NotNull LocalDate inntektsdato, @NotNull List<InntektEndringsårsaker> endringAarsaker) {
     }

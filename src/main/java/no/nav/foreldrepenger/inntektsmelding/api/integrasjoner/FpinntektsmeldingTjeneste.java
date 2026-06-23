@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.inntektsmelding.api.integrasjoner;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,7 +66,10 @@ public class FpinntektsmeldingTjeneste {
             tom,
             fraLoepenr);
         var response = fpinntektsmeldingKlient.hentForespørsler(filter);
-        return response.stream().map(this::mapResponseTilDomeneobjekt).toList();
+        return response.stream()
+            .map(this::mapResponseTilDomeneobjekt)
+            .sorted(Comparator.comparingLong(Forespørsel::loepenr))
+            .toList();
     }
 
     public Inntektsmelding hentInntektsmelding(UUID innsendingId) {
@@ -88,7 +92,10 @@ public class FpinntektsmeldingTjeneste {
             tom,
             fraLoepenr);
         var response = fpinntektsmeldingKlient.hentInntektsmeldinger(request);
-        return response.stream().map(this::mapInntektsmeldingResponseTilDomeneobjekt).toList();
+        return response.stream()
+            .map(this::mapInntektsmeldingResponseTilDomeneobjekt)
+            .sorted(Comparator.comparingLong(Inntektsmelding::loepenr))
+            .toList();
     }
 
     private Inntektsmelding mapInntektsmeldingResponseTilDomeneobjekt(HentInntektsmeldingResponse response) {

@@ -39,7 +39,7 @@ public class InntektsmeldingMapper {
 
     public static InntektsmeldingStatusDto mapStatus(InntektsmeldingStatus status) {
         if (status == null) {
-            return null;
+            throw new IllegalArgumentException("InntektsmeldingStatus kan ikke være null");
         }
         return switch (status) {
             case GODKJENT -> InntektsmeldingStatusDto.GODKJENT;

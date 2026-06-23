@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
@@ -159,7 +160,7 @@ class InntektsmeldingRestTest {
             LocalDate.now(),
             BigDecimal.valueOf(50000), LocalDate.now(), LocalDateTime.now(),
             new Inntektsmelding.AvsenderSystem("Test", "1.0"),
-            null, null, List.of(), List.of(), List.of(), null
+            null, null, List.of(), List.of(), List.of(), InntektsmeldingStatus.GODKJENT
         );
     }
 }
