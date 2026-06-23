@@ -56,12 +56,14 @@ public class FpinntektsmeldingTjeneste {
                                               StatusDto status,
                                               YtelseType ytelseType,
                                               LocalDate fom,
-                                              LocalDate tom) {
+                                              LocalDate tom,
+                                              Long fraLoepenr) {
         var filter = new ForespørselFilterRequest(new OrganisasjonsnummerDto(orgnr), fnr == null ? null : new FødselsnummerDto(fnr),
             status == null ? null : KodeverkMapper.mapApiStatusTilForespørselStatus(status),
             ytelseType == null ? null : mapYtelseType(ytelseType),
             fom,
-            tom);
+            tom,
+            fraLoepenr);
         var response = fpinntektsmeldingKlient.hentForespørsler(filter);
         return response.stream().map(this::mapResponseTilDomeneobjekt).toList();
     }
@@ -76,19 +78,22 @@ public class FpinntektsmeldingTjeneste {
                                                        UUID uuid,
                                                        YtelseType ytelseType,
                                                        LocalDate fom,
-                                                       LocalDate tom) {
+                                                       LocalDate tom,
+                                                       Long fraLoepenr) {
         var request = new InntektsmeldingFilterRequest(new OrganisasjonsnummerDto(orgnr),
             fnr == null ? null : new FødselsnummerDto(fnr),
             ytelseType == null ? null : mapYtelseType(ytelseType),
             uuid,
             fom,
-            tom);
+            tom,
+            fraLoepenr);
         var response = fpinntektsmeldingKlient.hentInntektsmeldinger(request);
         return response.stream().map(this::mapInntektsmeldingResponseTilDomeneobjekt).toList();
     }
 
     private Inntektsmelding mapInntektsmeldingResponseTilDomeneobjekt(HentInntektsmeldingResponse response) {
         return new Inntektsmelding(
+            response.loepenr(),
             response.inntektsmeldingUuid(),
             response.fnr().fnr(),
             KodeverkMapper.mapTilDto(KodeverkMapper.mapYtelseType(response.ytelseType())),
@@ -265,7 +270,8 @@ public class FpinntektsmeldingTjeneste {
     }
 
     private Forespørsel mapResponseTilDomeneobjekt(ForespørselResponse response) {
-        return new Forespørsel(response.forespørselUuid(),
+        return new Forespørsel(response.loepenr(),
+            response.forespørselUuid(),
             new Organisasjonsnummer(response.orgnummer().orgnr()),
             response.fødselsnummer().fnr(),
             response.førsteUttaksdato(),

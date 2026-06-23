@@ -131,7 +131,8 @@ public class ForespørselRest {
             filterRequest.status(),
             filterRequest.ytelseType(),
             filterRequest.fom(),
-            filterRequest.tom());
+            filterRequest.tom(),
+            filterRequest.fraLoepenr());
 
         var dtoer = forespørsler.stream().map(this::mapTilDto).toList();
 
@@ -143,7 +144,8 @@ public class ForespørselRest {
     }
 
     private ForespørselDto mapTilDto(Forespørsel forespørsel) {
-        return new ForespørselDto(forespørsel.forespørselUuid(),
+        return new ForespørselDto(forespørsel.loepenr(),
+            forespørsel.forespørselUuid(),
             forespørsel.orgnummer().orgnr(),
             forespørsel.fødselsnummer(),
             forespørsel.førsteUttaksdato(),

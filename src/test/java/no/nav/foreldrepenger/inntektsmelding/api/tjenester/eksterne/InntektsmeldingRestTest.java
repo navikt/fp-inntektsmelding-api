@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
@@ -27,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +58,7 @@ class InntektsmeldingRestTest {
         var forespørselUuid = UUID.randomUUID();
         var responseUuid = UUID.randomUUID();
 
-        var forespørsel = new Forespørsel(forespørselUuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
+        var forespørsel = new Forespørsel(null, forespørselUuid, new Organisasjonsnummer(orgnummer), fødselsnummer,
             LocalDate.now(), LocalDate.now(), ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER,
             LocalDateTime.now());
 
@@ -74,14 +76,14 @@ class InntektsmeldingRestTest {
 
         when(fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(forespørsel);
         when(fpinntektsmeldingTjeneste.sendInntektsmelding(any(), any()))
-            .thenReturn(new SendInntektsmeldingResponse(true, responseUuid, null));
+            .thenReturn(new SendInntektsmeldingResponse(true, responseUuid, no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto.GODKJENT, null));
 
         // Act
         var response = inntektsmeldingRest.sendInntektsmelding(inntektsmeldingRequest);
 
         // Assert
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.getEntity()).isEqualTo(new SendInntektsmeldingResponsDto(responseUuid, null));
+        assertThat(response.getEntity()).isEqualTo(new SendInntektsmeldingResponsDto(responseUuid, InntektsmeldingStatusDto.GODKJENT));
     }
 
     @Test
@@ -117,10 +119,10 @@ class InntektsmeldingRestTest {
         var orgnr = "999999999";
         var fnr = "12345678901";
         var forespørselId = UUID.randomUUID();
-        var filter = new InntektsmeldingFilter(orgnr, fnr, forespørselId, null, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31));
+        var filter = new InntektsmeldingFilter(orgnr, fnr, forespørselId, null, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), null);
 
         var inntektsmelding = lagInntektsmelding(orgnr);
-        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, fnr, forespørselId, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31)))
+        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, fnr, forespørselId, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), null))
             .thenReturn(List.of(inntektsmelding));
 
         var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
@@ -136,7 +138,7 @@ class InntektsmeldingRestTest {
     void skal_returnere_bad_request_når_fom_er_etter_tom_med_innsendingId() {
         var orgnr = "999999999";
         var innsendingId = UUID.randomUUID();
-        var filter = new InntektsmeldingFilter(orgnr, null, null, innsendingId, null, LocalDate.of(2025, 12, 31), LocalDate.of(2025, 1, 1));
+        var filter = new InntektsmeldingFilter(orgnr, null, null, innsendingId, null, LocalDate.of(2025, 12, 31), LocalDate.of(2025, 1, 1), null);
 
         var inntektsmelding = lagInntektsmelding(orgnr);
         when(fpinntektsmeldingTjeneste.hentInntektsmelding(innsendingId)).thenReturn(inntektsmelding);
@@ -150,6 +152,7 @@ class InntektsmeldingRestTest {
 
     private Inntektsmelding lagInntektsmelding(String orgnr) {
         return new Inntektsmelding(
+            new Random().nextLong(),
             UUID.randomUUID(), "12345678901", YtelseTypeDto.FORELDREPENGER,
             new Organisasjonsnummer(orgnr),
             new Inntektsmelding.Kontaktperson("Test", "12345678"),

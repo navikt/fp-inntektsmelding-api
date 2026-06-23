@@ -598,7 +598,7 @@ class InntektsmeldingValidererUtilTest {
     }
 
     private static Forespørsel lagForespørsel(ForespørselStatus status, LocalDate førsteUttaksdato, YtelseType ytelseType) {
-        return new Forespørsel(DEFAULT_UUID, new Organisasjonsnummer("999999999"), DEFAULT_FNR, førsteUttaksdato,
+        return new Forespørsel(null, DEFAULT_UUID, new Organisasjonsnummer("999999999"), DEFAULT_FNR, førsteUttaksdato,
             LocalDate.of(2025, 5, 1), status, ytelseType, LocalDateTime.now());
     }
 

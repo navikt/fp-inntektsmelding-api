@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.vedtak.konfig.Tid;
 
 import java.math.BigDecimal;
@@ -23,7 +23,8 @@ public class InntektsmeldingMapper {
         var alleRefusjonsendringer = mapRefusjon(inntektsmelding);
         var naturalytelser = mapNaturalytelser(inntektsmelding);
         var refusjon = new InntektsmeldingDto.Refusjon(inntektsmelding.månedRefusjon(), alleRefusjonsendringer);
-        return new InntektsmeldingDto(inntektsmelding.inntektsmeldingUuid(),
+        return new InntektsmeldingDto(inntektsmelding.loepenr(),
+            inntektsmelding.inntektsmeldingUuid(),
             inntektsmelding.fnr(),
             inntektsmelding.ytelse(),
             new InntektsmeldingDto.InntektsmeldingArbeidsgiver(inntektsmelding.orgnr().orgnr(), kontakpersonDto),
@@ -36,14 +37,14 @@ public class InntektsmeldingMapper {
             mapStatus(inntektsmelding.status()));
     }
 
-    private static InntektsmeldingStatus mapStatus(InntektsmeldingStatusDto status) {
+    public static InntektsmeldingStatusDto mapStatus(InntektsmeldingStatus status) {
         if (status == null) {
             return null;
         }
         return switch (status) {
-            case GODKJENT -> InntektsmeldingStatus.GODKJENT;
-            case AVVIST -> InntektsmeldingStatus.AVVIST;
-            case VENTER_VURDERING, UTDATERT -> InntektsmeldingStatus.MOTTATT;
+            case GODKJENT -> InntektsmeldingStatusDto.GODKJENT;
+            case AVVIST -> InntektsmeldingStatusDto.AVVIST;
+            case VENTER_VURDERING, UTDATERT -> InntektsmeldingStatusDto.MOTTATT;
         };
     }
 
