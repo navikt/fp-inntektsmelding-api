@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseType;
 
-public record Forespørsel(UUID forespørselUuid, Organisasjonsnummer orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
+public record Forespørsel(Long loepenr, UUID forespørselUuid, Organisasjonsnummer orgnummer, String fødselsnummer, LocalDate førsteUttaksdato,
                           LocalDate skjæringstidspunkt, ForespørselStatus status, YtelseType ytelseType, LocalDateTime opprettetTid) {
 
 }

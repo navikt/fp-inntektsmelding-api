@@ -6,13 +6,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
@@ -157,32 +159,26 @@ class InntektsmeldingMapperTest {
 
     @Test
     void skal_mappe_status_venter_vurdering() {
-        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatusDto.VENTER_VURDERING);
-        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatus.MOTTATT);
+        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatus.VENTER_VURDERING);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatusDto.MOTTATT);
     }
 
     @Test
     void skal_mappe_status_godkjent() {
-        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatusDto.GODKJENT);
-        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatus.GODKJENT);
+        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatus.GODKJENT);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatusDto.GODKJENT);
     }
 
     @Test
     void skal_mappe_status_avvist() {
-        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatusDto.AVVIST);
-        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatus.AVVIST);
+        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatus.AVVIST);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatusDto.AVVIST);
     }
 
     @Test
     void skal_mappe_status_utdatert() {
-        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatusDto.UTDATERT);
-        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatus.MOTTATT);
-    }
-
-    @Test
-    void skal_mappe_null_status() {
-        var inntektsmelding = lagInntektsmeldingMedStatus(null);
-        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isNull();
+        var inntektsmelding = lagInntektsmeldingMedStatus(InntektsmeldingStatus.UTDATERT);
+        assertThat(InntektsmeldingMapper.mapTilDto(inntektsmelding).status()).isEqualTo(InntektsmeldingStatusDto.MOTTATT);
     }
 
     @Test
@@ -196,9 +192,9 @@ class InntektsmeldingMapperTest {
         assertThat(dto.naturalytelser()).isEmpty();
     }
 
-    private Inntektsmelding lagInntektsmeldingMedStatus(InntektsmeldingStatusDto status) {
+    private Inntektsmelding lagInntektsmeldingMedStatus(InntektsmeldingStatus status) {
         return new Inntektsmelding(
-            TEST_UUID, FNR, YtelseTypeDto.FORELDREPENGER, new Organisasjonsnummer(ORGNR),
+            1L, TEST_UUID, FNR, YtelseTypeDto.FORELDREPENGER, new Organisasjonsnummer(ORGNR),
             new Inntektsmelding.Kontaktperson("Ola Nordmann", "12345678"),
             STARTDATO, MÅNEDS_INNTEKT, SKJÆRINGSTIDSPUNKT, INNSENDT_TIDSPUNKT,
             new Inntektsmelding.AvsenderSystem("TestSystem", "1.0"),
@@ -224,6 +220,7 @@ class InntektsmeldingMapperTest {
         BigDecimal refusjonPrMnd
     ) {
         return new Inntektsmelding(
+            new Random().nextLong(),
             TEST_UUID,
             FNR,
             YtelseTypeDto.FORELDREPENGER,
@@ -239,7 +236,7 @@ class InntektsmeldingMapperTest {
             refusjonsendringer,
             naturalytelser,
             endringsårsaker,
-            InntektsmeldingStatusDto.GODKJENT
+            InntektsmeldingStatus.GODKJENT
         );
     }
 }

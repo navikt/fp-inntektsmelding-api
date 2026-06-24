@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.Fpinntektsmelding
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.felles.FeilkodeDto;
 
@@ -116,7 +117,7 @@ public class InntektsmeldingRest {
         var response = fpinntektsmeldingTjeneste.sendInntektsmelding(inntektsmeldingRequest, forespørsel);
 
         if (response.success()) {
-            return Response.ok(new SendInntektsmeldingResponsDto(response.inntektsmeldingUuid(), null)).build();
+            return Response.ok(new SendInntektsmeldingResponsDto(response.inntektsmeldingUuid(), mapStatusTilKonsument(response.status()))).build();
         } else {
             var errorResponse = new ErrorResponse(response.feilinformasjon().feilkode().name(),
                 response.feilinformasjon().feilmelding(),
@@ -136,6 +137,14 @@ public class InntektsmeldingRest {
                 .build();
             }
         }
+    }
+
+    private InntektsmeldingStatusDto mapStatusTilKonsument(no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto status) {
+        return switch (status) {
+            case GODKJENT -> InntektsmeldingStatusDto.GODKJENT;
+            case AVVIST -> InntektsmeldingStatusDto.AVVIST;
+            case VENTER_VURDERING, UTDATERT -> InntektsmeldingStatusDto.MOTTATT;
+        };
     }
 
     @GET
@@ -216,7 +225,8 @@ public class InntektsmeldingRest {
             inntektsmeldingFilter.forespoerselId(),
             inntektsmeldingFilter.ytelseType(),
             inntektsmeldingFilter.fom(),
-            inntektsmeldingFilter.tom());
+            inntektsmeldingFilter.tom(),
+            inntektsmeldingFilter.fraLoepenr());
 
         var dto = inntektsmeldinger.stream().map(InntektsmeldingMapper::mapTilDto).toList();
 

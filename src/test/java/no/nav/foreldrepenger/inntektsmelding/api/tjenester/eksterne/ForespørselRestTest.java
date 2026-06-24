@@ -42,7 +42,7 @@ class ForespørselRestTest {
     @Test
     void skal_returnere_tom_liste() {
         var orgnummer = "999999999";
-        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, null, null, null, null));
+        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, null, null, null, null, null));
         assertThat(response.getStatus()).isEqualTo(200);
         var forespørsler = (List<ForespørselDto>) response.getEntity();
         assertThat(forespørsler).isEmpty();
@@ -52,9 +52,9 @@ class ForespørselRestTest {
     void skal_returnere_et_resultat_om_uuid_oppgit_og_ignorere_andre_filter_valg() {
         var orgnummer = "999999999";
         var uuid = UUID.randomUUID();
-        when(fpinntektsmeldingTjeneste.hentForespørsel(uuid)).thenReturn(new Forespørsel(uuid, new Organisasjonsnummer(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
+        when(fpinntektsmeldingTjeneste.hentForespørsel(uuid)).thenReturn(new Forespørsel(null, uuid, new Organisasjonsnummer(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
             ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDate.now().atStartOfDay()));
-        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, uuid, StatusDto.FORKASTET, YtelseType.SVANGERSKAPSPENGER, null, null));
+        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, uuid, StatusDto.FORKASTET, YtelseType.SVANGERSKAPSPENGER, null, null, null));
         assertThat(response.getStatus()).isEqualTo(200);
         var forespørsler = (List<ForespørselDto>) response.getEntity();
         assertThat(forespørsler).hasSize(1);
@@ -66,7 +66,7 @@ class ForespørselRestTest {
     @Test
     void skal_returnere_feil_om_datoer_er_feil() {
         var orgnummer = "999999999";
-        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, StatusDto.FORKASTET, YtelseType.SVANGERSKAPSPENGER, LocalDate.now(), LocalDate.now().minusMonths(1)));
+        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, StatusDto.FORKASTET, YtelseType.SVANGERSKAPSPENGER, LocalDate.now(), LocalDate.now().minusMonths(1), null));
         assertThat(response.getStatus()).isEqualTo(400);
         var forespørsler = (ErrorResponse) response.getEntity();
         assertThat(forespørsler.feilmelding()).isEqualTo(EksponertFeilmelding.UGYLDIG_PERIODE.getTekst());
@@ -75,12 +75,12 @@ class ForespørselRestTest {
     @Test
     void skal_returnere_liste_om_flere_matcher() {
         var orgnummer = "999999999";
-        var forespørsel2 = new Forespørsel(UUID.randomUUID(), new Organisasjonsnummer(orgnummer), "22222222222", LocalDate.now(), LocalDate.now(),
+        var forespørsel2 = new Forespørsel(2L, UUID.randomUUID(), new Organisasjonsnummer(orgnummer), "22222222222", LocalDate.now(), LocalDate.now(),
             ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDate.now().atStartOfDay());
-        var forespørsel1 = new Forespørsel(UUID.randomUUID(), new Organisasjonsnummer(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
+        var forespørsel1 = new Forespørsel(3L, UUID.randomUUID(), new Organisasjonsnummer(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
             ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDate.now().atStartOfDay());
-        when(fpinntektsmeldingTjeneste.hentForespørsler(orgnummer, null, null, null, null, null)).thenReturn(List.of(forespørsel1, forespørsel2));
-        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, null, null, null, null));
+        when(fpinntektsmeldingTjeneste.hentForespørsler(orgnummer, null, null, null, null, null, 1L)).thenReturn(List.of(forespørsel1, forespørsel2));
+        var response = forespørselRest.hentForespørsler(new ForespørselFilter(orgnummer, null, null, null, null, null, null, 1L));
         assertThat(response.getStatus()).isEqualTo(200);
         var forespørsler = (List<ForespørselDto>) response.getEntity();
         assertThat(forespørsler).hasSize(2);
