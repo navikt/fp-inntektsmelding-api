@@ -83,7 +83,7 @@ public class InntektsmeldingRest {
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         var forespørselUuid = inntektsmeldingRequest.forespoerselId();
-        LOG.warn("Mottatt inntektsmeldling for forespørselUuid {} ", forespørselUuid);
+        LOG.warn("Mottatt inntektsmeldling via API for forespørselUuid {} ", forespørselUuid);
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
 
         if (forespørsel == null) {
@@ -165,7 +165,7 @@ public class InntektsmeldingRest {
                                         @Parameter(description = "UUID til inntektsmeldingen (inntektsmeldingId)")
                                         @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format")
                                         String inntektsmeldingId) {
-        LOG.warn("Hent inntektsmelding med inntektsmeldingId {} ", inntektsmeldingId);
+        LOG.warn("Hent inntektsmelding via API med inntektsmeldingId {} ", inntektsmeldingId);
         var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(UUID.fromString(inntektsmeldingId));
 
         if (inntektsmelding == null) {
@@ -199,7 +199,7 @@ public class InntektsmeldingRest {
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
-        LOG.warn("Innkomende kall på søk etter inntektsmeldinger");
+        LOG.warn("Innkomende kall på API for søk etter inntektsmeldinger");
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmeldingFilter.orgnr()));
         if (inntektsmeldingFilter.inntektsmeldingId() != null) {
             var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingFilter.inntektsmeldingId());
