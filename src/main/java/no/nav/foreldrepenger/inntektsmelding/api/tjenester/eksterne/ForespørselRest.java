@@ -76,7 +76,7 @@ public class ForespørselRest {
     public Response hentForespørsel(@NotNull @Valid @PathParam("forespoerselId")
                                     @Parameter(description = "UUID til forespørselen")
                                     @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format") String forespoerselId) {
-        LOG.warn("Innkomende kall på hent forespørsel {}", forespoerselId);
+        LOG.warn("Innkomende kall på API for hent forespørsel {}", forespoerselId);
         var uuid = UUID.fromString(forespoerselId);
 
         Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(uuid);
@@ -107,7 +107,7 @@ public class ForespørselRest {
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
-        LOG.warn("Innkomende kall på søk etter forespørsler");
+        LOG.warn("Innkomende kall på API for søk etter forespørsler");
 
         // Det er spurt etter en spesifikk forespørsel, henter kun denne
         if (filterRequest.forespoerselId() != null) {
