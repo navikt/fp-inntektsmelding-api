@@ -1,94 +1,71 @@
 # fp-inntektsmelding-api
 
-External-facing REST API for submitting and retrieving income declarations
-(inntektsmeldinger) for parental benefits (foreldrepenger) and pregnancy benefits
-(svangerskapspenger). Consumed by payroll and HR systems (LPS – Lønns- og
-personalsystemer) via Maskinporten system tokens.
+External REST API that lets payroll/HR systems (LPS – Lønns- og personalsystemer, i.e. employer ERP systems) 
+retrieve requests (forespørsler) and submit/retrieve income declarations and reimbursment claims (inntektsmeldinger)
+for foreldrepenger and svangerskapspenger. The **only externally consumed app** in the
+ecosystem. Stateless gateway — all storage and business logic live in `fp-inntektsmelding`.
 
-## Context (read first)
+## Shared context
 
-- **fp-context** (https://github.com/navikt/fp-context) — team-wide domain,
-  architecture, conventions, workflow. Treat as source of truth.
-- **Copilot Space**: navikt / TeamForeldrepenger — attaches fp-context + key repos.
-- Defer to fp-context for: domain/Folketrygdloven kap. 14, backend stack,
-  Java code style, testing conventions, workflow/PR rules, CI/CD, dependency mgmt.
+- Source of truth for shared domain, architecture, and conventions: `navikt/fp-context`
+- Copilot Space: `navikt/TeamForeldrepenger`
+- Defer to fp-context for domain (Folketrygdloven kap. 14), Java code style, testing, workflow/PR, CI/CD, and dependency management.
 
-## Purpose
+## Repo-specific context
 
-NAV sends a *forespørsel* (request) to an employer when an employee applies for
-parental/pregnancy benefits. This API allows LPS systems to:
+| Topic      | Details |
+|------------|---------|
+| Role       | External gateway for LPS → forespørsel-oppslag + inntektsmelding innsending/oppslag |
+| Consumers  | Third-party LPS/ERP systems (external), authenticated via Maskinporten |
+| Downstream | `fp-inntektsmelding` (processing) → `fp-sak` (case processing) |
+| Tech stack | Jakarta REST (Jersey) on Jetty + Weld CDI; **no** `fp-prosesstask` |
+| Data       | **None** — stateless proxy; no JPA/Hibernate/Flyway |
+| Kontrakt   | DTOs from `inntektsmelding-kontrakt` (released by `fp-inntektsmelding`) |
 
-1. **Retrieve forespørsler** — fetch open and completed requests for a given organisation.
-2. **Submit inntektsmeldinger** — send income declarations in response to a forespørsel.
-3. **Retrieve inntektsmeldinger** — look up previously submitted declarations.
-
-The API is the external gateway; it delegates storage and business logic to
-**fp-inntektsmelding** (internal backend).
-
-## Role in the value chain
-
-| Upstream | fp-inntektsmelding-api | Downstream |
-|---|---|---|
-| LPS systems (external consumers) | Authentication, authorization, validation | fp-inntektsmelding (internal processing) |
-| Maskinporten (token issuance) | Altinn authorization (PDP) | fp-sak (case processing) |
-
-## Architecture
-
-```
-LPS → Maskinporten token → fp-inntektsmelding-api → fp-inntektsmelding → fp-sak
-```
-
-### Deviations from standard backend stack
-
-This app diverges from the fp-context backend stack in these ways:
+## Deviations from the standard fp backend (read carefully)
 
 | Concern | Standard (fp-context) | This app |
 |---|---|---|
-| Database | Hibernate/JPA + Flyway | **None** — stateless, delegates to fp-inntektsmelding |
-| Auth | Azure AD / TokenX + ABAC | **Maskinporten** system tokens + **Altinn 3 PDP** |
-| Service-to-service | Azure AD CC | Azure AD CC (to fp-inntektsmelding) |
-| API surface | Internal saksbehandler UI | **External** — consumed by third-party LPS |
+| API surface | Internal saksbehandler/system | **External** — third-party LPS; OpenAPI is the contract |
+| Inbound auth | Azure AD / TokenX + ABAC | **Maskinporten** system token |
+| Authorization | Nav ABAC/XACML | **Altinn 3** token exchange + PDP (authorize on behalf of org) |
+| Service-to-service | — | Azure AD (outbound to `fp-inntektsmelding`) |
+| Persistence | PostgreSQL/Oracle + Flyway | none |
 
-### Package layout
+## Authentication & authorization flow
+
+`LPS → Maskinporten token → fp-inntektsmelding-api → (Azure AD) → fp-inntektsmelding`
+
+1. LPS calls with a Maskinporten system token for the exposed scope `nav:inntektsmelding/foreldrepenger`.
+2. `AutentiseringFilter` (JAX-RS `@Provider`) → `AuthTjeneste.validerOgSettKontekst` validates the token and required scope.
+3. `Tilgang` / `TilgangTjeneste.sjekkAtSystemHarTilgangTilOrganisasjon` authorizes the caller against the requested organisation via Altinn: `AltinnTokenExchangeKlient` (exchanges for an Altinn token using the consumed scope `altinn:authorization/authorize`) + `PdpKlient` (Altinn 3 PDP XACML authorize).
+4. Endpoint delegates to `FpinntektsmeldingTjeneste` → `FpinntektsmeldingKlient` (Azure AD) against `fp-inntektsmelding`.
+
+Maskinporten scopes (`exposes`/`consumes`) and the Altinn external host live in `.deploy/naiserator.yaml`.
+
+## Package layout (root `no.nav.foreldrepenger.inntektsmelding.api`)
 
 | Package | Purpose |
 |---|---|
-| `tjenester.eksterne` | REST endpoints (ForespørselRest, InntektsmeldingRest) |
-| `integrasjoner` | Client for fp-inntektsmelding backend (FpinntektsmeldingKlient) |
-| `server` | Jetty bootstrap, API config |
-| `server.auth` | Authentication filter, Altinn token exchange, PDP authorization |
-| `forespørsel` | DTOs for forespørsel domain (note: uses Norwegian `ø` in package name) |
-| `inntektsmelding` | DTOs and mapper for inntektsmelding domain |
-| `typer` | Shared types and kodeverk mappings |
-
-### Authentication & authorization flow
-
-1. LPS obtains a Maskinporten system token with scope `nav:foreldrepenger/inntektsmeldingapi.write`.
-2. `AutentiseringFilter` validates the token and extracts org number + system ID.
-3. `TilgangTjeneste` calls Altinn PDP to verify the system has rights for the
-   Altinn resource on behalf of the organisation.
-4. Request proceeds to the REST endpoint.
+| `tjenester.eksterne` | External REST endpoints: `ForespørselRest`, `InntektsmeldingRest` |
+| `integrasjoner` | Backend client: `FpinntektsmeldingTjeneste`, `FpinntektsmeldingKlient` |
+| `server.auth` | `AutentiseringFilter`, `AuthTjeneste`, `Tilgang`/`TilgangTjeneste`; `altinn/` token exchange, `altinnPdp/` PDP client |
+| `server.app.api` | `ApiConfig` (`@ApplicationPath("/v1")`), OpenAPI |
+| `server.app.internal` | health + Prometheus endpoints |
+| `server.exceptions` | `InntektsmeldingAPIException`, `ErrorResponse`, `EksponertFeilmelding` |
+| `forespørsel` / `inntektsmelding` | DTOs + mappers (note Norwegian `ø` in package name — intentional) |
+| `typer` | shared types / kodeverk mapping |
 
 ## Repo-specific coding guidance
 
-- **No JPA/Hibernate** — this is a stateless proxy app, no entity classes.
-- **External API contract stability** — breaking changes to the REST API require
-  versioning. The OpenAPI spec is the contract with external LPS consumers.
-- **Validation** — org numbers follow the Norwegian format (9 digits, MOD11 check).
-  Forespørsel IDs are UUIDs. Use Jakarta Bean Validation annotations.
-- **Maskinporten scope**: `nav:foreldrepenger/inntektsmeldingapi.write`.
-- Package names use Norwegian characters (`forespørsel` with `ø`) — this is
-  intentional and consistent with the rest of the team's codebase.
+- **Stateless** — no entity classes, no DB; everything proxies to `fp-inntektsmelding`.
+- **External contract stability** — the OpenAPI spec under `/v1` is the contract with LPS; breaking changes require versioning.
+- **Validation** — Jakarta Bean Validation on request DTOs; forespørsel/inntektsmelding IDs are UUIDs (regex-validated), orgnr is Norwegian 9-digit.
+- **Error responses** — return `ErrorResponse` with an `EksponertFeilmelding` code; never leak internal details to external callers.
+- Norwegian characters in package/identifier names are intentional and team-consistent.
 
-## Testing
+## Testing & verification
 
-```bash
-mvn test        # run all unit tests
-```
-
-- Unit tests use JUnit 6, AssertJ, and Mockito (constructor injection).
-- No database — no testcontainers or Flyway in this repo.
-- Mocking: Mockito mocks for `FpinntektsmeldingKlient`, `PdpKlient`, and auth
-  components. No WireMock needed since there's no HTTP-level integration test.
-- Integration tests run via [fp-autotest](https://github.com/navikt/fp-autotest)
-  (`verdikjede` suite) against the full deployed stack.
+- `mvn test` — JUnit + AssertJ + Mockito (constructor injection); versions inherited from `fp-parent-app`. No DB, no Testcontainers.
+- Mock `FpinntektsmeldingKlient`/`FpinntektsmeldingTjeneste`, `PdpKlient`, and auth components.
+- Integration impact: verify via `navikt/fp-autotest`, `verdikjede` suite, against the deployed stack.
