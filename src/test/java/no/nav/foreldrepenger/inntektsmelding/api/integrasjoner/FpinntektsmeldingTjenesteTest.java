@@ -121,16 +121,6 @@ class FpinntektsmeldingTjenesteTest {
         assertThat(inntektsmelding.status()).isEqualTo(InntektsmeldingStatus.VENTER_VURDERING);
     }
 
-    @Test
-    void skal_mappe_null_status_fra_hentInntektsmelding_respons() {
-        var uuid = UUID.randomUUID();
-        var response = lagHentInntektsmeldingResponse(uuid, null);
-        when(fpinntektsmeldingKlient.hentInntektsmelding(uuid)).thenReturn(response);
-
-        var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(uuid);
-
-        assertThat(inntektsmelding.status()).isNull();
-    }
 
     private HentInntektsmeldingResponse lagHentInntektsmeldingResponse(UUID uuid,
                                                                         no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto status) {

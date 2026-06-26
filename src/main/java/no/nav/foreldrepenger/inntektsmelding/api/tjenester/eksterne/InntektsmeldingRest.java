@@ -226,7 +226,8 @@ public class InntektsmeldingRest {
             inntektsmeldingFilter.ytelseType(),
             inntektsmeldingFilter.fom(),
             inntektsmeldingFilter.tom(),
-            inntektsmeldingFilter.fraLoepenr());
+            inntektsmeldingFilter.fraLoepenr(),
+            inntektsmeldingFilter.status());
 
         var dto = inntektsmeldinger.stream().map(InntektsmeldingMapper::mapTilDto).toList();
 
