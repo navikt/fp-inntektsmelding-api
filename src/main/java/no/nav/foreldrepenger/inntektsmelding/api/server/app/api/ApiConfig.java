@@ -99,6 +99,7 @@ public class ApiConfig extends ResourceConfig {
         // Ref Jersey doc
         properties.put(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
         properties.put(ServerProperties.PROCESSING_RESPONSE_ERRORS_ENABLED, true);
+        properties.put(ServerProperties.WADL_FEATURE_DISABLE, true);
         return properties;
     }
 }
