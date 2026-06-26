@@ -137,7 +137,7 @@ public class FpinntektsmeldingTjeneste {
             response.endringAvInntektÅrsaker().stream()
                 .map(e -> new Inntektsmelding.Endringsårsaker(mapEndringsårsakTilApiType(e.årsak()), e.fom(), e.tom(), e.bleKjentFom()))
                 .toList(),
-            response.status() != null ? KodeverkMapper.mapInntektsmeldingStatus(response.status()) : null
+            KodeverkMapper.mapInntektsmeldingStatus(response.status())
         );
     }
 
