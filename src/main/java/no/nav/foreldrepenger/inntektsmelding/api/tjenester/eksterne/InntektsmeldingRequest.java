@@ -52,7 +52,7 @@ public record InntektsmeldingRequest(@NotNull @Valid UUID forespoerselId,
         }
     }
     public record Refusjon(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned,
-                           @NotNull @Valid List<RefusjonEndring> endringer) {
+                           @NotNull List<@Valid RefusjonEndring> endringer) {
         public record RefusjonEndring(@NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beloepPerMaaned, @NotNull LocalDate stardato) {}
 
     }
