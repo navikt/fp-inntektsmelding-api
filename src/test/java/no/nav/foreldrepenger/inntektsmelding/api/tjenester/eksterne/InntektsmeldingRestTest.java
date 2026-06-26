@@ -120,10 +120,11 @@ class InntektsmeldingRestTest {
         var orgnr = "999999999";
         var fnr = "12345678901";
         var forespørselId = UUID.randomUUID();
-        var filter = new InntektsmeldingFilter(orgnr, fnr, forespørselId, null, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), null);
+        var filter = new InntektsmeldingFilter(orgnr, fnr, forespørselId, null, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), null, null);
 
         var inntektsmelding = lagInntektsmelding(orgnr);
-        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, fnr, forespørselId, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), null))
+        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, fnr, forespørselId, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), null,
+           null))
             .thenReturn(List.of(inntektsmelding));
 
         var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
@@ -139,7 +140,7 @@ class InntektsmeldingRestTest {
     void skal_returnere_bad_request_når_fom_er_etter_tom_med_innsendingId() {
         var orgnr = "999999999";
         var innsendingId = UUID.randomUUID();
-        var filter = new InntektsmeldingFilter(orgnr, null, null, innsendingId, null, LocalDate.of(2025, 12, 31), LocalDate.of(2025, 1, 1), null);
+        var filter = new InntektsmeldingFilter(orgnr, null, null, innsendingId, null, LocalDate.of(2025, 12, 31), LocalDate.of(2025, 1, 1), null, null);
 
         var inntektsmelding = lagInntektsmelding(orgnr);
         when(fpinntektsmeldingTjeneste.hentInntektsmelding(innsendingId)).thenReturn(inntektsmelding);
@@ -160,7 +161,12 @@ class InntektsmeldingRestTest {
             LocalDate.now(),
             BigDecimal.valueOf(50000), LocalDate.now(), LocalDateTime.now(),
             new Inntektsmelding.AvsenderSystem("Test", "1.0"),
-            null, null, List.of(), List.of(), List.of(), InntektsmeldingStatus.GODKJENT
+            null,
+            null,
+            List.of(),
+            List.of(),
+            List.of(),
+            InntektsmeldingStatus.GODKJENT
         );
     }
 }

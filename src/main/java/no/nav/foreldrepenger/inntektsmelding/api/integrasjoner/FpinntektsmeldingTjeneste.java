@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.Inntektsmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRequest;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.KodeverkMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.StatusDto;
@@ -21,6 +22,7 @@ import no.nav.foreldrepenger.inntektsmelding.felles.BortfaltNaturalytelseDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.EndringsårsakDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.EndringsårsakerDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.FødselsnummerDto;
+import no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingApiStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.KontaktpersonDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.OrganisasjonsnummerDto;
@@ -83,19 +85,29 @@ public class FpinntektsmeldingTjeneste {
                                                        YtelseType ytelseType,
                                                        LocalDate fom,
                                                        LocalDate tom,
-                                                       Long fraLoepenr) {
+                                                       Long fraLoepenr,
+                                                       InntektsmeldingStatusDto status) {
         var request = new InntektsmeldingFilterRequest(new OrganisasjonsnummerDto(orgnr),
             fnr == null ? null : new FødselsnummerDto(fnr),
             ytelseType == null ? null : mapYtelseType(ytelseType),
             uuid,
             fom,
             tom,
-            fraLoepenr);
+            fraLoepenr,
+            status == null ? null : mapStatusDto(status));
         var response = fpinntektsmeldingKlient.hentInntektsmeldinger(request);
         return response.stream()
             .map(this::mapInntektsmeldingResponseTilDomeneobjekt)
             .sorted(Comparator.comparingLong(Inntektsmelding::loepenr))
             .toList();
+    }
+
+    private InntektsmeldingApiStatusDto mapStatusDto(InntektsmeldingStatusDto status) {
+        return switch (status) {
+            case MOTTATT -> InntektsmeldingApiStatusDto.MOTTATT;
+            case AVVIST -> InntektsmeldingApiStatusDto.AVVIST;
+            case GODKJENT -> InntektsmeldingApiStatusDto.GODKJENT;
+        };
     }
 
     private Inntektsmelding mapInntektsmeldingResponseTilDomeneobjekt(HentInntektsmeldingResponse response) {
