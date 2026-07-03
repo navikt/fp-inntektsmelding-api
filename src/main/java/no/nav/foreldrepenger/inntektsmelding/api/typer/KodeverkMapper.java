@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.typer;
 
+import no.nav.foreldrepenger.inntektsmelding.felles.InnsendingstypeDto;
+
 public class KodeverkMapper {
 
     private KodeverkMapper() {
@@ -50,6 +52,14 @@ public class KodeverkMapper {
             case VENTER_VURDERING -> InntektsmeldingStatus.VENTER_VURDERING;
             case GODKJENT -> InntektsmeldingStatus.GODKJENT;
             case UTDATERT -> InntektsmeldingStatus.UTDATERT;
+        };
+    }
+
+    public static InnsendingType mapInnsendingType(InnsendingstypeDto innsendingstypeDto) {
+        return switch (innsendingstypeDto) {
+            case FORESPURT -> no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingType.FORESPURT;
+            case ARBEIDSGIVER_INITIERT -> no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingType.ARBEIDSGIVER_INITIERT;
+            case FORESPURT_EKSTERN -> no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingType.FORESPURT_EKSTERN;
         };
     }
 }

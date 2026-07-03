@@ -114,6 +114,7 @@ public class FpinntektsmeldingTjeneste {
         return new Inntektsmelding(
             response.loepenr(),
             response.inntektsmeldingUuid(),
+            response.forespørselUuid(),
             response.fnr().fnr(),
             KodeverkMapper.mapTilDto(KodeverkMapper.mapYtelseType(response.ytelseType())),
             new Organisasjonsnummer(response.arbeidsgiver().orgnr()),
@@ -137,7 +138,8 @@ public class FpinntektsmeldingTjeneste {
             response.endringAvInntektÅrsaker().stream()
                 .map(e -> new Inntektsmelding.Endringsårsaker(mapEndringsårsakTilApiType(e.årsak()), e.fom(), e.tom(), e.bleKjentFom()))
                 .toList(),
-            KodeverkMapper.mapInntektsmeldingStatus(response.status())
+            KodeverkMapper.mapInntektsmeldingStatus(response.status()),
+            KodeverkMapper.mapInnsendingType(response.typeInnsending())
         );
     }
 
@@ -272,7 +274,7 @@ public class FpinntektsmeldingTjeneste {
         }
         List<SøktRefusjonDto> søktRefusjonDtoListe = new ArrayList<>();
         søktRefusjonDtoListe.add(new SøktRefusjonDto(startdato, refusjon.beloepPerMaaned()));
-        refusjon.endringer().forEach(r -> søktRefusjonDtoListe.add(new SøktRefusjonDto(r.stardato(), r.beloepPerMaaned())));
+        refusjon.endringer().forEach(r -> søktRefusjonDtoListe.add(new SøktRefusjonDto(r.startdato(), r.beloepPerMaaned())));
         return søktRefusjonDtoListe;
     }
 

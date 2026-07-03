@@ -70,7 +70,7 @@ public class InntektsmeldingValidererUtil {
         // Det fins tilfeller hvor arbeidsgiver ønsker å gjøre dette.
 
         var endringsListe = refusjon.endringer().stream()
-            .map(InntektsmeldingRequest.Refusjon.RefusjonEndring::stardato)
+            .map(InntektsmeldingRequest.Refusjon.RefusjonEndring::startdato)
             .toList();
         if (endringsListe.stream().anyMatch(stardato -> stardato.equals(startdato))) {
             LOG.info("Refusjon har en endring som starter på startdato for permisjonen, dette er ikke tillatt");

@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding;
 
-import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
-import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
-import no.nav.vedtak.konfig.Tid;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingType;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingstypeDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
+import no.nav.vedtak.konfig.Tid;
 
 public class InntektsmeldingMapper {
     private InntektsmeldingMapper() {
@@ -25,6 +27,7 @@ public class InntektsmeldingMapper {
         var refusjon = new InntektsmeldingDto.Refusjon(inntektsmelding.månedRefusjon(), alleRefusjonsendringer);
         return new InntektsmeldingDto(inntektsmelding.loepenr(),
             inntektsmelding.inntektsmeldingUuid(),
+            inntektsmelding.forespoerselId(),
             inntektsmelding.fnr(),
             inntektsmelding.ytelse(),
             new InntektsmeldingDto.InntektsmeldingArbeidsgiver(inntektsmelding.orgnr().orgnr(), kontakpersonDto),
@@ -34,7 +37,16 @@ public class InntektsmeldingMapper {
             avsendersystemDto,
             refusjon,
             naturalytelser,
-            mapStatus(inntektsmelding.status()));
+            mapStatus(inntektsmelding.status()),
+            mapInnsendingsType(inntektsmelding.innsendingsType()));
+    }
+
+    private static InnsendingstypeDto mapInnsendingsType(InnsendingType innsendingType) {
+        return switch (innsendingType) {
+            case FORESPURT -> InnsendingstypeDto.FORESPURT;
+            case ARBEIDSGIVER_INITIERT -> InnsendingstypeDto.ARBEIDSGIVER_INITIERT;
+            case FORESPURT_EKSTERN -> InnsendingstypeDto.FORESPURT_EKSTERN;
+        };
     }
 
     public static InntektsmeldingStatusDto mapStatus(InntektsmeldingStatus status) {

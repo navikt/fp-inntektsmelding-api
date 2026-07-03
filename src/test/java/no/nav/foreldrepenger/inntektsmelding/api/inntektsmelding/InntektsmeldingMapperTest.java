@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingType;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingstypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ import no.nav.vedtak.konfig.Tid;
 class InntektsmeldingMapperTest {
 
     private static final UUID TEST_UUID = UUID.randomUUID();
+    private static final UUID FORESPØRSEL_UUID = UUID.randomUUID();
     private static final String FNR = "12345678901";
     private static final String ORGNR = "123456789";
     private static final LocalDate STARTDATO = LocalDate.of(2024, 1, 1);
@@ -50,6 +53,7 @@ class InntektsmeldingMapperTest {
         assertThat(dto.inntekt().beloep()).isEqualByComparingTo(MÅNEDS_INNTEKT);
         assertThat(dto.inntekt().inntektsdato()).isEqualTo(SKJÆRINGSTIDSPUNKT);
         assertThat(dto.inntekt().endringAarsaker()).isEmpty();
+        assertThat(dto.typeInnsending()).isEqualTo(InnsendingstypeDto.FORESPURT_EKSTERN);
 
     }
 
@@ -194,12 +198,12 @@ class InntektsmeldingMapperTest {
 
     private Inntektsmelding lagInntektsmeldingMedStatus(InntektsmeldingStatus status) {
         return new Inntektsmelding(
-            1L, TEST_UUID, FNR, YtelseTypeDto.FORELDREPENGER, new Organisasjonsnummer(ORGNR),
+            1L, TEST_UUID,FORESPØRSEL_UUID, FNR, YtelseTypeDto.FORELDREPENGER, new Organisasjonsnummer(ORGNR),
             new Inntektsmelding.Kontaktperson("Ola Nordmann", "12345678"),
             STARTDATO, MÅNEDS_INNTEKT, SKJÆRINGSTIDSPUNKT, INNSENDT_TIDSPUNKT,
             new Inntektsmelding.AvsenderSystem("TestSystem", "1.0"),
             MÅNEDS_REFUSJON, null, List.of(), List.of(), List.of(),
-            status);
+            status, InnsendingType.FORESPURT);
     }
 
     private Inntektsmelding lagInntektsmeldingMedTommeLister() {
@@ -222,6 +226,7 @@ class InntektsmeldingMapperTest {
         return new Inntektsmelding(
             new Random().nextLong(),
             TEST_UUID,
+            FORESPØRSEL_UUID,
             FNR,
             YtelseTypeDto.FORELDREPENGER,
             new Organisasjonsnummer(ORGNR),
@@ -236,7 +241,8 @@ class InntektsmeldingMapperTest {
             refusjonsendringer,
             naturalytelser,
             endringsårsaker,
-            InntektsmeldingStatus.GODKJENT
+            InntektsmeldingStatus.GODKJENT,
+            InnsendingType.FORESPURT_EKSTERN
         );
     }
 }

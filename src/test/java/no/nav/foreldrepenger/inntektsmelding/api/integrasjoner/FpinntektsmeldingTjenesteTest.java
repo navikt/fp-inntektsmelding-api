@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 
+import no.nav.foreldrepenger.inntektsmelding.felles.InnsendingstypeDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.InntektsmeldingStatusDto;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -141,7 +142,8 @@ class FpinntektsmeldingTjenesteTest {
             List.of(),
             List.of(),
             List.of(),
-            status);
+            status,
+            InnsendingstypeDto.FORESPURT_EKSTERN);
     }
 
     @Test

@@ -7,14 +7,17 @@ import java.util.List;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.EndringsårsakDto;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingType;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.YtelseTypeDto;
+
 //Intern inntektsmelding record
 public record Inntektsmelding(
     Long loepenr,
     UUID inntektsmeldingUuid,
+    UUID forespoerselId,
     String fnr,
     YtelseTypeDto ytelse,
     Organisasjonsnummer orgnr,
@@ -29,7 +32,8 @@ public record Inntektsmelding(
     List<Refusjon> refusjon,
     List<BortfaltNaturalytelse> bortfaltNaturalytelsePerioder,
     List<Endringsårsaker> endringAvInntektÅrsaker,
-    InntektsmeldingStatus status) {
+    InntektsmeldingStatus status,
+    InnsendingType innsendingsType) {
 
     public record Refusjon(LocalDate fom,
                            BigDecimal beløp) {
