@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
+import no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingType;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
@@ -155,7 +156,7 @@ class InntektsmeldingRestTest {
     private Inntektsmelding lagInntektsmelding(String orgnr) {
         return new Inntektsmelding(
             new Random().nextLong(),
-            UUID.randomUUID(), "12345678901", YtelseTypeDto.FORELDREPENGER,
+            UUID.randomUUID(), UUID.randomUUID(),"12345678901", YtelseTypeDto.FORELDREPENGER,
             new Organisasjonsnummer(orgnr),
             new Inntektsmelding.Kontaktperson("Test", "12345678"),
             LocalDate.now(),
@@ -166,7 +167,8 @@ class InntektsmeldingRestTest {
             List.of(),
             List.of(),
             List.of(),
-            InntektsmeldingStatus.GODKJENT
+            InntektsmeldingStatus.GODKJENT,
+            InnsendingType.FORESPURT_EKSTERN
         );
     }
 }
