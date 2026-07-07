@@ -143,7 +143,8 @@ class FpinntektsmeldingTjenesteTest {
             List.of(),
             List.of(),
             status,
-            InnsendingstypeDto.FORESPURT_EKSTERN);
+            InnsendingstypeDto.FORESPURT_EKSTERN,
+            LocalDate.now());
     }
 
     @Test

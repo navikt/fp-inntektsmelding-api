@@ -121,7 +121,7 @@ public class FpinntektsmeldingTjeneste {
             new Inntektsmelding.Kontaktperson(response.kontaktperson().navn(), response.kontaktperson().telefonnummer()),
             response.startdato(),
             response.inntekt(),
-            response.startdato(), // TODO: legg inn skjæringstidspunkt
+            response.skjæringstidspunkt(),
             response.innsendtTidspunkt(),
             new Inntektsmelding.AvsenderSystem(response.avsenderSystem().systemNavn(), response.avsenderSystem().systemVersjon()),
             response.refusjonPrMnd(),
