@@ -10,6 +10,6 @@
     "mem": "800Mi"
   },
   "ingresses": [
-    "https://foreldrepenger-inntektsmelding-api.nav.no"
+    "https://foreldrepenger-inntektsmelding-api.ekstern.nav.no"
   ]
 }
