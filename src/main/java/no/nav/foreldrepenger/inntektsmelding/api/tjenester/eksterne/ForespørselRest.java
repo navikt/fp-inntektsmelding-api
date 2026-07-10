@@ -45,6 +45,7 @@ public class ForespørselRest {
     private static final String HENT_FORESPØRSEL = "/{forespoerselId}";
     private static final String HENT_FLERE = "/forespoersler";
     private static final Logger LOG = LoggerFactory.getLogger(ForespørselRest.class);
+    private static final Logger secureLogger = LoggerFactory.getLogger("secureLogger");
     private FpinntektsmeldingTjeneste fpinntektsmeldingTjeneste;
     private Tilgang tilgang;
 
@@ -108,7 +109,7 @@ public class ForespørselRest {
         content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
         LOG.info("Innkomende kall på API for søk etter forespørsler");
-
+        secureLogger.info("Innkommende kall på søk etter forespørsler fra {}", filterRequest.orgnr());
         // Det er spurt etter en spesifikk forespørsel, henter kun denne
         if (filterRequest.forespoerselId() != null) {
             Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(filterRequest.forespoerselId());
