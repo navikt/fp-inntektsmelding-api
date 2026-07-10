@@ -82,6 +82,7 @@ public class FpinntektsmeldingKlient {
 
     List<ForespørselResponse> hentForespørsler(ForespørselFilterRequest filter) {
         try {
+            LOG.info("Sender request til fpinntektsmelding for å hente forespørsler gitt søkefilter");
             var request = RestRequest.newPOSTJson(filter, uriHentForespørsler, restConfig);
             var response = restClient.send(request, ForespørselResponse[].class);
             return List.of(response);
