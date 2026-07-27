@@ -165,7 +165,7 @@ public class InntektsmeldingRest {
                                         @Parameter(description = "UUID til inntektsmeldingen (inntektsmeldingId)")
                                         @Pattern(regexp = "^[a-fA-F\\d]{8}(?:-[a-fA-F\\d]{4}){3}-[a-fA-F\\d]{12}$", message = "Ugyldig UUID-format")
                                         String inntektsmeldingId) {
-        LOG.warn("Hent inntektsmelding via API med inntektsmeldingId {} ", inntektsmeldingId);
+        LOG.info("Hent inntektsmelding via API med inntektsmeldingId {} ", inntektsmeldingId);
         var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(UUID.fromString(inntektsmeldingId));
 
         if (inntektsmelding == null) {
