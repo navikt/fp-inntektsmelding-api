@@ -83,7 +83,7 @@ public class InntektsmeldingRest {
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response sendInntektsmelding(@Valid @NotNull InntektsmeldingRequest inntektsmeldingRequest) {
         var forespørselUuid = inntektsmeldingRequest.forespoerselId();
-        LOG.warn("Mottatt inntektsmeldling via API for forespørselUuid {} ", forespørselUuid);
+        LOG.info("Mottatt inntektsmeldling via API for forespørselUuid {} ", forespørselUuid);
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
 
         if (forespørsel == null) {
@@ -199,7 +199,7 @@ public class InntektsmeldingRest {
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
-        LOG.warn("Innkomende kall på API for søk etter inntektsmeldinger");
+        LOG.info("Innkomende kall på API for søk etter inntektsmeldinger");
         tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmeldingFilter.orgnr()));
         if (inntektsmeldingFilter.inntektsmeldingId() != null) {
             var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingFilter.inntektsmeldingId());
