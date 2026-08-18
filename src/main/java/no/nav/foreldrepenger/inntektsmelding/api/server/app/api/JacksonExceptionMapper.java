@@ -10,7 +10,7 @@ import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.server.rest.RestServerFeilUtils;
 import tools.jackson.core.JacksonException;
 
-public class Jackson3ExceptionMapper implements ExceptionMapper<JacksonException> {
+public class JacksonExceptionMapper implements ExceptionMapper<JacksonException> {
 
     @Override
     public Response toResponse(JacksonException exception) {

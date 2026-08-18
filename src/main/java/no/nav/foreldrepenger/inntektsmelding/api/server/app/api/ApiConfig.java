@@ -29,8 +29,8 @@ import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.Forespørsel
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.server.rest.RestSecureLogFeature;
-import no.nav.vedtak.server.rest.jackson.Jackson3ContextResolver;
-import no.nav.vedtak.server.rest.jackson.Jackson3ProviderFeature;
+import no.nav.vedtak.server.rest.jackson.JacksonContextResolver;
+import no.nav.vedtak.server.rest.jackson.JacksonProviderFeature;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends ResourceConfig {
@@ -41,10 +41,10 @@ public class ApiConfig extends ResourceConfig {
     public ApiConfig() {
         LOG.info("Initialiserer: {}", API_URI);
         // Felles rest-oppsett
-        register(Jackson3ProviderFeature.class);
-        register(Jackson3ContextResolver.class);
+        register(JacksonProviderFeature.class);
+        register(JacksonContextResolver.class);
         // Lokal rest-variant
-        register(Jackson3ExceptionMapper.class);
+        register(JacksonExceptionMapper.class);
         registerExceptionMappers();
         // Sikkerhet
         register(AutentiseringFilter.class);
