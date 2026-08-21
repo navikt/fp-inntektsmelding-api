@@ -159,6 +159,7 @@
 
     <build>
         <finalName>app</finalName>
+        <!-- Filtrer kun Swagger-siden for å sette WebJar-versjonen. Øvrige ressurser inneholder runtime-placeholders som Maven ikke skal erstatte. -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
