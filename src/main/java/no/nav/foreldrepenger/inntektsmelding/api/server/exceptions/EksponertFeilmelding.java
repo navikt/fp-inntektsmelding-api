@@ -31,6 +31,7 @@ public enum EksponertFeilmelding {
     AARSAK_KREVER_FRA_DATO("Endringsårskene NY_STILLING, NY_STILLINGSPROSENT og VARIG_LØNNSENDRING krever at det oppgis en fra dato"),
     AARSAK_KREVER_FRA_OG_TIL_DATO("Endringsårskene FERIE, PERMISJON, PERMITTERING og SYKEFRAVÆR krever at det oppgis en fra dato og en til dato"),
     KREVER_FRA_OG_BLE_KJENT_DATO("Endringsårsaken Tariffendring krever at fra dato og gjelder fra dato er oppgitt"),
+    KREVER_GJELDER_FRA_FOER_STARTDATO("Endringsårsaken Tariffendring krever at gjelder fra dato er før første fraværsdato"),
     FRA_DATO_FOER_STARTDATO("Dato for varig lønnsendring må være før fraværsdato"),
     DUPLIKATER_IKKE_TILATT(
         "Duplikate endringsårsker er ikke tillatt for årsakene: NY_STILLING, NY_STILLINGSPROSENT, VARIG_LØNNSENDRING, BONUS, TARIFF_ENDRING, FERIETREKK_ELLER_UTBETALING_AV_FERIEPENGER, NYANSATT, MANGELFULL_RAPPORTERING_A-ORDNING, INNTEKT_IKKE_RAPPRTERT_ENDA_A-ORDNING"),

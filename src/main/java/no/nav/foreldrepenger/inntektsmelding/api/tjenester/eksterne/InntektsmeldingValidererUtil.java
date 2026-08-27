@@ -139,7 +139,7 @@ public class InntektsmeldingValidererUtil {
         var feilmeldingTariffendring = endringsårsaker.stream()
             .filter(årsak -> årsak.aarsak() == InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring)
             .findFirst()
-            .flatMap(InntektsmeldingValidererUtil::valideringTariffendring);
+            .flatMap(endring -> valideringTariffendring(endring, startdato));
         if (feilmeldingTariffendring.isPresent()) {
             return feilmeldingTariffendring;
         }
@@ -186,7 +186,8 @@ public class InntektsmeldingValidererUtil {
         return Optional.empty();
     }
 
-    private static Optional<EksponertFeilmelding> valideringTariffendring(InntektsmeldingRequest.InntektInfo.Endringsaarsak endringsaarsak) {
+    private static Optional<EksponertFeilmelding> valideringTariffendring(InntektsmeldingRequest.InntektInfo.Endringsaarsak endringsaarsak,
+                                                                          LocalDate startdato) {
         if (endringsaarsak != null) {
             if (endringsaarsak.fom() == null || endringsaarsak.gjelderFra() == null) {
                 LOG.info("Endringsårsak tariffendring mangler fra dato eller ble gjelder fra dato");
@@ -197,6 +198,12 @@ public class InntektsmeldingValidererUtil {
                     endringsaarsak.gjelderFra(),
                     endringsaarsak.fom());
                 return Optional.of(EksponertFeilmelding.KREVER_FRA_OG_BLE_KJENT_DATO);
+            }
+            if (!endringsaarsak.gjelderFra().isBefore(startdato)) {
+                LOG.info("Tariffendringen må gjelde fra en dato som er før fraværsdato. Gjelder fra dato {} er ikke før fraværsdato {}",
+                    endringsaarsak.gjelderFra(),
+                    startdato);
+                return Optional.of(EksponertFeilmelding.KREVER_GJELDER_FRA_FOER_STARTDATO);
             }
         }
         return Optional.empty();
