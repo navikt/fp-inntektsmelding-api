@@ -11,5 +11,6 @@
   },
   "ingresses": [
     "https://foreldrepenger-inntektsmelding-api.nav.no"
-  ]
+  ],
+  "secureLogLevel": "INFO"
 }

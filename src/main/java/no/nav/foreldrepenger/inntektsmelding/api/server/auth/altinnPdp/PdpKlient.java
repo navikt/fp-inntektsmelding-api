@@ -78,6 +78,9 @@ public class PdpKlient {
             } else {
                 logger.info("PDP respons: {}", pdpResponse);
             }
+            if (!pdpResponse.harTilgang()) {
+                secureLogger.warn("PDP avslo tilgang for ressurs {}: {}", ressurs, pdpResponse);
+            }
             return pdpResponse;
         } catch (Exception e) {
             String message = "Feil ved kall til pdp endepunkt";
