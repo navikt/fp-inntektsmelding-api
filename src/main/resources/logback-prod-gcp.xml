@@ -1,6 +1,6 @@
 <included>
     <logger name="no.nav.foreldrepenger.inntektsmelding.api" level="INFO"/>
-    <logger name="secureLogger" level="INFO" additivity="false">
+    <logger name="secureLogger" level="${log.level.secureLogger:-INFO}" additivity="false">
         <appender-ref ref="teamLogger"/>
     </logger>
 </included>

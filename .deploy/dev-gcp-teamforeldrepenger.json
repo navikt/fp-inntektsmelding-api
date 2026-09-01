@@ -12,5 +12,6 @@
   "ingresses": [
     "https://foreldrepenger-inntektsmelding-api.ekstern.dev.nav.no"
   ],
-  "devOnly": "true"
+  "devOnly": "true",
+  "secureLogLevel": "DEBUG"
 }

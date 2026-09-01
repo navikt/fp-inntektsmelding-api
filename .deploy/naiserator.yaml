@@ -72,6 +72,9 @@ spec:
   azure:
     application:
       enabled: true
+  env:
+    - name: log.level.secureLogger
+      value: "{{secureLogLevel}}"
   envFrom:
     - secret: fpinntektsmelding-api
   accessPolicy:
