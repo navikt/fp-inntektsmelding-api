@@ -301,7 +301,8 @@ class InntektsmeldingValidererUtilTest {
     @Test
     void skal_godkjenne_gyldig_tariffendring() {
         var årsaker = List.of(
-            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO, null, STARTDATO.plusDays(5))
+            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO.minusDays(10), null,
+                STARTDATO.minusDays(5))
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
         assertThat(result).isEmpty();
@@ -310,12 +311,32 @@ class InntektsmeldingValidererUtilTest {
     @Test
     void skal_godkjenne_tariffendring_ble_kjent_lik_fom() {
         var årsaker = List.of(
-            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO, null, STARTDATO)
+            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO.minusDays(1), null,
+                STARTDATO.minusDays(1))
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void skal_avvise_tariffendring_ble_kjent_lik_startdato() {
+        var årsaker = List.of(
+            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO.minusDays(1), null,
+                STARTDATO)
+        );
+        var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
+        assertThat(result).hasValue(EksponertFeilmelding.KREVER_GJELDER_FRA_FOER_STARTDATO);
+    }
+
+    @Test
+    void skal_avvise_tariffendring_ble_kjent_etter_startdato() {
+        var årsaker = List.of(
+            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO.minusDays(1), null,
+                STARTDATO.plusDays(1))
+        );
+        var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
+        assertThat(result).hasValue(EksponertFeilmelding.KREVER_GJELDER_FRA_FOER_STARTDATO);
+    }
 
     @Test
     void skal_avvise_ny_stilling_uten_fom() {
