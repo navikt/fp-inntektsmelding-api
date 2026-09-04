@@ -55,6 +55,7 @@ jobs:
   deploy-dev-teamforeldrepenger:
     name: Deploy dev
     permissions:
+      contents: read
       id-token: write
     if: github.ref_name == 'master'
     needs: [ build-app, verdikjede ]
@@ -67,6 +68,7 @@ jobs:
   deploy-prod-teamforeldrepenger:
     name: Deploy prod
     permissions:
+      contents: read
       id-token: write
     if: github.ref_name == 'master'
     needs: [build-app, deploy-dev-teamforeldrepenger]
