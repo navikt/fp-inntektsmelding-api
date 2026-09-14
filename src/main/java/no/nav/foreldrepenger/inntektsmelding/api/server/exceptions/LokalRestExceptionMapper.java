@@ -1,9 +1,14 @@
 package no.nav.foreldrepenger.inntektsmelding.api.server.exceptions;
 
+import java.util.Set;
+
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.vedtak.server.rest.RestServerFeilUtils;
 
@@ -14,9 +19,21 @@ import no.nav.vedtak.server.rest.RestServerFeilUtils;
 @Provider
 public class LokalRestExceptionMapper implements ExceptionMapper<Throwable> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(LokalRestExceptionMapper.class);
+    private static final Set<EksponertFeilmelding> TILGANGSFEIL = Set.of(
+        EksponertFeilmelding.MANGLER_TOKEN,
+        EksponertFeilmelding.UTGAATT_TOKEN,
+        EksponertFeilmelding.UGYLDIG_TOKEN,
+        EksponertFeilmelding.FEIL_SCOPE,
+        EksponertFeilmelding.IKKE_TILGANG_ALTINN);
+
     @Override
     public Response toResponse(Throwable feil) {
-        RestServerFeilUtils.loggFeil(feil);
+        if (feil instanceof InntektsmeldingAPIException ex && TILGANGSFEIL.contains(ex.getFeilmelding())) {
+            LOG.info("Avvist kall: {}", ex.getFeilmelding());
+        } else {
+            RestServerFeilUtils.loggFeil(feil);
+        }
         if (feil instanceof InntektsmeldingAPIException ex) {
             return Response.status(ex.getStatus())
                 .entity(new ErrorResponse(ex.getFeilmelding().name(), ex.getFeilmelding().getTekst()))
