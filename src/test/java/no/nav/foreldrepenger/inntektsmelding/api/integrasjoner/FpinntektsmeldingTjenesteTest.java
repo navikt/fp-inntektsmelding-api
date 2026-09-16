@@ -8,7 +8,9 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
@@ -35,6 +37,7 @@ import no.nav.foreldrepenger.inntektsmelding.felles.OrganisasjonsnummerDto;
 import no.nav.foreldrepenger.inntektsmelding.felles.YtelseTypeDto;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntekt.InntektResponse;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingResponse;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingResponse;
 
@@ -62,6 +65,29 @@ class FpinntektsmeldingTjenesteTest {
         assertThat(forespørsel.orgnummer().orgnr()).isEqualTo(orgnummer);
         assertThat(forespørsel.ytelseType()).isEqualTo(YtelseType.FORELDREPENGER);
         assertThat(forespørsel.fødselsnummer()).isEqualTo(fødselsnummer);
+    }
+
+    @Test
+    void skal_hente_inntekt() {
+        var uuid = UUID.randomUUID();
+        var inntektPerMåned = Map.of(YearMonth.of(2025, 3), BigDecimal.valueOf(30000));
+        var response = new InntektResponse(inntektPerMåned, BigDecimal.valueOf(30000));
+        when(fpinntektsmeldingKlient.hentInntekt(uuid)).thenReturn(response);
+
+        var inntekt = fpinntektsmeldingTjeneste.hentInntekt(uuid);
+
+        assertThat(inntekt.gjennomsnitt()).isEqualByComparingTo(BigDecimal.valueOf(30000));
+        assertThat(inntekt.inntektPerMåned()).isEqualTo(inntektPerMåned);
+    }
+
+    @Test
+    void skal_returnere_null_om_inntekt_ikke_finnes() {
+        var uuid = UUID.randomUUID();
+        when(fpinntektsmeldingKlient.hentInntekt(uuid)).thenReturn(null);
+
+        var inntekt = fpinntektsmeldingTjeneste.hentInntekt(uuid);
+
+        assertThat(inntekt).isNull();
     }
 
     @Test

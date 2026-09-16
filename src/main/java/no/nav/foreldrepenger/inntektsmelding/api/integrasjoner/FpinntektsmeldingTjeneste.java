@@ -10,6 +10,7 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
+import no.nav.foreldrepenger.inntektsmelding.api.inntekt.Inntekt;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.Inntektsmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRequest;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
@@ -52,6 +53,11 @@ public class FpinntektsmeldingTjeneste {
     public Forespørsel hentForespørsel(UUID forespørselUuid) {
         var response = fpinntektsmeldingKlient.hentForespørsel(forespørselUuid);
         return response != null ? mapResponseTilDomeneobjekt(response) : null;
+    }
+
+    public Inntekt hentInntekt(UUID forespørselUuid) {
+        var response = fpinntektsmeldingKlient.hentInntekt(forespørselUuid);
+        return response != null ? new Inntekt(response.inntektPerMåned(), response.gjennomsnitt()) : null;
     }
 
     public List<Forespørsel> hentForespørsler(String orgnr,
