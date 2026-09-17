@@ -31,10 +31,10 @@ import no.nav.vedtak.sikkerhet.oidc.token.TokenString;
 @Priority(Priorities.AUTHENTICATION)
 public class AutentiseringFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
+    public static final String X_CORRELATION_ID = "X-Correlation-Id";
     private static final Logger LOG = LoggerFactory.getLogger(AutentiseringFilter.class);
     private static final Environment ENV = Environment.current();
     private final AuthTjeneste authTjeneste;
-    private static final String X_CORRELATION_ID = "X-Correlation-Id";
 
     @Context
     private ResourceInfo resourceinfo;
