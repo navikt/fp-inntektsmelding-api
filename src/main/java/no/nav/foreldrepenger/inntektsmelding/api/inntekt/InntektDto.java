@@ -6,6 +6,6 @@ import java.util.Map;
 
 import jakarta.validation.constraints.NotNull;
 
-public record InntektDto(@NotNull Map<YearMonth, BigDecimal> inntektPerMaaned, @NotNull BigDecimal gjennomsnitt) {
+public record InntektDto(@NotNull Map<YearMonth, BigDecimal> inntektPerMaaned, @NotNull BigDecimal gjennomsnittAvMaaneder) {
 
 }

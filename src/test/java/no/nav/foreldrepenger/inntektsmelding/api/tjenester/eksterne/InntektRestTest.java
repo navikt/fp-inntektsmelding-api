@@ -57,7 +57,7 @@ class InntektRestTest {
 
         assertThat(response.getStatus()).isEqualTo(200);
         var dto = (InntektDto) response.getEntity();
-        assertThat(dto.gjennomsnitt()).isEqualByComparingTo(BigDecimal.valueOf(30000));
+        assertThat(dto.gjennomsnittAvMaaneder()).isEqualByComparingTo(BigDecimal.valueOf(30000));
         assertThat(dto.inntektPerMaaned()).containsEntry(YearMonth.of(2025, 3), BigDecimal.valueOf(30000));
         verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnummer));
     }

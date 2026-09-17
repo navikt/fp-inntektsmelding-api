@@ -92,6 +92,8 @@ public class InntektRest {
                 .build();
         }
 
+        // NB: InntektDto sitt felt heter "gjennomsnittAvMaaneder" for å samsvare med kontrakten til
+        // sykepenger-api sitt tilsvarende /v1/inntekt-endepunkt.
         var dto = new InntektDto(inntekt.inntektPerMåned(), inntekt.gjennomsnitt());
         return Response.ok(dto).build();
     }
