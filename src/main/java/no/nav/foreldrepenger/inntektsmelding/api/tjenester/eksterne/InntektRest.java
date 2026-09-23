@@ -55,16 +55,22 @@ public class InntektRest {
     @GET
     @Path(HENT_INNTEKT)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(summary = "Hent inntekt", description = "Henter innrapportert inntekt for de siste tre månedene (basert på skjæringstidspunktet til "
-        + "forespørselen) og beregnet gjennomsnittsinntekt, gitt en forespørselId.")
-    @ApiResponse(responseCode = "200", description = "Inntekt med gjennomsnitt",
+    @Operation(summary = "Hent inntekt", description = """
+        Henter innrapportert inntekt for de siste tre månedene (basert på skjæringstidspunktet til forespørselen) og beregnet         gjennomsnittsinntekt, gitt en forespørselId.
+
+        Skille mellom `0` og `null` i `inntektPerMaaned`:
+        - `0` betyr at arbeidsgiver har rapportert en inntekt på 0 kr for måneden.
+        - `null` betyr at det ikke er rapportert inntekt for måneden (ennå). Måneden er likevel med i responsen.
+
+        Hvis inntekt ikke kan hentes fra A-ordningen, for eksempel ved nedetid, svarer endepunktet 404.""")
+    @ApiResponse(responseCode = "200", description = "Inntekt med gjennomsnitt. `0` = rapportert inntekt på 0 kr, `null` = ikke rapportert inntekt.",
         content = @Content(schema = @Schema(implementation = InntektDto.class)))
     @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon")
-    @ApiResponse(responseCode = "404", description = "Forespørselen ble ikke funnet",
+    @ApiResponse(responseCode = "404", description = "Forespørselen ble ikke funnet, eller inntekt kunne ikke hentes fra A-ordningen",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
