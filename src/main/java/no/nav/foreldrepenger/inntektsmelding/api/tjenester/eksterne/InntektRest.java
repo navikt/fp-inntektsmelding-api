@@ -62,7 +62,9 @@ public class InntektRest {
         - `0` betyr at arbeidsgiver har rapportert en inntekt på 0 kr for måneden.
         - `null` betyr at det ikke er rapportert inntekt for måneden (ennå). Måneden er likevel med i responsen.
 
-        Hvis inntekt ikke kan hentes fra A-ordningen, for eksempel ved nedetid, svarer endepunktet 404.""")
+        Hvis forespørselen ikke finnes, svarer endepunktet 404 med feilkode `TOM_FORESPOERSEL`.
+        Hvis inntekt ikke kan hentes fra A-ordningen, for eksempel ved nedetid, svarer endepunktet 404 med feilkode `INNTEKT_IKKE_TILGJENGELIG`.
+        Da kan kallet prøves igjen senere.""")
     @ApiResponse(responseCode = "200", description = "Inntekt med gjennomsnitt. `0` = rapportert inntekt på 0 kr, `null` = ikke rapportert inntekt.",
         content = @Content(schema = @Schema(implementation = InntektDto.class)))
     @ApiResponse(responseCode = "400", description = "Ugyldig UUID-format",
@@ -70,7 +72,7 @@ public class InntektRest {
     @ApiResponse(responseCode = "401", description = "Mangler gyldig autentisering",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "403", description = "Ikke tilgang til oppgitt organisasjon")
-    @ApiResponse(responseCode = "404", description = "Forespørselen ble ikke funnet, eller inntekt kunne ikke hentes fra A-ordningen",
+    @ApiResponse(responseCode = "404", description = "`TOM_FORESPOERSEL`: forespørselen ble ikke funnet. `INNTEKT_IKKE_TILGJENGELIG`: inntekt kunne ikke hentes fra A-ordningen, prøv igjen senere",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @ApiResponse(responseCode = "500", description = "Intern serverfeil",
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
@@ -93,8 +95,8 @@ public class InntektRest {
         var inntekt = fpinntektsmeldingTjeneste.hentInntekt(uuid);
         if (inntekt == null) {
             return Response.status(Response.Status.NOT_FOUND)
-                .entity(new ErrorResponse(EksponertFeilmelding.TOM_FORESPOERSEL.name(), EksponertFeilmelding.TOM_FORESPOERSEL.getTekst() + ": " + forespoerselId,
-                    forespoerselId))
+                .entity(new ErrorResponse(EksponertFeilmelding.INNTEKT_IKKE_TILGJENGELIG.name(),
+                    EksponertFeilmelding.INNTEKT_IKKE_TILGJENGELIG.getTekst() + ": " + forespoerselId, forespoerselId))
                 .build();
         }
 

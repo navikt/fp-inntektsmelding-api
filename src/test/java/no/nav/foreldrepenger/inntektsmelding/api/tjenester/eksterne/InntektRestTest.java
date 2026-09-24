@@ -73,4 +73,21 @@ class InntektRestTest {
         var error = (ErrorResponse) response.getEntity();
         assertThat(error.feilkode()).isEqualTo(EksponertFeilmelding.TOM_FORESPOERSEL.name());
     }
+
+    @Test
+    void skal_returnere_404_med_egen_feilkode_når_inntekt_ikke_kan_hentes() {
+        var orgnummer = "999999999";
+        var forespørselUuid = UUID.randomUUID();
+        var forespørsel = new Forespørsel(1L, forespørselUuid, new Organisasjonsnummer(orgnummer), "11111111111", LocalDate.now(), LocalDate.now(),
+            ForespørselStatus.UNDER_BEHANDLING, YtelseType.FORELDREPENGER, LocalDateTime.now());
+
+        when(fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid)).thenReturn(forespørsel);
+        when(fpinntektsmeldingTjeneste.hentInntekt(forespørselUuid)).thenReturn(null);
+
+        var response = inntektRest.hentInntekt(forespørselUuid.toString());
+
+        assertThat(response.getStatus()).isEqualTo(404);
+        var error = (ErrorResponse) response.getEntity();
+        assertThat(error.feilkode()).isEqualTo(EksponertFeilmelding.INNTEKT_IKKE_TILGJENGELIG.name());
+    }
 }
