@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.UriBuilder;
 
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.forespørsel.ForespørselResponse;
+import no.nav.foreldrepenger.inntektsmelding.imapi.inntekt.InntektResponse;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.HentInntektsmeldingResponse;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.InntektsmeldingFilterRequest;
 import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsmeldingRequest;
@@ -44,6 +45,7 @@ public class FpinntektsmeldingKlient {
     private final URI uriHentForespørsler;
     private final URI uriHentInntektsmelding;
     private final URI uriHentInntektsmeldinger;
+    private final URI uriHentInntekt;
 
     public FpinntektsmeldingKlient() {
         this.restClient = RestClient.client();
@@ -53,6 +55,7 @@ public class FpinntektsmeldingKlient {
         this.uriSendInntektsmelding = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/send-inntektsmelding");
         this.uriHentInntektsmelding = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/hent");
         this.uriHentInntektsmeldinger = toUri(restConfig.fpContextPath(), "api/imapi/inntektsmelding/hent/inntektsmeldinger");
+        this.uriHentInntekt = toUri(restConfig.fpContextPath(), "api/imapi/inntekt");
     }
 
     ForespørselResponse hentForespørsel(UUID forespørselUuid) {
@@ -74,6 +77,31 @@ public class FpinntektsmeldingKlient {
             throw e;
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}. Feilmelding var {}",
+                forespørselUuid,
+                e.getMessage());
+            throw feilVedKallTilFpinntektsmelding();
+        }
+    }
+
+    InntektResponse hentInntekt(UUID forespørselUuid) {
+        try {
+            LOG.info("Sender request til fpinntektsmelding for å hente inntekt for forespørselUuid {} ", forespørselUuid);
+            var request = RestRequest.newGET(toUri(uriHentInntekt, "/" + forespørselUuid), restConfig);
+            var response = restClient.sendReturnUnhandled(request);
+            if (response.statusCode() == 404) {
+                LOG.info("Forespørsel ikke funnet i fpinntektsmelding for uuid: {}", forespørselUuid);
+                return null;
+            }
+            if (response.statusCode() >= 400) {
+                LOG.warn("FP-97215: Uventet respons {} ved henting av inntekt fra fpinntektsmelding for uuid: {}",
+                    response.statusCode(), forespørselUuid);
+                throw feilVedKallTilFpinntektsmelding();
+            }
+            return DefaultJsonMapper.fromJson(response.body(), InntektResponse.class);
+        } catch (InntektsmeldingAPIException e) {
+            throw e;
+        } catch (Exception e) {
+            LOG.warn("FP-97215: Feil ved henting av inntekt fra fpinntektsmelding for uuid: {}. Feilmelding var {}",
                 forespørselUuid,
                 e.getMessage());
             throw feilVedKallTilFpinntektsmelding();

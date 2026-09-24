@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.auth.AutentiseringFilter
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ConstraintViolationMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.LokalRestExceptionMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.ForespørselRest;
+import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektRest;
 import no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne.InntektsmeldingRest;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.server.rest.RestSecureLogFeature;
@@ -82,6 +83,7 @@ public class ApiConfig extends ResourceConfig {
         oas.info(info).addServersItem(new Server())
             .addTagsItem(new Tag().name("Forespørsel om inntektsmelding").description("Endepunkter for å hente forespørsler NAV har sendt til arbeidsgiver"))
             .addTagsItem(new Tag().name("Inntektsmelding").description("Endepunkter for å sende inn og hente inntektsmeldinger"))
+            .addTagsItem(new Tag().name("Inntekt").description("Endepunkter for å hente forslag til inntekt for en forespørsel"))
             .schemaRequirement("bearer", new SecurityScheme()
                 .type(SecurityScheme.Type.HTTP)
                 .scheme("bearer")
@@ -108,7 +110,7 @@ public class ApiConfig extends ResourceConfig {
     }
 
     private Set<Class<?>> getApplicationClasses() {
-        return Set.of(ForespørselRest.class, InntektsmeldingRest.class);
+        return Set.of(ForespørselRest.class, InntektsmeldingRest.class, InntektRest.class);
     }
 
     private Map<String, Object> getApplicationProperties() {
