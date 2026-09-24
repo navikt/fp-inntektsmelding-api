@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.3.6</version>
+        <version>5.3.7</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger.inntektsmelding.api</groupId>
@@ -17,8 +17,8 @@
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-inntektsmelding-api</sonar.projectName>
         <sonar.projectKey>navikt_fp-inntektsmelding-api</sonar.projectKey>
-        <felles.version>7.9.0</felles.version>
-        <swagger-ui.version>5.32.14</swagger-ui.version>
+        <felles.version>7.9.1</felles.version>
+        <swagger-ui.version>5.32.15</swagger-ui.version>
     </properties>
 
     <dependencyManagement>
@@ -39,7 +39,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.inntektsmelding</groupId>
                 <artifactId>inntektsmelding-kontrakt</artifactId>
-                <version>0.1.16</version>
+                <version>0.1.17</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
