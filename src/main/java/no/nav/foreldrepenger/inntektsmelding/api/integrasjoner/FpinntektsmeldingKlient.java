@@ -78,7 +78,8 @@ public class FpinntektsmeldingKlient {
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av forespørsel fra fpinntektsmelding for uuid: {}. Feilmelding var {}",
                 forespørselUuid,
-                e.getMessage());
+                e.getMessage(),
+                e);
             throw feilVedKallTilFpinntektsmelding();
         }
     }
@@ -103,7 +104,8 @@ public class FpinntektsmeldingKlient {
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av inntekt fra fpinntektsmelding for uuid: {}. Feilmelding var {}",
                 forespørselUuid,
-                e.getMessage());
+                e.getMessage(),
+                e);
             throw feilVedKallTilFpinntektsmelding();
         }
     }
@@ -117,7 +119,8 @@ public class FpinntektsmeldingKlient {
         } catch (Exception e) {
             LOG.warn("FP-97215: Feil ved henting av forespørsler fra fpinntektsmelding for orgnr: {}. Feilmelding var {}",
                 filter.orgnr(),
-                e.getMessage());
+                e.getMessage(),
+                e);
             throw feilVedKallTilFpinntektsmelding();
         }
     }
@@ -128,7 +131,7 @@ public class FpinntektsmeldingKlient {
             var request = RestRequest.newPOSTJson(inntektsmeldingRequest, uriSendInntektsmelding, restConfig);
             return restClient.send(request, SendInntektsmeldingResponse.class);
         } catch (Exception e) {
-            LOG.warn("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding for uuid: {}. Feilmelding var {}", inntektsmeldingRequest.foresporselUuid(), e.getMessage());
+            LOG.warn("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding for uuid: {}. Feilmelding var {}", inntektsmeldingRequest.foresporselUuid(), e.getMessage(), e);
             SECURE_LOG.info("FP-97215: Feil ved sending av inntektsmelding-api til fpinntektsmelding. InntektsmeldingRequestDto er {}", inntektsmeldingRequest);
             throw feilVedKallTilFpinntektsmelding();
         }
@@ -154,7 +157,7 @@ public class FpinntektsmeldingKlient {
         } catch (InntektsmeldingAPIException e) {
             throw e;
         } catch (Exception e) {
-            LOG.warn("FP-97215: Feil ved henting av inntektsmelding fra fpinntektsmelding for uuid: {}. Feilmelding var {}", innsendingId, e.getMessage());
+            LOG.warn("FP-97215: Feil ved henting av inntektsmelding fra fpinntektsmelding for uuid: {}. Feilmelding var {}", innsendingId, e.getMessage(), e);
             throw feilVedKallTilFpinntektsmelding();
         }
     }
@@ -167,7 +170,8 @@ public class FpinntektsmeldingKlient {
          } catch (Exception e) {
              LOG.warn("FP-97215: Feil ved henting av inntektsmeldinger fra fpinntektsmelding for orgnr: {}. Feilmelding var {}",
                  filter.orgnr(),
-                 e.getMessage());
+                 e.getMessage(),
+                 e);
              throw feilVedKallTilFpinntektsmelding();
          }
     }
