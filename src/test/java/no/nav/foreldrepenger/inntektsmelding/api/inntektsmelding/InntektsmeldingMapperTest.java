@@ -149,7 +149,7 @@ class InntektsmeldingMapperTest {
         var naturalytelse2 = new Inntektsmelding.BortfaltNaturalytelse(
             LocalDate.of(2024, 3, 1),
             null,
-            NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON,
+            NaturalytelsetypeDto.ELEKTRONISK_KOMMUNIKASJON,
             new BigDecimal("500.00")
         );
         var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(), List.of(naturalytelse1, naturalytelse2));
@@ -158,7 +158,7 @@ class InntektsmeldingMapperTest {
 
         assertThat(dto.naturalytelser()).hasSize(2);
         assertThat(dto.naturalytelser().get(0).naturalytelse()).isEqualTo(NaturalytelsetypeDto.BIL);
-        assertThat(dto.naturalytelser().get(1).naturalytelse()).isEqualTo(NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON);
+        assertThat(dto.naturalytelser().get(1).naturalytelse()).isEqualTo(NaturalytelsetypeDto.ELEKTRONISK_KOMMUNIKASJON);
     }
 
     @Test
