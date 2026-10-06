@@ -151,7 +151,7 @@ public class FpinntektsmeldingTjeneste {
 
     private no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto mapNaturalytelseTypeTilApiType(NaturalytelsetypeDto naturalytelsetype) {
         return switch (naturalytelsetype) {
-            case ELEKTRISK_KOMMUNIKASJON -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.ELEKTRISK_KOMMUNIKASJON;
+            case ELEKTRISK_KOMMUNIKASJON -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.ELEKTRONISK_KOMMUNIKASJON;
             case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS ->
                 no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
             case LOSJI -> no.nav.foreldrepenger.inntektsmelding.api.typer.NaturalytelsetypeDto.LOSJI;

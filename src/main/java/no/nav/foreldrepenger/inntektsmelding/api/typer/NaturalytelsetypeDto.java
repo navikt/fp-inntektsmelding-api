@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.inntektsmelding.api.typer;
 
 public enum NaturalytelsetypeDto {
-    ELEKTRISK_KOMMUNIKASJON,
+    ELEKTRONISK_KOMMUNIKASJON,
     AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
     LOSJI,
     KOST_DOEGN,
