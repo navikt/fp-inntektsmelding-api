@@ -221,7 +221,10 @@ public class FpinntektsmeldingTjeneste {
 
     private List<EndringsårsakerDto> mapEndringsårsakerDto(List<InntektsmeldingRequest.InntektInfo.Endringsaarsak> endringsaarsak) {
         return endringsaarsak.stream()
-            .map(e -> new EndringsårsakerDto(mapÅrsakType(e.aarsak()), e.fom(), e.tom(), e.gjelderFra()))
+            .map(e -> {
+                var bleKjentFom = e.gjelderFra();
+                return new EndringsårsakerDto(mapÅrsakType(e.aarsak()), e.fom(), e.tom(), bleKjentFom);
+            })
             .toList();
     }
 

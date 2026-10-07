@@ -154,7 +154,7 @@ public class InntektsmeldingValidererUtil {
             .findFirst()
             .map(InntektsmeldingRequest.InntektInfo.Endringsaarsak::fom);
 
-        if (varigLønnsendringFraDato.isPresent() && !varigLønnsendringFraDato.get().isBefore(startdato)) {
+            if (varigLønnsendringFraDato.isPresent() && !varigLønnsendringFraDato.get().isBefore(startdato)) {
             LOG.info("Endringsårsak varig lønnsendring har ugyldig dato. Fra dato {} må være før fraværsdato {}",
                 varigLønnsendringFraDato.get(),
                 startdato);
@@ -189,19 +189,14 @@ public class InntektsmeldingValidererUtil {
     private static Optional<EksponertFeilmelding> valideringTariffendring(InntektsmeldingRequest.InntektInfo.Endringsaarsak endringsaarsak,
                                                                           LocalDate startdato) {
         if (endringsaarsak != null) {
-            if (endringsaarsak.fom() == null || endringsaarsak.gjelderFra() == null) {
-                LOG.info("Endringsårsak tariffendring mangler fra dato eller ble gjelder fra dato");
+            var bleKjentFom = endringsaarsak.gjelderFra();
+            if (endringsaarsak.fom() == null || bleKjentFom == null) {
+                LOG.info("Endringsårsak tariffendring mangler fra dato eller ble kjent fra dato");
                 return Optional.of(EksponertFeilmelding.KREVER_FRA_OG_BLE_KJENT_DATO);
             }
-            if (endringsaarsak.gjelderFra().isBefore(endringsaarsak.fom())) {
-                LOG.info("Endringsårsak tariffendring har ugyldig dato. Gjelder fra dato {} er før fra dato {}",
-                    endringsaarsak.gjelderFra(),
-                    endringsaarsak.fom());
-                return Optional.of(EksponertFeilmelding.KREVER_FRA_OG_BLE_KJENT_DATO);
-            }
-            if (!endringsaarsak.gjelderFra().isBefore(startdato)) {
-                LOG.info("Tariffendringen må gjelde fra en dato som er før fraværsdato. Gjelder fra dato {} er ikke før fraværsdato {}",
-                    endringsaarsak.gjelderFra(),
+            if (!endringsaarsak.fom().isBefore(startdato)) {
+                LOG.info("Tariffendringen må ha en fra-dato som er før fraværsdato. Fra dato {} er ikke før fraværsdato {}",
+                    endringsaarsak.fom(),
                     startdato);
                 return Optional.of(EksponertFeilmelding.KREVER_GJELDER_FRA_FOER_STARTDATO);
             }
