@@ -290,12 +290,13 @@ class InntektsmeldingValidererUtilTest {
     }
 
     @Test
-    void skal_avvise_tariffendring_ble_kjent_før_fom() {
+    void skal_godkjenne_tariffendring_ble_kjent_før_fom() {
         var årsaker = List.of(
-            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO, null, STARTDATO.minusDays(1))
+            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO.minusDays(1), null,
+                STARTDATO.minusDays(2))
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
-        assertThat(result).hasValue(EksponertFeilmelding.KREVER_FRA_OG_BLE_KJENT_DATO);
+        assertThat(result).isEmpty();
     }
 
     @Test
@@ -319,9 +320,19 @@ class InntektsmeldingValidererUtilTest {
     }
 
     @Test
-    void skal_avvise_tariffendring_ble_kjent_lik_startdato() {
+    void skal_godkjenne_tariffendring_ble_kjent_lik_eller_etter_startdato_når_fom_er_før_startdato() {
         var årsaker = List.of(
             lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO.minusDays(1), null,
+                STARTDATO.plusDays(1))
+        );
+        var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void skal_avvise_tariffendring_fom_lik_startdato() {
+        var årsaker = List.of(
+            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO, null,
                 STARTDATO)
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
@@ -329,10 +340,10 @@ class InntektsmeldingValidererUtilTest {
     }
 
     @Test
-    void skal_avvise_tariffendring_ble_kjent_etter_startdato() {
+    void skal_avvise_tariffendring_fom_etter_startdato() {
         var årsaker = List.of(
-            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO.minusDays(1), null,
-                STARTDATO.plusDays(1))
+            lagEndringsårsak(InntektsmeldingRequest.InntektInfo.Endringsaarsak.EndringsaarsakType.Tariffendring, STARTDATO.plusDays(1), null,
+                STARTDATO.plusDays(2))
         );
         var result = InntektsmeldingValidererUtil.validerEndringsårsaker(årsaker, STARTDATO);
         assertThat(result).hasValue(EksponertFeilmelding.KREVER_GJELDER_FRA_FOER_STARTDATO);
