@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.server.app.api.ApiConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.server.app.internal.InternalApiConfig;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.vedtak.log.util.LoggerUtils;
 
 public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
@@ -151,8 +152,14 @@ public class JettyServer {
             // Write the JSON response
             response.write(true, ByteBuffer.wrap(toJson(errorResponse).getBytes(StandardCharsets.UTF_8)), callback);
 
-            // Logg error
-            LOG.warn("Jetty error handler triggered: {} {}", code, message);
+            var metode = request.getMethod();
+            var sti = LoggerUtils.removeLineBreaks(Request.getPathInContext(request));
+            // 4xx skyldes klienten (bl.a. sårbarhetsskannere mot ukjente stier) og skal ikke gi warn-støy
+            if (HttpStatus.isServerError(code)) {
+                LOG.warn("Jetty error handler triggered: {} {} for {} {}", code, message, metode, sti);
+            } else {
+                LOG.info("Jetty error handler triggered: {} {} for {} {}", code, message, metode, sti);
+            }
 
             // Return true to indicate that the request has been handled
             return true;
