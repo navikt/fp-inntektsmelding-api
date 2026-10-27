@@ -26,8 +26,8 @@ public record InntektsmeldingDto(@NotNull Long loepenr,
                                  @NotNull Inntekt inntekt,
                                  @NotNull LocalDateTime innsendtTid,
                                  @NotNull AvsenderSystem avsender,
-                                 Refusjon refusjon,
-                                 List<Naturalytelse> naturalytelser,
+                                 RefusjonResponse refusjon,
+                                 List<NaturalytelseResponse> naturalytelser,
                                  @NotNull InntektsmeldingStatusDto status,
                                  @NotNull InnsendingstypeDto typeInnsending) {
 
@@ -37,13 +37,13 @@ public record InntektsmeldingDto(@NotNull Long loepenr,
     public record InntektsmeldingArbeidsgiver(@NotNull @Pattern(regexp = "^\\d{9}$") String orgnr, @NotNull Kontaktperson kontaktperson) {
     }
 
-    public record Refusjon(@NotNull BigDecimal beloepPerMaaned, @NotNull List<RefusjonEndring> endringer) {
+    public record RefusjonResponse(@NotNull BigDecimal beloepPerMaaned, @NotNull List<RefusjonEndringResponse> endringer) {
     }
 
     public record InntektEndringsårsaker(@NotNull EndringsårsakDto aarsak, LocalDate fom, LocalDate tom, LocalDate bleKjentFom) {
     }
 
-    public record RefusjonEndring(@NotNull BigDecimal beloepPerMaaned, @NotNull LocalDate fom) {
+    public record RefusjonEndringResponse(@NotNull BigDecimal beloepPerMaaned, @NotNull LocalDate fom) {
     }
 
     public record AvsenderSystem(@NotNull String systemNavn, @NotNull String systemVersjon) {
@@ -52,7 +52,6 @@ public record InntektsmeldingDto(@NotNull Long loepenr,
     public record Kontaktperson(@NotNull String navn, @NotNull String telefonnummer) {
     }
 
-    public record Naturalytelse(@NotNull BigDecimal verdi, @NotNull LocalDate sluttdato, @NotNull NaturalytelsetypeDto naturalytelse) {
+    public record NaturalytelseResponse(@NotNull BigDecimal verdi, @NotNull LocalDate sluttdato, @NotNull NaturalytelsetypeDto naturalytelse) {
     }
 }
-

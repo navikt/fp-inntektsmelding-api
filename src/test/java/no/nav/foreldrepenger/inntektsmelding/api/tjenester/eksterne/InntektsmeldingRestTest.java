@@ -2,9 +2,13 @@ package no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne;
 
 import jakarta.ws.rs.core.Response;
 
+import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
 import no.nav.foreldrepenger.inntektsmelding.api.forespørsel.Forespørsel;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.Inntektsmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingDto;
+import no.nav.foreldrepenger.inntektsmelding.api.inntektsmelding.InntektsmeldingMapper;
 import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.FpinntektsmeldingTjeneste;
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
@@ -31,6 +35,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -138,6 +143,35 @@ class InntektsmeldingRestTest {
     }
 
     @Test
+    void skal_returnere_liste_med_en_inntektsmelding_ved_søk_med_id() {
+        var orgnr = "999999999";
+        var inntektsmelding = lagInntektsmelding(orgnr);
+        var id = inntektsmelding.inntektsmeldingUuid();
+        var filter = new InntektsmeldingFilter(orgnr, null, null, id, null, null, null, null, null);
+        when(fpinntektsmeldingTjeneste.hentInntektsmelding(id)).thenReturn(inntektsmelding);
+
+        var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isEqualTo(List.of(InntektsmeldingMapper.mapTilDto(inntektsmelding)));
+        verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
+    }
+
+    @Test
+    void skal_returnere_tom_liste_ved_søk_med_id_uten_treff() {
+        var orgnr = "999999999";
+        var id = UUID.randomUUID();
+        var filter = new InntektsmeldingFilter(orgnr, null, null, id, null, null, null, null, null);
+        when(fpinntektsmeldingTjeneste.hentInntektsmelding(id)).thenReturn(null);
+
+        var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isEqualTo(List.of());
+        verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
+    }
+
+    @Test
     void skal_returnere_bad_request_når_fom_er_etter_tom_med_innsendingId() {
         var orgnr = "999999999";
         var innsendingId = UUID.randomUUID();
@@ -151,6 +185,81 @@ class InntektsmeldingRestTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         var errorResponse = (ErrorResponse) response.getEntity();
         assertThat(errorResponse.feilmelding()).isEqualTo(EksponertFeilmelding.UGYLDIG_PERIODE.getTekst());
+    }
+
+    @Test
+    void skal_generere_distinkte_openapi_skjemaer_for_request_og_response() {
+        var openApi = genererOpenApi();
+        var schemas = openApi.getComponents().getSchemas();
+
+        assertThat(schemas).containsKeys(
+            "Naturalytelse", "NaturalytelseResponse",
+            "Refusjon", "RefusjonResponse",
+            "RefusjonEndring", "RefusjonEndringResponse"
+        );
+
+        assertThat(property(openApi, "InntektsmeldingRequest", "refusjon").get$ref())
+            .isEqualTo("#/components/schemas/Refusjon");
+        assertThat(property(openApi, "InntektsmeldingRequest", "naturalytelser").getItems().get$ref())
+            .isEqualTo("#/components/schemas/Naturalytelse");
+        assertThat(property(openApi, "Refusjon", "endringer").getItems().get$ref())
+            .isEqualTo("#/components/schemas/RefusjonEndring");
+        assertThat(schemas.get("Naturalytelse").getProperties().keySet())
+            .contains("beloepPerMaaned", "bortfallerFra", "bortfallerTil");
+        assertThat(dereference(openApi, property(openApi, "Naturalytelse", "naturalytelse")).getEnum())
+            .extracting(Object::toString)
+            .contains("AksjerGrunnfondsbevisTilUnderkurs")
+            .doesNotContain("AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS");
+        assertThat(schemas.get("RefusjonEndring").getProperties().keySet()).contains("startdato");
+        assertThat(schemas.get("RefusjonEndring").getProperties().keySet()).doesNotContain("fom");
+
+        assertThat(property(openApi, "InntektsmeldingDto", "refusjon").get$ref())
+            .isEqualTo("#/components/schemas/RefusjonResponse");
+        assertThat(property(openApi, "InntektsmeldingDto", "naturalytelser").getItems().get$ref())
+            .isEqualTo("#/components/schemas/NaturalytelseResponse");
+        assertThat(property(openApi, "RefusjonResponse", "endringer").getItems().get$ref())
+            .isEqualTo("#/components/schemas/RefusjonEndringResponse");
+        assertThat(schemas.get("NaturalytelseResponse").getProperties().keySet())
+            .contains("verdi", "sluttdato", "naturalytelse");
+        assertThat(dereference(openApi, property(openApi, "NaturalytelseResponse", "naturalytelse")).getEnum())
+            .extracting(Object::toString)
+            .contains("ELEKTRONISK_KOMMUNIKASJON")
+            .doesNotContain("ElektroniskKommunikasjon");
+        assertThat(schemas.get("RefusjonEndringResponse").getProperties().keySet()).contains("fom");
+        assertThat(schemas.get("RefusjonEndringResponse").getProperties().keySet()).doesNotContain("startdato");
+    }
+
+    @Test
+    void skal_generere_søkerespons_som_liste() {
+        var openApi = genererOpenApi();
+        Schema<?> responseSchema = openApi.getPaths()
+            .get("/inntektsmelding/hent/inntektsmeldinger")
+            .getPost()
+            .getResponses()
+            .get("200")
+            .getContent()
+            .get("application/json")
+            .getSchema();
+
+        assertThat(responseSchema.getType()).isEqualTo("array");
+        assertThat(responseSchema.getItems().get$ref()).isEqualTo("#/components/schemas/InntektsmeldingDto");
+        assertThat(responseSchema.getOneOf()).isNullOrEmpty();
+    }
+
+    private Schema<?> property(OpenAPI openApi, String schemaName, String propertyName) {
+        return (Schema<?>) openApi.getComponents().getSchemas().get(schemaName).getProperties().get(propertyName);
+    }
+
+    private Schema<?> dereference(OpenAPI openApi, Schema<?> schema) {
+        if (schema.get$ref() == null) {
+            return schema;
+        }
+        var schemaName = schema.get$ref().substring(schema.get$ref().lastIndexOf('/') + 1);
+        return (Schema<?>) openApi.getComponents().getSchemas().get(schemaName);
+    }
+
+    private OpenAPI genererOpenApi() {
+        return new Reader(new OpenAPI().openapi("3.2.0")).read(Set.of(InntektsmeldingRest.class));
     }
 
     private Inntektsmelding lagInntektsmelding(String orgnr) {
