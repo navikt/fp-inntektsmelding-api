@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.inntektsmelding.api.tjenester.eksterne;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -205,7 +206,7 @@ public class InntektsmeldingRest {
             var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingFilter.inntektsmeldingId());
             if (inntektsmelding == null) {
                 LOG.info("Inntektsmelding med inntektsmeldingId {} ikke funnet.", inntektsmeldingFilter.inntektsmeldingId());
-                return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(), EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst(), inntektsmeldingFilter.inntektsmeldingId().toString())).build();
+                return Response.ok(List.of()).build();
             }
             if (datoerErUgyldige(inntektsmeldingFilter)) {
                 return Response.status(Response.Status.BAD_REQUEST)
@@ -216,7 +217,7 @@ public class InntektsmeldingRest {
             var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
 
             return Response.status(Response.Status.OK)
-                .entity(dto)
+                .entity(List.of(dto))
                 .build();
         }
 
