@@ -132,9 +132,9 @@ public class InntektsmeldingRest {
                     .entity(errorResponse)
                     .build();
             } else {
-            return Response.status(Response.Status.BAD_REQUEST)
-                .entity(errorResponse)
-                .build();
+                return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(errorResponse)
+                    .build();
             }
         }
     }

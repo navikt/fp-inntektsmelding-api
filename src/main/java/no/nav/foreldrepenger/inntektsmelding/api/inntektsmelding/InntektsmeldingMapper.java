@@ -24,7 +24,7 @@ public class InntektsmeldingMapper {
             inntektsmelding.avsenderSystem().versjon());
         var alleRefusjonsendringer = mapRefusjon(inntektsmelding);
         var naturalytelser = mapNaturalytelser(inntektsmelding);
-        var refusjon = new InntektsmeldingDto.Refusjon(inntektsmelding.månedRefusjon(), alleRefusjonsendringer);
+        var refusjon = new InntektsmeldingDto.RefusjonResponse(inntektsmelding.månedRefusjon(), alleRefusjonsendringer);
         return new InntektsmeldingDto(inntektsmelding.loepenr(),
             inntektsmelding.inntektsmeldingUuid(),
             inntektsmelding.forespoerselId(),
@@ -60,10 +60,10 @@ public class InntektsmeldingMapper {
         };
     }
 
-    private static List<InntektsmeldingDto.Naturalytelse> mapNaturalytelser(Inntektsmelding inntektsmelding) {
+    private static List<InntektsmeldingDto.NaturalytelseResponse> mapNaturalytelser(Inntektsmelding inntektsmelding) {
         return inntektsmelding.bortfaltNaturalytelsePerioder()
             .stream()
-            .map(n -> new InntektsmeldingDto.Naturalytelse(n.beløp(), n.fom(), n.naturalytelsetype()))
+            .map(n -> new InntektsmeldingDto.NaturalytelseResponse(n.beløp(), n.fom(), n.naturalytelsetype()))
             .toList();
     }
 
@@ -74,13 +74,13 @@ public class InntektsmeldingMapper {
             .toList();
     }
 
-    private static List<InntektsmeldingDto.RefusjonEndring> mapRefusjon(Inntektsmelding inntektsmelding) {
+    private static List<InntektsmeldingDto.RefusjonEndringResponse> mapRefusjon(Inntektsmelding inntektsmelding) {
         var listeMedEndringer = inntektsmelding.refusjon()
             .stream()
-            .map(r -> new InntektsmeldingDto.RefusjonEndring(r.beløp(), r.fom()))
+            .map(r -> new InntektsmeldingDto.RefusjonEndringResponse(r.beløp(), r.fom()))
             .collect(Collectors.toList());
         if (inntektsmelding.opphørsdatoRefusjon() != null && !inntektsmelding.opphørsdatoRefusjon().equals(Tid.TIDENES_ENDE)) {
-            listeMedEndringer.add(new InntektsmeldingDto.RefusjonEndring(BigDecimal.ZERO, inntektsmelding.opphørsdatoRefusjon()));
+            listeMedEndringer.add(new InntektsmeldingDto.RefusjonEndringResponse(BigDecimal.ZERO, inntektsmelding.opphørsdatoRefusjon()));
         }
         return listeMedEndringer;
     }

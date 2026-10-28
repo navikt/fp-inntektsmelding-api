@@ -125,7 +125,7 @@ class InntektsmeldingRestTest {
 
         var inntektsmelding = lagInntektsmelding(orgnr);
         when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, fnr, forespørselId, YtelseType.FORELDREPENGER, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31), null,
-           null))
+            null))
             .thenReturn(List.of(inntektsmelding));
 
         var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
