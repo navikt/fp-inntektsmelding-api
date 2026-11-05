@@ -80,7 +80,7 @@ public class InntektsmeldingMapper {
             .map(r -> new InntektsmeldingDto.RefusjonEndringResponse(r.beløp(), r.fom()))
             .collect(Collectors.toList());
         if (inntektsmelding.opphørsdatoRefusjon() != null && !inntektsmelding.opphørsdatoRefusjon().equals(Tid.TIDENES_ENDE)) {
-            listeMedEndringer.add(new InntektsmeldingDto.RefusjonEndringResponse(BigDecimal.ZERO, inntektsmelding.opphørsdatoRefusjon()));
+            listeMedEndringer.add(new InntektsmeldingDto.RefusjonEndringResponse(BigDecimal.ZERO, inntektsmelding.opphørsdatoRefusjon().plusDays(1)));
         }
         return listeMedEndringer;
     }
