@@ -91,8 +91,8 @@ class InntektsmeldingMapperTest {
     }
 
     @Test
-    void skal_mappe_refusjon_med_opphørsdato() {
-        var opphørsdato = LocalDate.of(2024, 6, 1);
+    void skal_mappe_opphørsdato_til_første_dag_uten_refusjon() {
+        var opphørsdato = LocalDate.of(2026, 4, 15);
         var inntektsmelding = lagInntektsmeldingBuilder(List.of(), List.of(), List.of(), opphørsdato, MÅNEDS_REFUSJON);
 
         var dto = InntektsmeldingMapper.mapTilDto(inntektsmelding);
@@ -101,7 +101,7 @@ class InntektsmeldingMapperTest {
         assertThat(dto.refusjon().endringer()).hasSize(1);
         var opphørEndring = dto.refusjon().endringer().getFirst();
         assertThat(opphørEndring.beloepPerMaaned()).isEqualByComparingTo(BigDecimal.ZERO);
-        assertThat(opphørEndring.fom()).isEqualTo(opphørsdato);
+        assertThat(opphørEndring.fom()).isEqualTo(LocalDate.of(2026, 4, 16));
     }
 
     @Test
@@ -116,7 +116,7 @@ class InntektsmeldingMapperTest {
         assertThat(dto.refusjon().endringer()).hasSize(2);
         assertThat(dto.refusjon().endringer().get(0).beloepPerMaaned()).isEqualByComparingTo(new BigDecimal("20000.00"));
         assertThat(dto.refusjon().endringer().get(1).beloepPerMaaned()).isEqualByComparingTo(BigDecimal.ZERO);
-        assertThat(dto.refusjon().endringer().get(1).fom()).isEqualTo(opphørsdato);
+        assertThat(dto.refusjon().endringer().get(1).fom()).isEqualTo(LocalDate.of(2024, 6, 2));
     }
 
     @Test
@@ -246,4 +246,3 @@ class InntektsmeldingMapperTest {
         );
     }
 }
-
