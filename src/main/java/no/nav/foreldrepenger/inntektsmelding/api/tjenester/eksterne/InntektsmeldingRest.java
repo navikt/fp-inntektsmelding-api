@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.Fpinntektsmelding
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatusDto;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.Organisasjonsnummer;
 import no.nav.foreldrepenger.inntektsmelding.felles.FeilkodeDto;
@@ -200,13 +201,15 @@ public class InntektsmeldingRest {
         content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     public Response hentInntektsmeldinger(@NotNull @Valid InntektsmeldingFilter inntektsmeldingFilter) {
         LOG.info("Innkomende kall på API for søk etter inntektsmeldinger");
-        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(inntektsmeldingFilter.orgnr()));
+        var tilgangskontrollertOrgnummer = new Organisasjonsnummer(inntektsmeldingFilter.orgnr());
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(tilgangskontrollertOrgnummer);
         if (inntektsmeldingFilter.inntektsmeldingId() != null) {
             var inntektsmelding = fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmeldingFilter.inntektsmeldingId());
             if (inntektsmelding == null) {
                 LOG.info("Inntektsmelding med inntektsmeldingId {} ikke funnet.", inntektsmeldingFilter.inntektsmeldingId());
                 return Response.ok(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(), EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst(), inntektsmeldingFilter.inntektsmeldingId().toString())).build();
             }
+            sjekkAtOrganisasjonSamsvarer(inntektsmelding.orgnr(), tilgangskontrollertOrgnummer);
             if (datoerErUgyldige(inntektsmeldingFilter)) {
                 return Response.status(Response.Status.BAD_REQUEST)
                     .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst()))
@@ -229,11 +232,19 @@ public class InntektsmeldingRest {
             inntektsmeldingFilter.fraLoepenr(),
             inntektsmeldingFilter.status());
 
+        inntektsmeldinger.forEach(inntektsmelding ->
+            sjekkAtOrganisasjonSamsvarer(inntektsmelding.orgnr(), tilgangskontrollertOrgnummer));
         var dto = inntektsmeldinger.stream().map(InntektsmeldingMapper::mapTilDto).toList();
 
         return Response.status(Response.Status.OK)
             .entity(dto)
             .build();
+    }
+
+    private void sjekkAtOrganisasjonSamsvarer(Organisasjonsnummer orgnummerFraInntektsmelding, Organisasjonsnummer tilgangskontrollertOrgnummer) {
+        if (!tilgangskontrollertOrgnummer.equals(orgnummerFraInntektsmelding)) {
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.IKKE_TILGANG_ALTINN, Response.Status.UNAUTHORIZED);
+        }
     }
 
     private boolean datoerErUgyldige(InntektsmeldingFilter filterRequest) {

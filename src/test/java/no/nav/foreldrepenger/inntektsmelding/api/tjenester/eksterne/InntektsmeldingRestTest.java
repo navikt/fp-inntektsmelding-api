@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.inntektsmelding.api.integrasjoner.Fpinntektsmelding
 import no.nav.foreldrepenger.inntektsmelding.api.server.auth.Tilgang;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.EksponertFeilmelding;
 import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse;
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.ForespørselStatus;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InnsendingType;
 import no.nav.foreldrepenger.inntektsmelding.api.typer.InntektsmeldingStatus;
@@ -23,6 +24,8 @@ import no.nav.foreldrepenger.inntektsmelding.imapi.inntektsmelding.SendInntektsm
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,8 +37,10 @@ import java.util.Random;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -134,6 +139,91 @@ class InntektsmeldingRestTest {
         @SuppressWarnings("unchecked")
         var dtoList = (List<InntektsmeldingDto>) response.getEntity();
         assertThat(dtoList).hasSize(1);
+        verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
+    }
+
+    @Test
+    void skal_avvise_innsendingId_for_annen_organisasjon_enn_filteret() {
+        var orgnr = "999999999";
+        var inntektsmelding = lagInntektsmelding("888888888");
+        var filter = new InntektsmeldingFilter(orgnr, null, null, inntektsmelding.inntektsmeldingUuid(),
+            null, null, null, null, null);
+        when(fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmelding.inntektsmeldingUuid())).thenReturn(inntektsmelding);
+
+        var ex = assertThrows(InntektsmeldingAPIException.class, () -> inntektsmeldingRest.hentInntektsmeldinger(filter));
+
+        assertThat(ex.getFeilmelding()).isEqualTo(EksponertFeilmelding.IKKE_TILGANG_ALTINN);
+        assertThat(ex.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED);
+        verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
+        verifyNoMoreInteractions(tilgang);
+    }
+
+    @Test
+    void skal_hente_innsendingId_for_samme_organisasjon_som_filteret() {
+        var orgnr = "999999999";
+        var inntektsmelding = lagInntektsmelding(orgnr);
+        var filter = new InntektsmeldingFilter(orgnr, null, null, inntektsmelding.inntektsmeldingUuid(),
+            null, null, null, null, null);
+        when(fpinntektsmeldingTjeneste.hentInntektsmelding(inntektsmelding.inntektsmeldingUuid())).thenReturn(inntektsmelding);
+
+        var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        var dto = (InntektsmeldingDto) response.getEntity();
+        assertThat(dto.inntektsmeldingId()).isEqualTo(inntektsmelding.inntektsmeldingUuid());
+        assertThat(dto.arbeidsgiver().orgnr()).isEqualTo(orgnr);
+        verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
+        verifyNoMoreInteractions(tilgang);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void skal_avvise_hele_forespørseloppslaget_når_en_inntektsmelding_tilhører_annen_organisasjon(boolean inkluderEgenOrganisasjon) {
+        var orgnr = "999999999";
+        var forespørselId = UUID.randomUUID();
+        var filter = new InntektsmeldingFilter(orgnr, null, forespørselId, null, null, null, null, null, null);
+        var fremmedInntektsmelding = lagInntektsmelding("888888888");
+        var inntektsmeldinger = inkluderEgenOrganisasjon
+            ? List.of(lagInntektsmelding(orgnr), fremmedInntektsmelding)
+            : List.of(fremmedInntektsmelding);
+        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, null, forespørselId, null, null, null, null, null))
+            .thenReturn(inntektsmeldinger);
+
+        var ex = assertThrows(InntektsmeldingAPIException.class, () -> inntektsmeldingRest.hentInntektsmeldinger(filter));
+
+        assertThat(ex.getFeilmelding()).isEqualTo(EksponertFeilmelding.IKKE_TILGANG_ALTINN);
+        assertThat(ex.getStatus()).isEqualTo(Response.Status.UNAUTHORIZED);
+        verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
+        verifyNoMoreInteractions(tilgang);
+    }
+
+    @Test
+    void skal_returnere_tom_liste_når_forespørseloppslaget_ikke_har_inntektsmeldinger() {
+        var orgnr = "999999999";
+        var forespørselId = UUID.randomUUID();
+        var filter = new InntektsmeldingFilter(orgnr, null, forespørselId, null, null, null, null, null, null);
+        when(fpinntektsmeldingTjeneste.hentInntektsmeldinger(orgnr, null, forespørselId, null, null, null, null, null))
+            .thenReturn(List.of());
+
+        var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isEqualTo(List.of());
+        verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
+    }
+
+    @Test
+    void skal_beholde_feilrespons_når_innsendingId_ikke_finnes() {
+        var orgnr = "999999999";
+        var innsendingId = UUID.randomUUID();
+        var filter = new InntektsmeldingFilter(orgnr, null, null, innsendingId, null, null, null, null, null);
+        when(fpinntektsmeldingTjeneste.hentInntektsmelding(innsendingId)).thenReturn(null);
+
+        var response = inntektsmeldingRest.hentInntektsmeldinger(filter);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.getEntity()).isEqualTo(new ErrorResponse(EksponertFeilmelding.TOM_INNTEKTSMELDING.name(),
+            EksponertFeilmelding.TOM_INNTEKTSMELDING.getTekst(), innsendingId.toString()));
         verify(tilgang).sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(orgnr));
     }
 
