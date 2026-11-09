@@ -17,6 +17,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.InntektsmeldingAPIException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,14 +111,17 @@ public class ForespørselRest {
         content = @Content(schema = @Schema(implementation = no.nav.foreldrepenger.inntektsmelding.api.server.exceptions.ErrorResponse.class)))
     public Response hentForespørsler(@NotNull @Valid ForespørselFilter filterRequest) {
         LOG.info("Innkomende kall på API for søk etter forespørsler");
-        secureLogger.info("Innkommende kall på søk etter forespørsler fra {}", filterRequest.orgnr());
+        var tilgangskontrollertOrgnummer = new Organisasjonsnummer(filterRequest.orgnr());
+        secureLogger.info("Innkommende kall på søk etter forespørsler fra {}", tilgangskontrollertOrgnummer);
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(tilgangskontrollertOrgnummer);
+
         // Det er spurt etter en spesifikk forespørsel, henter kun denne
         if (filterRequest.forespoerselId() != null) {
             Forespørsel forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(filterRequest.forespoerselId());
             if (forespørsel == null) {
                 return Response.ok(List.of()).build();
             }
-            tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(forespørsel.orgnummer());
+            sjekkAtOrganisasjonSamsvarer(forespørsel.orgnummer(), tilgangskontrollertOrgnummer);
             return Response.ok(List.of(mapTilDto(forespørsel))).build();
         }
 
@@ -125,15 +130,15 @@ public class ForespørselRest {
                  .entity(new ErrorResponse(EksponertFeilmelding.UGYLDIG_PERIODE.name(), EksponertFeilmelding.UGYLDIG_PERIODE.getTekst()))
                  .build();
         }
-
-        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(filterRequest.orgnr()));
-        var forespørsler = fpinntektsmeldingTjeneste.hentForespørsler(filterRequest.orgnr(),
+        var forespørsler = fpinntektsmeldingTjeneste.hentForespørsler(tilgangskontrollertOrgnummer.orgnr(),
             filterRequest.soekerFnr(),
             filterRequest.status(),
             filterRequest.ytelseType(),
             filterRequest.fom(),
             filterRequest.tom(),
             filterRequest.fraLoepenr());
+
+        forespørsler.forEach(f -> sjekkAtOrganisasjonSamsvarer(f.orgnummer(), tilgangskontrollertOrgnummer));
 
         var dtoer = forespørsler.stream().map(this::mapTilDto).toList();
         LOG.info("Returnerer {} forespørsler", dtoer.size());
@@ -155,4 +160,11 @@ public class ForespørselRest {
             KodeverkMapper.mapTilDto(forespørsel.ytelseType()),
             forespørsel.opprettetTid());
     }
+
+    private void sjekkAtOrganisasjonSamsvarer(Organisasjonsnummer orgnummerFraInntektsmelding, Organisasjonsnummer tilgangskontrollertOrgnummer) {
+        if (!tilgangskontrollertOrgnummer.equals(orgnummerFraInntektsmelding)) {
+            throw new InntektsmeldingAPIException(EksponertFeilmelding.IKKE_TILGANG_ALTINN, Response.Status.UNAUTHORIZED);
+        }
+    }
+
 }

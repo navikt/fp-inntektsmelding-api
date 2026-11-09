@@ -86,7 +86,6 @@ public class InntektsmeldingRest {
         var forespørselUuid = inntektsmeldingRequest.forespoerselId();
         LOG.info("Mottatt inntektsmeldling via API for forespørselUuid {} ", forespørselUuid);
         var forespørsel = fpinntektsmeldingTjeneste.hentForespørsel(forespørselUuid);
-
         if (forespørsel == null) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel ikke funnet.", forespørselUuid);
             return Response.status(Response.Status.NOT_FOUND)
@@ -96,6 +95,7 @@ public class InntektsmeldingRest {
                 .build();
         }
 
+        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer().orgnr()));
         if (!forespørsel.fødselsnummer().equals(inntektsmeldingRequest.soekerFnr())) {
             LOG.info("Avvist inntektsmelding for forespørselUuid {}. Forespørsel og inntektsmelding har ikke samme fødselsnummer.", forespørselUuid);
             return Response.status(Response.Status.BAD_REQUEST)
@@ -104,8 +104,6 @@ public class InntektsmeldingRest {
                     forespørselUuid.toString()))
                 .build();
         }
-
-        tilgang.sjekkAtSystemHarTilgangTilOrganisasjon(new Organisasjonsnummer(forespørsel.orgnummer().orgnr()));
 
         var feilmelding = InntektsmeldingValidererUtil.validerInntektsmelding(inntektsmeldingRequest, forespørsel);
         if (feilmelding.isPresent()) {
